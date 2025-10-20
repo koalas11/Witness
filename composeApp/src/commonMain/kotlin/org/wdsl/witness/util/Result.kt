@@ -1,0 +1,31 @@
+package org.wdsl.witness.util
+
+import org.wdsl.witness.repository.RepositoryError
+
+/**
+ * A sealed class representing the result of an operation, which can be either a success or an error.
+ */
+sealed class Result<out T> {
+    data class Success<out T>(val data: T) : Result<T>()
+    data class Error(val error: RepositoryError) : Result<Nothing>()
+
+    /**
+     * Returns the value of the [Success] result
+     */
+    suspend fun onSuccess(action: suspend (T) -> Unit): Result<T> {
+        if (this is Success) {
+            action(data)
+        }
+        return this
+    }
+
+    /**
+     * Returns the value of the [Error] result
+     */
+    suspend fun onError(action: suspend (RepositoryError) -> Unit): Result<T> {
+        if (this is Error) {
+            action(error)
+        }
+        return this
+    }
+}
