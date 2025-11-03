@@ -1,19 +1,19 @@
-package org.wdsl.witness.repository
+package org.wdsl.witness.util
 
 /**
  * Sealed interface representing repository errors
  */
-sealed interface RepositoryError {
+interface ResultError {
     val message: String
 
     data class UnknownError(
         override val message: String
-    ) : RepositoryError
+    ) : ResultError
 }
 
 /**
  * Exception class for repository errors
  */
-internal class RepositoryException(
-    val error: RepositoryError
+internal class ResultException(
+    val error: ResultError
 ) : Exception()

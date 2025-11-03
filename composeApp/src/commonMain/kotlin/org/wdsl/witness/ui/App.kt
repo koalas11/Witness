@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.wdsl.witness.LocalNotificationsSetting
 import org.wdsl.witness.ui.navigation.NavHandler
 import org.wdsl.witness.ui.theme.WitnessTheme
 import org.wdsl.witness.viewmodel.AppState
@@ -61,10 +63,13 @@ fun App(
             WitnessTheme(
                 appViewModel = appViewModel,
             ) {
-                NavHandler(
-                    modifier = modifier,
-                    appViewModel = appViewModel,
-                )
+                val notificationsSetting by appViewModel.notificationsSettingStateFlow.collectAsStateWithLifecycle()
+                CompositionLocalProvider(LocalNotificationsSetting provides notificationsSetting) {
+                    NavHandler(
+                        modifier = modifier,
+                        appViewModel = appViewModel,
+                    )
+                }
             }
         }
     }

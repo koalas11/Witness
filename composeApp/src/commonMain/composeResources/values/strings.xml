@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Witness</string>
+    <string name="home_screen_label">Home</string>
+    <string name="settings_screen_label">Settings</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="light_mode">Light</string>
+    <string name="dark_mode">Dark</string>
+    <string name="system_default">System</string>
+    <string name="important_only">Important Only</string>
+    <string name="all_notifications">All Notifications</string>
 </resources>

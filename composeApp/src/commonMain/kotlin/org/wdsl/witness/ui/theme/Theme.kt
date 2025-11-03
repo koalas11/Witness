@@ -8,6 +8,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.wdsl.witness.model.DynamicColorMode
+import org.wdsl.witness.model.ThemeMode
 import org.wdsl.witness.platform
 import org.wdsl.witness.viewmodel.AppViewModel
 
@@ -260,14 +262,25 @@ val unspecified_scheme = ColorFamily(
 @Composable
 fun WitnessTheme(
     appViewModel: AppViewModel,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val platform = platform
-    val darkTheme = platform.isSystemInDarkTheme()
-    val dynamicScheme = platform.getDynamicColor(darkTheme)
-    val enableDynamicTheme by appViewModel.dynamicThemeStateFlow.collectAsStateWithLifecycle()
+    val themeSettings by appViewModel.themeSettingsStateFlow.collectAsStateWithLifecycle()
+
+    val darkTheme = when (themeSettings.second) {
+        ThemeMode.SYSTEM_DEFAULT -> platform.isSystemInDarkTheme()
+        ThemeMode.DARK -> true
+        ThemeMode.LIGHT -> false
+    }
+
+    val dynamicScheme = if (themeSettings.first == DynamicColorMode.ENABLED) {
+        platform.getDynamicColor(darkTheme)
+    } else {
+        null
+    }
+
     val colorScheme = when {
-        enableDynamicTheme && dynamicScheme != null -> dynamicScheme
+        dynamicScheme != null -> dynamicScheme
         darkTheme -> darkScheme
         else -> lightScheme
     }

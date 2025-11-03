@@ -8,6 +8,7 @@ import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import org.wdsl.witness.model.NotificationsSetting
 import org.wdsl.witness.ui.App
 
 /**
@@ -27,6 +28,10 @@ val LocalWitnessExtras = staticCompositionLocalOf<CreationExtras> {
  */
 val LocalPlatformContext = staticCompositionLocalOf<PlatformContext> {
     error("No PlatformContext provided")
+}
+
+val LocalNotificationsSetting = staticCompositionLocalOf<NotificationsSetting> {
+    error("No NotificationSettings provided")
 }
 
 /**

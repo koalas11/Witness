@@ -8,5 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Settings(
     var tutorialDone: Boolean = false,
-    var enableDynamicTheme: Boolean = true,
+    var dynamicColorMode: DynamicColorMode = DynamicColorMode.ENABLED,
+    var themeMode: ThemeMode = ThemeMode.SYSTEM_DEFAULT,
+    var notificationsSetting: NotificationsSetting = NotificationsSetting.ALL_NOTIFICATIONS,
 )

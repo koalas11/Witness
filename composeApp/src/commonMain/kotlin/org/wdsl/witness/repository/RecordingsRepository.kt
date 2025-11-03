@@ -5,6 +5,7 @@ import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.storage.room.RecordingsDao
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
+import org.wdsl.witness.util.ResultError
 
 /**
  * Repository interface for managing recordings.
@@ -37,7 +38,7 @@ class RecordingsRepositoryImpl(
             Result.Success(recordingsDao.getRecordingsFlow())
         } catch (e: Exception) {
             Log.e(TAG, "An unknown error occurred", e)
-            Result.Error(RepositoryError.UnknownError("An unknown error occurred"))
+            Result.Error(ResultError.UnknownError("An unknown error occurred"))
         }
     }
 
@@ -47,7 +48,7 @@ class RecordingsRepositoryImpl(
             Result.Success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "An unknown error occurred", e)
-            Result.Error(RepositoryError.UnknownError("An unknown error occurred"))
+            Result.Error(ResultError.UnknownError("An unknown error occurred"))
         }
     }
 
