@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface RecordingsDao {
     @Query("SELECT * from recording")
-    fun getRecordingsFlow(): Flow<Recording>
+    fun getRecordingsFlow(): Flow<List<Recording>>
 
     @Insert
     suspend fun insertRecording(trip: Recording)

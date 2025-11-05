@@ -2,6 +2,7 @@
     <string name="app_name">Witness</string>
     <string name="home_screen_label">Home</string>
     <string name="settings_screen_label">Settings</string>
+    <string name="recordings_screen_label">Recordings</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
     <string name="light_mode">Light</string>

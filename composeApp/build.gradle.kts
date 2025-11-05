@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +9,7 @@ plugins {
 	alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
@@ -68,6 +70,11 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+        androidMain.dependencies {
+            /* MEDIA 3 */
+            implementation("androidx.media3:media3-exoplayer:1.8.0")
+            implementation("androidx.media3:media3-common-ktx:1.8.0")
+        }
     }
 }
 
@@ -119,4 +126,23 @@ dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
+}
+
+buildkonfig {
+    packageName = "org.wdsl.witness"
+    objectName = "WitnessBuildConfig"
+    // exposeObjectWithName = 'YourAwesomePublicConfig'
+
+    defaultConfigs {
+        buildConfigField(BOOLEAN, "DEBUG_MODE", "false")
+    }
+
+    targetConfigs {
+        create("debug") {
+            buildConfigField(BOOLEAN, "DEBUG_MODE", "true")
+        }
+        create("release") {
+            buildConfigField(BOOLEAN, "DEBUG_MODE", "false")
+        }
+    }
 }

@@ -9,6 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import org.wdsl.witness.ui.HomeScreen
+import org.wdsl.witness.ui.RecordingsScreen
 import org.wdsl.witness.ui.SettingsScreen
 import org.wdsl.witness.ui.common.WitnessBottomBar
 import org.wdsl.witness.ui.common.WitnessTopBar
@@ -56,6 +57,11 @@ fun NavHandler(
                     SettingsScreen(
                         modifier = modifier,
                         appViewModel = appViewModel,
+                    )
+                }
+                entry<ScreenRoute.Recordings> {
+                    RecordingsScreen(
+                        modifier = modifier,
                     )
                 }
             }

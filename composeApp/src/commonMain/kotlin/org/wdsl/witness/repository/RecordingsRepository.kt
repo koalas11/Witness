@@ -15,7 +15,7 @@ interface RecordingsRepository {
      * Retrieves a flow of recordings.
      * @return A Result containing a Flow of Recording objects or an error.
      */
-    fun getRecordingsFlow(): Result<Flow<Recording>>
+    fun getRecordingsFlow(): Result<Flow<List<Recording>>>
 
     /**
      * Inserts a new recording into the repository.
@@ -33,7 +33,7 @@ class RecordingsRepositoryImpl(
     private val recordingsDao: RecordingsDao,
 ): RecordingsRepository {
 
-    override fun getRecordingsFlow(): Result<Flow<Recording>> {
+    override fun getRecordingsFlow(): Result<Flow<List<Recording>>> {
         return try {
             Result.Success(recordingsDao.getRecordingsFlow())
         } catch (e: Exception) {

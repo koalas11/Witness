@@ -1,7 +1,13 @@
 package org.wdsl.witness
 
+import androidx.compose.runtime.Composable
 import platform.UIKit.UIApplication
 
-class IosContext: PlatformContext {
+data class IosContext(
     override val context: UIApplication = UIApplication.sharedApplication
+): PlatformContext
+
+@Composable
+actual fun getPlatformContext(): PlatformContext {
+    return IosContext()
 }
