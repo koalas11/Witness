@@ -1,13 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-	alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    alias(libs.plugins.buildkonfig)
 }
 
 kotlin {
@@ -16,7 +18,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -26,25 +28,29 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         androidMain.dependencies {
-            implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            /* MEDIA 3 */
+            implementation(libs.androidx.media3.exoplayer)
+            implementation(libs.androidx.media3.ktx)
         }
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.preview)
-            implementation(compose.materialIconsExtended)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
+            implementation(libs.compose.ui.tooling.preview)
+            implementation(libs.material.icons.extended)
+
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
             implementation(libs.androidx.window.core)
-            implementation(libs.androidx.savedstate)
+            implementation(libs.androidx.savedstate.compose)
 
             /* SERIALIZATION */
             implementation(libs.serialization.core)
@@ -115,8 +121,26 @@ room {
 }
 
 dependencies {
-    debugImplementation(compose.uiTooling)
+    debugImplementation(libs.compose.ui.tooling)
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
+}
+
+buildkonfig {
+    packageName = "org.wdsl.witness"
+    objectName = "WitnessBuildConfig"
+
+    defaultConfigs {
+        buildConfigField(BOOLEAN, "DEBUG_MODE", "false")
+    }
+
+    targetConfigs {
+        create("debug") {
+            buildConfigField(BOOLEAN, "DEBUG_MODE", "true")
+        }
+        create("release") {
+            buildConfigField(BOOLEAN, "DEBUG_MODE", "false")
+        }
+    }
 }
