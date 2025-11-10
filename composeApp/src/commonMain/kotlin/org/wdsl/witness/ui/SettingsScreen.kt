@@ -2,6 +2,7 @@ package org.wdsl.witness.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -17,6 +18,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.wdsl.witness.model.DynamicColorMode
 import org.wdsl.witness.model.NotificationsSetting
 import org.wdsl.witness.model.ThemeMode
+import org.wdsl.witness.ui.navigation.ScreenRoute
 import org.wdsl.witness.ui.util.handleOperationState
 import org.wdsl.witness.viewmodel.AppState
 import org.wdsl.witness.viewmodel.AppViewModel
@@ -148,6 +150,19 @@ fun SettingsScreen(
                         enabled = enabled,
                     )
                 }
+            }
+            Button(
+                modifier = modifier
+                    .padding(16.dp),
+                onClick = {
+                    appViewModel.navigateTo(ScreenRoute.GoogleProfile)
+                },
+                enabled = enabled,
+            ) {
+                Text(
+                    modifier = modifier,
+                    text = "Go to Google Profile Screen",
+                )
             }
         }
     }

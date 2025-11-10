@@ -6,8 +6,9 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.IOException
-import org.wdsl.witness.model.Settings
+import org.wdsl.witness.model.GoogleOAuth
 import org.wdsl.witness.util.Log
+import org.wdsl.witness.util.cryptoManager
 
 /**
  * Serializer for Settings using Protocol Buffers.
@@ -15,28 +16,28 @@ import org.wdsl.witness.util.Log
  * Implementation based on [Datastore Magic in KMM](https://medium.com/@aribmomin111/unlocking-proto-datastore-magic-in-kmm-d397f40a0805)
  */
 @OptIn(ExperimentalSerializationApi::class)
-object SettingsSerializer : OkioSerializer<Settings> {
-    override val defaultValue: Settings
-        get() = Settings()
+object GoogleOAuthSerializer : OkioSerializer<GoogleOAuth?> {
+    override val defaultValue: GoogleOAuth? = null
 
-    override suspend fun readFrom(source: BufferedSource): Settings {
+    override suspend fun readFrom(source: BufferedSource): GoogleOAuth? {
         return try {
-            ProtoBuf.decodeFromByteArray(Settings.serializer(), source.readByteArray())
+            ProtoBuf.decodeFromByteArray(GoogleOAuth.serializer(), cryptoManager.decrypt(source))
         } catch (e: IOException) {
             Log.e(
                 TAG,
                 "Error occurred when decoding protobuf data: " + (e.message ?: "Unknown Error")
             )
-            defaultValue
+            null
         }
     }
 
-    override suspend fun writeTo(t: Settings, sink: BufferedSink) {
-        val bytes = ProtoBuf.encodeToByteArray(Settings.serializer(), t)
-        sink.write(bytes)
+    override suspend fun writeTo(t: GoogleOAuth?, sink: BufferedSink) {
+        if (t == null) return
+        val bytes = ProtoBuf.encodeToByteArray(GoogleOAuth.serializer(), t)
+        cryptoManager.encrypt(bytes, sink)
     }
 
-    private const val TAG = "Settings Serializer"
+    private const val TAG = "Google OAuth Serializer"
 }
 
-internal const val SETTINGS_DATASTORE_NAME = "settings_datastore.preferences_pb"
+internal const val GOOGLE_OAUTH_DATASTORE_NAME = "google_oauth_datastore.preferences_pb"

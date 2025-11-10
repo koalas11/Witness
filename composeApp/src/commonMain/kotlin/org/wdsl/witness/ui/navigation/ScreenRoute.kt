@@ -20,6 +20,9 @@ interface ScreenRoute : NavKey {
 
     @Serializable
     object Settings: ScreenRoute
+
+    @Serializable
+    object GoogleProfile: ScreenRoute
 }
 
 enum class MainRoute(

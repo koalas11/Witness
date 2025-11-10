@@ -2,10 +2,9 @@ package org.wdsl.witness.util
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import kotlinx.io.Buffer
+import kotlinx.io.Sink
 import kotlinx.io.Source
-import kotlinx.io.asInputStream
-import kotlinx.io.asOutputStream
+import kotlinx.io.readByteArray
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -67,30 +66,27 @@ object AndroidCryptoManager: CryptoManager {
         }.generateKey()
     }
 
-    override fun encrypt(bytes: ByteArray, outputStream: Buffer): ByteArray {
+    override fun encrypt(bytes: ByteArray, sink: Sink) {
         val cipher = encryptCipher
 
         val ciphertext = cipher.doFinal(bytes)
-        outputStream.asOutputStream().use {
-            it.write(cipher.iv.size)
+        sink.use {
+            it.writeInt(cipher.iv.size)
             it.write(cipher.iv)
-            it.write(ciphertext.size - bytes.size)
-            it.write(ciphertext.size)
+            it.writeInt(ciphertext.size - bytes.size)
+            it.writeInt(ciphertext.size)
             it.write(ciphertext)
         }
-        return ciphertext
     }
 
-    override fun decrypt(inputStream: Source): ByteArray {
-        return inputStream.asInputStream().use {
-            val ivSize = it.read()
-            val iv = ByteArray(ivSize)
-            it.read(iv)
+    override fun decrypt(source: Source): ByteArray {
+        return source.use {
+            val ivSize = it.readInt()
+            val iv = it.readByteArray(ivSize)
 
-            val tagSize = it.read()
-            val encryptedSize = it.read()
-            val encryptedBytes = ByteArray(encryptedSize)
-            it.read(encryptedBytes)
+            val tagSize = it.readInt()
+            val encryptedSize = it.readInt()
+            val encryptedBytes = it.readByteArray(encryptedSize)
 
             val cipher = getDecryptCipherForIv(GCMParameterSpec(tagSize * 8, iv))
             val plaintext = cipher.doFinal(encryptedBytes)
@@ -98,3 +94,5 @@ object AndroidCryptoManager: CryptoManager {
         }
     }
 }
+
+actual val cryptoManager: CryptoManager = AndroidCryptoManager

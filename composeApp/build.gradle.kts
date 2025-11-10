@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -32,10 +32,17 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.browser)
 
             /* MEDIA 3 */
             implementation(libs.androidx.media3.exoplayer)
             implementation(libs.androidx.media3.ktx)
+
+            /* KTOR */
+            implementation(libs.ktor.client.okhttp)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -55,6 +62,7 @@ kotlin {
             /* SERIALIZATION */
             implementation(libs.serialization.core)
             implementation(libs.serialization.protobuf)
+            implementation(libs.serialization.json)
 
             /* NAVIGATION 3 */
             implementation(libs.androidx.navigation3.runtime)
@@ -70,6 +78,15 @@ kotlin {
 
             /* KOTLINX */
             implementation(libs.kotlinx.io.core)
+            implementation(libs.kotlinx.io.okio)
+
+            /* KTOR */
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.auth)
+
+            /* COIL */
+            implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+            implementation("io.coil-kt.coil3:coil-network-ktor3:3.3.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
