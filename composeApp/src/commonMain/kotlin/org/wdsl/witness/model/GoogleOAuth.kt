@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class GoogleOAuth(
     @property:SerialName("access_token") val accessToken: String,
     @property:SerialName("expires_in") val expiresIn: Int,
-    @property:SerialName("refresh_token") val refreshToken: String? = null,
+    @property:SerialName("refresh_token") val refreshToken: String,
     val scope: String,
     @property:SerialName("token_type") val tokenType: String,
     @property:SerialName("id_token") val idToken: String,

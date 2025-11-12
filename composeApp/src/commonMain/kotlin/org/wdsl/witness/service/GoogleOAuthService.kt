@@ -13,6 +13,7 @@ import io.ktor.http.Url
 import io.ktor.http.buildUrl
 import io.ktor.http.contentType
 import io.ktor.http.encodedPath
+import io.ktor.utils.io.core.toByteArray
 import kotlinx.serialization.json.Json
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.model.GoogleOAuth
@@ -20,6 +21,7 @@ import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
 import org.wdsl.witness.util.generateCodeChallenge
+import kotlin.io.encoding.Base64
 
 interface GoogleOAuthService {
     fun startGoogleOAuthFlow(platformContext: PlatformContext, codeVerifier: String, state: String) : Result<Unit>
@@ -29,7 +31,9 @@ interface GoogleOAuthService {
     suspend fun refreshGoogleOAuth(googleOAuth: GoogleOAuth): Result<GoogleOAuth>
 }
 
-class GoogleOAuthServiceImpl() : GoogleOAuthService {
+class GoogleOAuthServiceImpl(
+    private val httpClient: HttpClient,
+) : GoogleOAuthService {
     override fun startGoogleOAuthFlow(platformContext: PlatformContext, codeVerifier: String, state: String): Result<Unit> {
         return try {
             val codeChallenge = generateCodeChallenge(codeVerifier)
@@ -41,7 +45,7 @@ class GoogleOAuthServiceImpl() : GoogleOAuthService {
                 parameters.append("client_id", client_id)
                 parameters.append("redirect_uri", REDIRECT_URI)
                 parameters.append("response_type", "code")
-                parameters.append("scope", "email profile")
+                parameters.append("scope", "email profile openid https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/drive.file")
                 parameters.append("state", state)
                 parameters.append("code_challenge", codeChallenge)
                 parameters.append("code_challenge_method", "S256")
@@ -57,25 +61,23 @@ class GoogleOAuthServiceImpl() : GoogleOAuthService {
 
     override suspend fun handleGoogleOAuthResponse(codeVerifier: String, code: String): Result<GoogleOAuth> {
         return try {
-            HttpClient().use { client ->
-                val formParameters = Parameters.build {
-                    append("code", code)
-                    append("client_id", client_id)
-                    append("redirect_uri", REDIRECT_URI)
-                    append("grant_type", "authorization_code")
-                    append("code_verifier", codeVerifier)
-                }
-
-                val response: HttpResponse = client.post("https://oauth2.googleapis.com/token") {
-                    contentType(ContentType.Application.FormUrlEncoded)
-                    setBody(FormDataContent(formParameters))
-                }
-
-                Log.d(TAG, "Received OAuth token response")
-                val googleOAuth = Json.decodeFromString<GoogleOAuth>(response.bodyAsText())
-
-                Result.Success(googleOAuth)
+            val formParameters = Parameters.build {
+                append("code", code)
+                append("client_id", client_id)
+                append("redirect_uri", REDIRECT_URI)
+                append("grant_type", "authorization_code")
+                append("code_verifier", codeVerifier)
             }
+
+            val response: HttpResponse = httpClient.post("https://oauth2.googleapis.com/token") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(FormDataContent(formParameters))
+            }
+
+            Log.d(TAG, "Received OAuth token response")
+            val googleOAuth = Json.decodeFromString<GoogleOAuth>(response.bodyAsText())
+
+            Result.Success(googleOAuth)
         } catch (e: Exception) {
             Log.e(TAG, "Error handling OAuth response", e)
             Result.Error(ResultError.UnknownError("Failed to handle Google OAuth response"))
@@ -84,23 +86,21 @@ class GoogleOAuthServiceImpl() : GoogleOAuthService {
 
     override suspend fun refreshGoogleOAuth(googleOAuth: GoogleOAuth): Result<GoogleOAuth> {
         return try {
-            HttpClient().use { client ->
-                val formParameters = Parameters.build {
-                    append("client_id", client_id)
-                    append("grant_type", "refresh_token")
-                    append("refresh_token", googleOAuth.refreshToken!!)
-                }
-
-                val response: HttpResponse = client.post("https://oauth2.googleapis.com/token") {
-                    contentType(ContentType.Application.FormUrlEncoded)
-                    setBody(FormDataContent(formParameters))
-                }
-
-                Log.d(TAG, "Received OAuth token response")
-                val googleOAuth = Json.decodeFromString<GoogleOAuth>(response.bodyAsText())
-
-                Result.Success(googleOAuth)
+            val formParameters = Parameters.build {
+                append("client_id", client_id)
+                append("grant_type", "refresh_token")
+                append("refresh_token", googleOAuth.refreshToken!!)
             }
+
+            val response: HttpResponse = httpClient.post("https://oauth2.googleapis.com/token") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(FormDataContent(formParameters))
+            }
+
+            Log.d(TAG, "Received OAuth token response")
+            val googleOAuth = Json.decodeFromString<GoogleOAuth>(response.bodyAsText())
+
+            Result.Success(googleOAuth)
         } catch (e: Exception) {
             Log.e(TAG, "Error handling OAuth response", e)
             Result.Error(ResultError.UnknownError("Failed to handle Google OAuth response"))
@@ -109,12 +109,6 @@ class GoogleOAuthServiceImpl() : GoogleOAuthService {
 
     companion object {
         private const val TAG = "GoogleOAuthModule"
-    }
-}
-
-sealed interface OAuthResultError: ResultError {
-    object InvalidToken : OAuthResultError {
-        override val message: String = "The provided token is invalid."
     }
 }
 

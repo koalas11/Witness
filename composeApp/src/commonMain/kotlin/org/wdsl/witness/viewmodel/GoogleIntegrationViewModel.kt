@@ -18,11 +18,11 @@ import org.wdsl.witness.util.Log
 import kotlin.io.encoding.Base64
 import kotlin.random.Random
 
-class GoogleOAuthViewModel(
+class GoogleIntegrationViewModel(
     private val googleIntegrationUseCase: GoogleIntegrationUseCase,
 ) : ViewModel() {
-    private var _googleOAuthUiMutableState = MutableStateFlow<GoogleOAuthUiState>(GoogleOAuthUiState.NoProfile)
-    val googleOAuthUiState : StateFlow<GoogleOAuthUiState> = _googleOAuthUiMutableState.asStateFlow()
+    private var _googleIntegrationUiMutableState = MutableStateFlow<GoogleIntegrationUiState>(GoogleIntegrationUiState.NoProfile)
+    val googleIntegrationUiState : StateFlow<GoogleIntegrationUiState> = _googleIntegrationUiMutableState.asStateFlow()
 
     private var _isInitialized = false
     @MainThread
@@ -37,7 +37,7 @@ class GoogleOAuthViewModel(
                     is GoogleIntegrationState.OAuthInProgress -> {
                     }
                     is GoogleIntegrationState.ProfileLoaded -> {
-                        _googleOAuthUiMutableState.value = GoogleOAuthUiState.Profile(state.googleProfile)
+                        _googleIntegrationUiMutableState.value = GoogleIntegrationUiState.Profile(state.googleProfile)
                     }
                     else -> {
                     }
@@ -55,11 +55,19 @@ class GoogleOAuthViewModel(
         }
     }
 
+    fun sendTestEmail() {
+        viewModelScope.launch {
+            val gpsLat = 46.01
+            val gpsLon = 8.959
+            googleIntegrationUseCase.sendEmergencyEmail("Test Email Witness", gpsLat, gpsLon)
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val googleIntegrationUseCase = witnessAppContainer().googleIntegrationUseCase
-                GoogleOAuthViewModel(
+                GoogleIntegrationViewModel(
                     googleIntegrationUseCase = googleIntegrationUseCase,
                 )
             }
@@ -67,9 +75,9 @@ class GoogleOAuthViewModel(
     }
 }
 
-sealed interface GoogleOAuthUiState {
-    object NoProfile : GoogleOAuthUiState
-    object Loading : GoogleOAuthUiState
-    data class Profile(val googleProfile: GoogleProfile) : GoogleOAuthUiState
-    data class Error(val message: String) : GoogleOAuthUiState
+sealed interface GoogleIntegrationUiState {
+    object NoProfile : GoogleIntegrationUiState
+    object Loading : GoogleIntegrationUiState
+    data class Profile(val googleProfile: GoogleProfile) : GoogleIntegrationUiState
+    data class Error(val message: String) : GoogleIntegrationUiState
 }

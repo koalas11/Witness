@@ -10,6 +10,8 @@ import kotlinx.coroutines.launch
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.model.GoogleProfile
 import org.wdsl.witness.repository.GoogleAccountRepository
+import org.wdsl.witness.service.GoogleDriveService
+import org.wdsl.witness.service.GoogleGmailService
 import org.wdsl.witness.service.GoogleOAuthService
 import org.wdsl.witness.service.GoogleProfileService
 import org.wdsl.witness.util.Log
@@ -19,6 +21,8 @@ class GoogleIntegrationUseCase(
     private val googleAccountRepository: GoogleAccountRepository,
     private val googleOAuthService: GoogleOAuthService,
     private val googleProfileService: GoogleProfileService,
+    private val googleGmailService: GoogleGmailService,
+    private val googleDriveService: GoogleDriveService,
 ) {
     private var _googleIntegrationMutableState: MutableStateFlow<GoogleIntegrationState> =
         MutableStateFlow(GoogleIntegrationState.NoProfile)
@@ -123,11 +127,11 @@ class GoogleIntegrationUseCase(
             }
     }
 
-    private fun updateState() {
-
+    suspend fun sendEmergencyEmail(subject: String, gpsLat: Double, gpsLon: Double) {
+        googleGmailService.sendEmergencyEmails(listOf("marco.sanvito@hotmail.com"), subject, gpsLat, gpsLon)
     }
 
-    private fun executeOAuthOperation(operation: suspend () -> Unit) {
+    private fun updateState() {
 
     }
 
