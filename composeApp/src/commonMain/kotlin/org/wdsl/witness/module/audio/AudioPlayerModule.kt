@@ -1,7 +1,9 @@
 package org.wdsl.witness.module.audio
 
+import org.wdsl.witness.util.Result
+
 interface AudioPlayerModule {
-    fun playAudio(path: String): Result<Unit>
+    fun loadAudio(recordingName: String): Result<Unit>
     fun pauseAudio()
     fun resumeAudio()
     fun stopAudio()
@@ -9,4 +11,5 @@ interface AudioPlayerModule {
     fun isPlaying(): Boolean
     fun getCurrentPosition(): Long
     fun getDuration(): Long
+    fun releasePlayer()
 }

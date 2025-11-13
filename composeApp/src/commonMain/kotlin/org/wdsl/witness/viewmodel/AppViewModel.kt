@@ -14,9 +14,13 @@ import org.wdsl.witness.model.DynamicColorMode
 import org.wdsl.witness.model.NotificationsSetting
 import org.wdsl.witness.model.Settings
 import org.wdsl.witness.model.ThemeMode
+import org.wdsl.witness.module.audio.AudioRecorderModule
+import org.wdsl.witness.repository.RecordingsRepository
 import org.wdsl.witness.repository.SettingsRepository
+import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.ui.navigation.ScreenRoute
 import org.wdsl.witness.util.ResultError
+import kotlin.time.Clock
 
 /**
  * ViewModel for managing application settings and state.
@@ -25,6 +29,8 @@ import org.wdsl.witness.util.ResultError
  */
 class AppViewModel(
     private val settingsRepository: SettingsRepository,
+    private val recordingsRepository: RecordingsRepository,
+    private val audioRecorderModule: AudioRecorderModule,
 ) : ViewModel() {
     private var _themeSettingsMutableStateFlow: MutableStateFlow<Pair<DynamicColorMode, ThemeMode>> = MutableStateFlow(
         Pair(DynamicColorMode.ENABLED, ThemeMode.SYSTEM_DEFAULT)
@@ -40,6 +46,9 @@ class AppViewModel(
     private var _backStack: MutableStateFlow<MutableList<ScreenRoute>> = MutableStateFlow(mutableListOf(
         ScreenRoute.Home))
     val backStack: StateFlow<List<ScreenRoute>> = _backStack.asStateFlow()
+
+    private var _recordingUiMutableState: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val recordingUiState: StateFlow<Boolean> = _recordingUiMutableState.asStateFlow()
 
     private var _isInitialized = false
 
@@ -92,12 +101,43 @@ class AppViewModel(
         _backStack.value = newBackStack
     }
 
+    private var _recordingFileName: String? = null
+
+    fun startAudioRecording() {
+        _recordingUiMutableState.value = true
+        viewModelScope.launch {
+            audioRecorderModule.startRecording().onSuccess {
+                _recordingFileName = it
+            }
+        }
+    }
+
+    fun stopAudioRecording() {
+        requireNotNull(_recordingFileName) { "No recording in progress" }
+        _recordingUiMutableState.value = false
+        viewModelScope.launch {
+            audioRecorderModule.stopRecording()
+            val recording = Recording(
+                id = 0,
+                title = "New Recording",
+                recordingFileName = _recordingFileName!!,
+                durationMs = 0L,
+            )
+            recordingsRepository.insertRecording(recording)
+            _recordingFileName = null
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val settingsRepository = witnessAppContainer().settingsRepository
+                val recordingsRepository = witnessAppContainer().recordingsRepository
+                val audioRecorderModule = witnessAppContainer().audioRecorderModule
                 AppViewModel(
                     settingsRepository = settingsRepository,
+                    recordingsRepository = recordingsRepository,
+                    audioRecorderModule = audioRecorderModule,
                 )
             }
         }

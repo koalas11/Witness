@@ -4,57 +4,69 @@ import android.content.Context
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
+import org.wdsl.witness.util.Log
+import org.wdsl.witness.util.Result
+import org.wdsl.witness.util.ResultError
 
 class AndroidAudioPlayerModule(
     private val context: Context
 ): AudioPlayerModule {
 
-    private val player: ExoPlayer by lazy {
-        ExoPlayer.Builder(context).build()
-    }
+    private var _player: ExoPlayer? = null
 
-    override fun playAudio(path: String): Result<Unit> {
-        return runCatching {
-
-            if(player.isPlaying) player.stop()
-
+    override fun loadAudio(recordingName: String): Result<Unit> {
+        return try {
+            _player = ExoPlayer.Builder(context).build()
+            val path = context.filesDir.resolve(AUDIO_RECORDER_FOLDER).resolve(recordingName)
             val mediaItem = MediaItem.fromUri(path.toUri())
-            player.setMediaItem(mediaItem)
-            player.prepare()
-            player.play()
+            _player!!.setMediaItem(mediaItem)
+            _player!!.prepare()
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.d(TAG, "playAudio: Failed to play audio", e)
+            Result.Error(ResultError.UnknownError("Failed to play audio: ${e.message}"))
         }
     }
 
 
     override fun pauseAudio() {
-        if (player.isPlaying) player.pause()
+        requireNotNull(_player) { "Player is not initialized. Call loadAudio() first." }
+        _player!!.pause()
     }
 
     override fun resumeAudio() {
-        player.play()
+        requireNotNull(_player) { "Player is not initialized. Call loadAudio() first." }
+        _player!!.play()
     }
 
     override fun stopAudio() {
-        player.stop()
+        requireNotNull(_player) { "Player is not initialized. Call loadAudio() first." }
+        _player!!.stop()
     }
 
-    fun releasePlayer() {
-        player.release()
+    override fun releasePlayer() {
+        _player!!.release()
+        _player = null
     }
 
     override fun seekTo(milliseconds: Long) {
-    player.seekTo(milliseconds)
+        requireNotNull(_player) { "Player is not initialized. Call loadAudio() first." }
+        _player!!.seekTo(milliseconds)
     }
 
     override fun isPlaying(): Boolean {
-        return player.isPlaying
+        return _player?.isPlaying ?: false
     }
 
     override fun getCurrentPosition(): Long {
-        return player.currentPosition
+        return _player?.currentPosition ?: 0L
     }
 
     override fun getDuration(): Long {
-        return player.duration.coerceAtLeast(0)
+        return _player?.duration?.coerceAtLeast(0L) ?: 0L
+    }
+
+    companion object {
+        private const val TAG = "AndroidAudioPlayerModule"
     }
 }

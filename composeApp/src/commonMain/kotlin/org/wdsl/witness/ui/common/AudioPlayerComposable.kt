@@ -24,8 +24,7 @@ fun AudioPlayerComposable(
 ) {
     val platformContext = getPlatformContext()
     LaunchedEffect(recording.id) {
-        audioPlayerViewModel.loadRecording(platformContext, recording)
-        audioPlayerViewModel.observeAudioPlayerState()
+        audioPlayerViewModel.loadRecording(recording)
     }
     Column(
         modifier = modifier,

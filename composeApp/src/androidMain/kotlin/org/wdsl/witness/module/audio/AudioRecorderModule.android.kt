@@ -3,6 +3,9 @@ package org.wdsl.witness.module.audio
 import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
+import org.wdsl.witness.util.Log
+import org.wdsl.witness.util.Result
+import org.wdsl.witness.util.ResultError
 import java.io.File
 
 class AndroidAudioRecorderModule(
@@ -20,17 +23,15 @@ class AndroidAudioRecorderModule(
         }
     }
 
-    override fun startRecording(customDirPath: String?): Result<String> {
-        return runCatching {
+    override fun startRecording(): Result<String> {
+        return try {
 
-            val dir =
-                if (customDirPath != null)
-                    File(customDirPath)
-                else context.filesDir
+            val dir = context.filesDir.resolve(AUDIO_RECORDER_FOLDER)
 
             val outputFile = File(
                 dir,
-                "recording_${System.currentTimeMillis()}.m4a")
+                "recording_${System.currentTimeMillis()}.m4a"
+            )
 
             val newRecorder = createRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -43,9 +44,11 @@ class AndroidAudioRecorderModule(
             }
 
             recorder = newRecorder
-            outputFile.absolutePath
-
-        }.onFailure { recorder?.release() }
+            Result.Success(outputFile.name)
+        } catch (e: Exception) {
+            Log.d(TAG, "startRecording: Failed to start recording", e)
+            Result.Error(ResultError.UnknownError("Failed to start recording: ${e.message}"))
+        }
     }
 
     override fun stopRecording() {
@@ -54,5 +57,9 @@ class AndroidAudioRecorderModule(
             release()
         }
         recorder = null
+    }
+
+    companion object {
+        private const val TAG = "Audio Recorder Module"
     }
 }

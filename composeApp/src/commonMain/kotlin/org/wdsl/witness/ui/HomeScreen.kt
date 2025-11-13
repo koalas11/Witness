@@ -1,12 +1,15 @@
 package org.wdsl.witness.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.vectorResource
 import org.wdsl.witness.viewmodel.AppViewModel
 import witness.composeapp.generated.resources.Res
@@ -37,5 +40,18 @@ fun HomeScreen(
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
         )
+        val recordingUiState by appViewModel.recordingUiState.collectAsStateWithLifecycle()
+        Button(
+            modifier = modifier,
+            onClick = {
+                if (recordingUiState) {
+                    appViewModel.stopAudioRecording()
+                } else {
+                    appViewModel.startAudioRecording()
+                }
+            },
+        ) {
+            Text(if (recordingUiState) "Stop Recording" else "Start Recording")
+        }
     }
 }

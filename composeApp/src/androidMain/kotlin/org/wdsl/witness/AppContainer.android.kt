@@ -5,6 +5,10 @@ import org.wdsl.witness.module.AndroidSoundAlertModule
 import org.wdsl.witness.module.AndroidVibrationModule
 import org.wdsl.witness.module.SoundAlertModule
 import org.wdsl.witness.module.VibrationModule
+import org.wdsl.witness.module.audio.AndroidAudioPlayerModule
+import org.wdsl.witness.module.audio.AndroidAudioRecorderModule
+import org.wdsl.witness.module.audio.AudioPlayerModule
+import org.wdsl.witness.module.audio.AudioRecorderModule
 import org.wdsl.witness.util.AndroidCryptoManager
 import org.wdsl.witness.util.CryptoManager
 
@@ -26,5 +30,13 @@ class AndroidAppContainer(
 
     override val soundAlertModule: SoundAlertModule by lazy {
         AndroidSoundAlertModule(context)
+    }
+
+    override val audioRecorderModule: AudioRecorderModule by lazy {
+        AndroidAudioRecorderModule(context)
+    }
+
+    override val audioPlayerModule: AudioPlayerModule by lazy {
+        AndroidAudioPlayerModule(context)
     }
 }

@@ -63,11 +63,6 @@ fun RecordingsScreen(
             .fillMaxSize(),
     ) {
         if (WitnessBuildConfig.DEBUG_MODE) {
-            debugRecordings(
-                modifier,
-            ) { recording ->
-                selectedRecording = recording
-            }
         }
         items(recordings, {it.id}) { recording ->
             RecordingListItem(

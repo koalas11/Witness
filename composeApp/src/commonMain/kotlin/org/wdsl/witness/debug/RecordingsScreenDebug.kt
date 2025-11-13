@@ -95,7 +95,7 @@ fun LazyListScope.debugRecordings(
     val bytesPerSample = 2 // 16-bit PCM
 
     val totalBytes = durationSeconds * sampleRate * channels * bytesPerSample
-    val silentAudio = ByteArray(totalBytes) { 0 }
+    val silentAudio = ByteArray(totalBytes)
     val audio = generateSineWave(
         frequency = 440.0,
         durationSeconds = durationSeconds,
@@ -106,13 +106,15 @@ fun LazyListScope.debugRecordings(
         id = 0,
         title = "Silent Audio",
         durationMs = durationSeconds * 1000L,
-        data = pcmToWav(silentAudio)
+        recordingFileName = "silent_audio.wav",
+        //data = pcmToWav(silentAudio)
     )
     val recording = Recording(
         id = 0,
         title = "Audio Tone 440Hz",
         durationMs = durationSeconds * 1000L,
-        data = pcmToWav(audio)
+        recordingFileName = "audio_tone_440hz.wav",
+        //data = pcmToWav(audio)
     )
     item {
         RecordingListItem(
