@@ -19,8 +19,8 @@ import org.wdsl.witness.repository.RecordingsRepository
 import org.wdsl.witness.repository.SettingsRepository
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.ui.navigation.ScreenRoute
+import org.wdsl.witness.ui.navigation.ShowBackButton
 import org.wdsl.witness.util.ResultError
-import kotlin.time.Clock
 
 /**
  * ViewModel for managing application settings and state.
@@ -101,6 +101,9 @@ class AppViewModel(
         _backStack.value = newBackStack
     }
 
+    fun shouldShowBackButton(): Boolean {
+        return _backStack.value.last() is ShowBackButton
+    }
     private var _recordingFileName: String? = null
 
     fun startAudioRecording() {
@@ -108,6 +111,8 @@ class AppViewModel(
         viewModelScope.launch {
             audioRecorderModule.startRecording().onSuccess {
                 _recordingFileName = it
+            }.onError {
+                _recordingUiMutableState.value = false
             }
         }
     }

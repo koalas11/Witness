@@ -2,7 +2,6 @@ package org.wdsl.witness.storage.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlin.time.Duration
 
 /**
  * Data class representing a recording entity in the Room database.

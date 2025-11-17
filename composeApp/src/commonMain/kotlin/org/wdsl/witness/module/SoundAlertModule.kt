@@ -1,7 +1,9 @@
 package org.wdsl.witness.module
 
-interface SoundAlertModule {
-    fun playAlertSound()
+import org.wdsl.witness.util.Result
 
-    fun stopAlertSound()
+interface SoundAlertModule {
+    fun isSoundAlertSupported(): Result<Boolean>
+    fun playAlertSound(): Result<Unit>
+    fun stopAlertSound(): Result<Unit>
 }

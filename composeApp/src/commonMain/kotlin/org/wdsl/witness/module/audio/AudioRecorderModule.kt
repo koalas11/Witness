@@ -6,7 +6,7 @@ interface AudioRecorderModule {
 
     fun startRecording(): Result<String>
 
-    fun stopRecording()
+    fun stopRecording(): Result<Unit>
 }
 
-internal const val AUDIO_RECORDER_FOLDER = "Recordings"
+internal const val AUDIO_RECORDER_FOLDER = "recordings"

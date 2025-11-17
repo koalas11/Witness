@@ -1,6 +1,7 @@
 package org.wdsl.witness.module.audio
 
 import android.content.Context
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
@@ -16,7 +17,8 @@ class AndroidAudioPlayerModule(
 
     override fun loadAudio(recordingName: String): Result<Unit> {
         return try {
-            _player = ExoPlayer.Builder(context).build()
+            val contextAttribute = ContextCompat.createAttributionContext(context, "audioPlayback")
+            _player = ExoPlayer.Builder(contextAttribute).build()
             val path = context.filesDir.resolve(AUDIO_RECORDER_FOLDER).resolve(recordingName)
             val mediaItem = MediaItem.fromUri(path.toUri())
             _player!!.setMediaItem(mediaItem)
@@ -27,7 +29,6 @@ class AndroidAudioPlayerModule(
             Result.Error(ResultError.UnknownError("Failed to play audio: ${e.message}"))
         }
     }
-
 
     override fun pauseAudio() {
         requireNotNull(_player) { "Player is not initialized. Call loadAudio() first." }

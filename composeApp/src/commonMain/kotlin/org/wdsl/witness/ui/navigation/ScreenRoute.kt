@@ -13,6 +13,9 @@ import witness.composeapp.generated.resources.home_screen_label
 import witness.composeapp.generated.resources.recordings_screen_label
 import witness.composeapp.generated.resources.settings_screen_label
 
+interface ShowBackButton
+interface RemoveOnLeave
+
 /**
  * Sealed interface representing the different routes in the Witness application.
  */
@@ -25,6 +28,9 @@ interface ScreenRoute : NavKey {
 
     @Serializable
     object Recordings: ScreenRoute
+
+    @Serializable
+    object EmergencySound: ScreenRoute, ShowBackButton, RemoveOnLeave
 }
 
 enum class MainRoute(
@@ -34,6 +40,6 @@ enum class MainRoute(
     val contentDescription: StringResource?,
 ) {
     HOME(ScreenRoute.Home, Res.string.home_screen_label, Icons.Default.Home, null),
-    SETTINGS(ScreenRoute.Settings, Res.string.settings_screen_label, Icons.Default.Settings, null),
     RECORDINGS(ScreenRoute.Recordings, Res.string.recordings_screen_label, Icons.Default.LibraryMusic, null),
+    SETTINGS(ScreenRoute.Settings, Res.string.settings_screen_label, Icons.Default.Settings, null),
 }

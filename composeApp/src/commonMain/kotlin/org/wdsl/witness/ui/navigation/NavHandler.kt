@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
+import org.wdsl.witness.ui.EmergencySoundScreen
 import org.wdsl.witness.ui.HomeScreen
 import org.wdsl.witness.ui.RecordingsScreen
 import org.wdsl.witness.ui.SettingsScreen
@@ -33,6 +34,7 @@ fun NavHandler(
         topBar = {
             WitnessTopBar(
                 modifier = modifier,
+                appViewModel = appViewModel,
             )
         },
         bottomBar = {
@@ -61,6 +63,11 @@ fun NavHandler(
                 }
                 entry<ScreenRoute.Recordings> {
                     RecordingsScreen(
+                        modifier = modifier,
+                    )
+                }
+                entry<ScreenRoute.EmergencySound> {
+                    EmergencySoundScreen(
                         modifier = modifier,
                     )
                 }

@@ -32,7 +32,7 @@ class AudioPlayerViewModel(
     }
 
     fun observeAudioCurrentPosition() {
-        viewModelScope.launch(defaultDispatchers) {
+        viewModelScope.launch {
             _jobAudioCurrentPosition = launch {
                 while (audioPlayer.isPlaying()) {
                     _audioCurrentPosition.value = audioPlayer.getCurrentPosition()

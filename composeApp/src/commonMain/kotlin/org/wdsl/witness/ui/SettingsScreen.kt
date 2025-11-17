@@ -2,6 +2,7 @@ package org.wdsl.witness.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -14,9 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
+import org.wdsl.witness.LocalPlatformContext
 import org.wdsl.witness.model.DynamicColorMode
 import org.wdsl.witness.model.NotificationsSetting
 import org.wdsl.witness.model.ThemeMode
+import org.wdsl.witness.state.AppSettingsState
+import org.wdsl.witness.ui.util.fastUIActions
 import org.wdsl.witness.ui.util.handleOperationState
 import org.wdsl.witness.viewmodel.AppState
 import org.wdsl.witness.viewmodel.AppViewModel
@@ -37,7 +41,7 @@ fun SettingsScreen(
             modifier = modifier
                 .padding(16.dp),
 
-            ) {
+        ) {
             Text(
                 modifier = modifier
                     .padding(8.dp)
@@ -149,6 +153,31 @@ fun SettingsScreen(
                     )
                 }
             }
+        }
+        val platformContext = LocalPlatformContext.current
+        Button(
+            modifier = modifier
+                .padding(16.dp),
+            onClick = {
+                fastUIActions.openSystemAppSettings(platformContext)
+            },
+        ) {
+            Text("Fast travel to App Settings")
+        }
+        val emergencyGesturesStatus by AppSettingsState.accessibilityServiceEnabled.collectAsStateWithLifecycle()
+        Text(
+            modifier = modifier
+                .padding(8.dp),
+            text = "Accessibility Service Status: ${emergencyGesturesStatus.name}",
+        )
+        Button(
+            modifier = modifier
+                .padding(16.dp),
+            onClick = {
+                fastUIActions.openAccessibilityServicesSettings(platformContext)
+            },
+        ) {
+            Text("Fast travel to Accessibility Settings")
         }
     }
 }

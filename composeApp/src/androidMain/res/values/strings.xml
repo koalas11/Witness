@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Witness</string>
     <string name="audio_playback_attribution">"This app plays audio"</string>
+    <string name="empty" />
+    <string name="accessibility_service_description">"Accessibility service for emergency gestures"</string>
 </resources>

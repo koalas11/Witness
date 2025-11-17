@@ -6,7 +6,6 @@ import android.os.Build
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
-import java.io.File
 
 class AndroidAudioRecorderModule(
     private val context: Context
@@ -25,13 +24,10 @@ class AndroidAudioRecorderModule(
 
     override fun startRecording(): Result<String> {
         return try {
-
             val dir = context.filesDir.resolve(AUDIO_RECORDER_FOLDER)
+            dir.mkdir()
 
-            val outputFile = File(
-                dir,
-                "recording_${System.currentTimeMillis()}.m4a"
-            )
+            val outputFile = dir.resolve("recording_${System.currentTimeMillis()}.m4a")
 
             val newRecorder = createRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -46,17 +42,23 @@ class AndroidAudioRecorderModule(
             recorder = newRecorder
             Result.Success(outputFile.name)
         } catch (e: Exception) {
-            Log.d(TAG, "startRecording: Failed to start recording", e)
+            Log.e(TAG, "startRecording: Failed to start recording", e)
             Result.Error(ResultError.UnknownError("Failed to start recording: ${e.message}"))
         }
     }
 
-    override fun stopRecording() {
-        recorder?.apply {
-            stop()
-            release()
+    override fun stopRecording(): Result<Unit> {
+        return try {
+            recorder?.apply {
+                stop()
+                release()
+            }
+            recorder = null
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "stopRecording: Failed to stop recording", e)
+            Result.Error(ResultError.UnknownError("Failed to stop recording: ${e.message}"))
         }
-        recorder = null
     }
 
     companion object {
