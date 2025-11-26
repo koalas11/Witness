@@ -29,7 +29,7 @@ class AndroidAudioRecorderModule(
 
             val outputFile = dir.resolve("recording_${System.currentTimeMillis()}.m4a")
 
-            val newRecorder = createRecorder().apply {
+            recorder = createRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -39,7 +39,6 @@ class AndroidAudioRecorderModule(
                 start()
             }
 
-            recorder = newRecorder
             Result.Success(outputFile.name)
         } catch (e: Exception) {
             Log.e(TAG, "startRecording: Failed to start recording", e)

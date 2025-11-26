@@ -8,7 +8,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.wdsl.witness.ui.navigation.ScreenRoute
@@ -28,6 +30,7 @@ fun WitnessTopBar(
     modifier: Modifier = Modifier,
     appViewModel: AppViewModel,
 ) {
+    val shouldShowBackButton by appViewModel.shouldShowBackButton.collectAsStateWithLifecycle()
     CenterAlignedTopAppBar(
         modifier = modifier,
         title = {
@@ -51,7 +54,7 @@ fun WitnessTopBar(
             }
         },
         navigationIcon = {
-            if (appViewModel.shouldShowBackButton()) {
+            if (shouldShowBackButton) {
                 IconButton(
                     modifier = modifier,
                     onClick = { appViewModel.navigateBack() },

@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
 import org.wdsl.witness.MainActivity
+import org.wdsl.witness.WitnessApp
 import kotlin.time.Duration.Companion.seconds
 
 class EmergencyGesturesAccessibilityService : AccessibilityService() {
@@ -48,8 +49,7 @@ class EmergencyGesturesAccessibilityService : AccessibilityService() {
                         }
                         this.startActivity(activityIntent)
 
-                        // Send broadcast to custom receiver
-                        TODO("Implement broadcast receiver to handle emergency alert or other actions")
+                        (application as WitnessApp).appContainer.emergencyRecordingUseCase.startEmergencyRecording()
                     }
                 }
             }

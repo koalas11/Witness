@@ -48,7 +48,7 @@ fun SettingsScreen(
                     .align(Alignment.CenterHorizontally),
                 text = "Try to enable/disable the dynamic theming options below:",
             )
-            val appState by appViewModel.settingsStateFlow.collectAsStateWithLifecycle()
+            val appState by appViewModel.settingsState.collectAsStateWithLifecycle()
             val settings = (appState as AppState.Success).settings
 
             val enabled = handleOperationState(

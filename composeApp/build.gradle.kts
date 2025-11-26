@@ -36,6 +36,9 @@ kotlin {
             /* MEDIA 3 */
             implementation(libs.androidx.media3.exoplayer)
             implementation(libs.androidx.media3.ktx)
+
+            implementation(libs.play.services.location)
+            implementation(libs.androidx.biometric)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -70,6 +73,10 @@ kotlin {
 
             /* KOTLINX */
             implementation(libs.kotlinx.io.core)
+
+            /* MAPLIBRE */
+            implementation(libs.maplibre.compose)
+            implementation(libs.maplibre.composeMaterial3)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

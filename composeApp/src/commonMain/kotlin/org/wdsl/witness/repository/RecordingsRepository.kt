@@ -12,6 +12,12 @@ import org.wdsl.witness.util.ResultError
  */
 interface RecordingsRepository {
     /**
+     * Retrieves a flow of a specific recording by its ID.
+     * @param recordingId The ID of the recording to retrieve.
+     * @return A Result containing a Flow of the Recording object or an error.
+     */
+    fun getRecordingFlowById(recordingId: Long): Result<Flow<Recording?>>
+    /**
      * Retrieves a flow of recordings.
      * @return A Result containing a Flow of Recording objects or an error.
      */
@@ -32,6 +38,15 @@ interface RecordingsRepository {
 class RecordingsRepositoryImpl(
     private val recordingsDao: RecordingsDao,
 ): RecordingsRepository {
+
+    override fun getRecordingFlowById(recordingId: Long): Result<Flow<Recording?>> {
+        return try {
+            Result.Success(recordingsDao.getRecordingFlowById(recordingId))
+        } catch (e: Exception) {
+            Log.e(TAG, "An unknown error occurred", e)
+            Result.Error(ResultError.UnknownError("An unknown error occurred"))
+        }
+    }
 
     override fun getRecordingsFlow(): Result<Flow<List<Recording>>> {
         return try {

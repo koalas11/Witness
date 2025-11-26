@@ -4,18 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.wdsl.witness.module.audio.AudioPlayerModule
 import org.wdsl.witness.storage.room.Recording
+import kotlin.time.Duration.Companion.milliseconds
 
 class AudioPlayerViewModel(
     private val audioPlayer: AudioPlayerModule,
-    private val defaultDispatchers: CoroutineDispatcher = Dispatchers.Default,
 ): ViewModel() {
     private var _audioPlayerState = MutableStateFlow<AudioPlayerState>(AudioPlayerState.Idle)
     val audioPlayerState = _audioPlayerState.asStateFlow()
@@ -23,30 +23,63 @@ class AudioPlayerViewModel(
     private var _audioCurrentPosition = MutableStateFlow(0L)
     val audioCurrentPosition = _audioCurrentPosition.asStateFlow()
 
+    private var _audioDurationMsState = MutableStateFlow(0L)
+    val audioDurationMsState = _audioDurationMsState.asStateFlow()
+
     private var _jobAudioCurrentPosition: Job? = null
+    private var _jobAudioState: Job? = null
 
     fun loadRecording(recording: Recording) {
-        audioPlayer.loadAudio(recording.recordingFileName)
-        _audioPlayerState.value = AudioPlayerState.RecordingReady
-        observeAudioCurrentPosition()
+        _audioPlayerState.value = AudioPlayerState.RecordingLoading
+        viewModelScope.launch {
+            audioPlayer.loadAudio(recording.recordingFileName)
+            _audioPlayerState.value = AudioPlayerState.RecordingReady
+            observeAudioCurrentPosition()
+        }
     }
 
-    fun observeAudioCurrentPosition() {
-        viewModelScope.launch {
-            _jobAudioCurrentPosition = launch {
-                while (audioPlayer.isPlaying()) {
-                    _audioCurrentPosition.value = audioPlayer.getCurrentPosition()
+    fun CoroutineScope.observeAudioCurrentPosition() {
+        _jobAudioCurrentPosition = launch {
+            while (true) {
+                delay(150.milliseconds)
+                _audioCurrentPosition.value = audioPlayer.getCurrentPosition()
+            }
+        }
+        _jobAudioState = launch {
+            while (true) {
+                delay(200.milliseconds)
+                val isPlaying = audioPlayer.isPlaying()
+                when {
+                    isPlaying && _audioPlayerState.value != AudioPlayerState.Playing -> {
+                        _audioPlayerState.value = AudioPlayerState.Playing
+                    }
+                    !isPlaying && _audioPlayerState.value == AudioPlayerState.Playing -> {
+                        _audioPlayerState.value = AudioPlayerState.Paused
+                    }
                 }
             }
         }
     }
 
     fun playRecording() {
-        audioPlayer.resumeAudio()
+        viewModelScope.launch {
+            _audioPlayerState.value = AudioPlayerState.Playing
+            audioPlayer.resumeAudio()
+            _audioDurationMsState.value = audioPlayer.getDuration()
+        }
     }
 
     fun pauseRecording() {
-        audioPlayer.pauseAudio()
+        viewModelScope.launch {
+            _audioPlayerState.value = AudioPlayerState.Paused
+            audioPlayer.pauseAudio()
+        }
+    }
+
+    fun seekTo(milliseconds: Long) {
+        viewModelScope.launch {
+            audioPlayer.seekTo(milliseconds)
+        }
     }
 
     override fun onCleared() {

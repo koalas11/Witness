@@ -265,7 +265,7 @@ fun WitnessTheme(
     content: @Composable () -> Unit
 ) {
     val platform = platform
-    val themeSettings by appViewModel.themeSettingsStateFlow.collectAsStateWithLifecycle()
+    val themeSettings by appViewModel.themeSettingsState.collectAsStateWithLifecycle()
 
     val darkTheme = when (themeSettings.second) {
         ThemeMode.SYSTEM_DEFAULT -> platform.isSystemInDarkTheme()

@@ -10,6 +10,10 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface RecordingsDao {
+
+    @Query("SELECT * from recording WHERE id = :id")
+    fun getRecordingFlowById(id: Long): Flow<Recording?>
+
     @Query("SELECT * from recording")
     fun getRecordingsFlow(): Flow<List<Recording>>
 

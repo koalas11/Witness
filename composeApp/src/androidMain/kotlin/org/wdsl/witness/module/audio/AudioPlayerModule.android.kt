@@ -1,6 +1,7 @@
 package org.wdsl.witness.module.audio
 
 import android.content.Context
+import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
@@ -64,7 +65,7 @@ class AndroidAudioPlayerModule(
     }
 
     override fun getDuration(): Long {
-        return _player?.duration?.coerceAtLeast(0L) ?: 0L
+        return _player?.duration?.fastCoerceAtLeast(0L) ?: 0L
     }
 
     companion object {

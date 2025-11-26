@@ -34,7 +34,7 @@ fun App(
         appViewModel.initialize()
     }
 
-    val settingsState by appViewModel.settingsStateFlow.collectAsStateWithLifecycle()
+    val settingsState by appViewModel.settingsState.collectAsStateWithLifecycle()
 
     when (settingsState) {
         is AppState.Loading -> {
@@ -63,7 +63,7 @@ fun App(
             WitnessTheme(
                 appViewModel = appViewModel,
             ) {
-                val notificationsSetting by appViewModel.notificationsSettingStateFlow.collectAsStateWithLifecycle()
+                val notificationsSetting by appViewModel.notificationsSettingState.collectAsStateWithLifecycle()
                 CompositionLocalProvider(LocalNotificationsSetting provides notificationsSetting) {
                     NavHandler(
                         modifier = modifier,

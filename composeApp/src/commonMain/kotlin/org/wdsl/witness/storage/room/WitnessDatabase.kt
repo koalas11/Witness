@@ -2,6 +2,7 @@ package org.wdsl.witness.storage.room
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import kotlinx.coroutines.runBlocking
 import org.wdsl.witness.PlatformContext
 import kotlin.concurrent.Volatile
@@ -10,6 +11,7 @@ import kotlin.concurrent.Volatile
  * Room database for the Witness application.
  */
 @Database(entities = [Recording::class], version = 1)
+@TypeConverters(Converters::class)
 abstract class WitnessDatabase : RoomDatabase() {
     abstract fun recordingDao(): RecordingsDao
 
@@ -28,7 +30,7 @@ abstract class WitnessDatabase : RoomDatabase() {
     }
 }
 
-internal const val WITNESS_DB_NAME = "MotoSense_DB"
+internal const val WITNESS_DB_NAME = "Witness_DB"
 
 /**
  * Gets the WitnessDatabase builder for the specific platform.

@@ -17,6 +17,14 @@ sealed class Result<out T> {
         return this
     }
 
+    fun getSuccessOrNull(): T? {
+        return if (this is Success) {
+            data
+        } else {
+            null
+        }
+    }
+
     /**
      * Returns the value of the [Error] result
      */

@@ -7,23 +7,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.wdsl.witness.WitnessBuildConfig
-import org.wdsl.witness.storage.room.Recording
-import org.wdsl.witness.ui.common.AudioPlayerComposable
 import org.wdsl.witness.ui.common.RecordingListItem
-import org.wdsl.witness.viewmodel.AudioPlayerViewModel
+import org.wdsl.witness.ui.navigation.ScreenRoute
+import org.wdsl.witness.viewmodel.AppViewModel
 import org.wdsl.witness.viewmodel.RecordingsUiState
 import org.wdsl.witness.viewmodel.RecordingsViewModel
 import org.wdsl.witness.viewmodel.witnessViewModel
@@ -33,7 +28,7 @@ import org.wdsl.witness.viewmodel.witnessViewModel
 fun RecordingsScreen(
     modifier: Modifier = Modifier,
     recordingsViewModel: RecordingsViewModel = witnessViewModel(factory = RecordingsViewModel.Factory),
-    audioPlayerViewModel: AudioPlayerViewModel = witnessViewModel(factory = AudioPlayerViewModel.Factory),
+    appViewModel: AppViewModel,
 ) {
     LaunchedEffect(Unit) {
         recordingsViewModel.initialize()
@@ -49,19 +44,6 @@ fun RecordingsScreen(
         return
     }
     val recordings = (recordingsUiState as RecordingsUiState.Success).recordings
-    var selectedRecording: Recording? by rememberSaveable { mutableStateOf(null) }
-    if (selectedRecording != null) {
-        ModalBottomSheet(
-            modifier = modifier,
-            onDismissRequest = { selectedRecording = null },
-        ) {
-             AudioPlayerComposable(
-                 modifier = modifier,
-                 recording = selectedRecording!!,
-                 audioPlayerViewModel = audioPlayerViewModel,
-             )
-        }
-    }
     if (recordings.isEmpty()) {
         Text(
             text = "No recordings found.",
@@ -83,7 +65,7 @@ fun RecordingsScreen(
                 modifier = modifier,
                 recording = recording,
                 onClick = {
-                    selectedRecording = recording
+                    appViewModel.navigateTo(ScreenRoute.RecordingInfo(recordingId = recording.id))
                 },
             )
         }

@@ -2,11 +2,16 @@ package org.wdsl.witness
 
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import org.wdsl.witness.broadcastreceiver.AppSettingsChangedBroadcastReceiver
 import org.wdsl.witness.model.EmergencyGesturesStatus
 import org.wdsl.witness.service.EmergencyGesturesAccessibilityService
@@ -18,9 +23,25 @@ import org.wdsl.witness.state.AppSettingsState
 class WitnessAppAndroid: WitnessApp, Application() {
     override lateinit var appContainer: PlatformAppContainer
 
+    override val appScope: CoroutineScope = CoroutineScope(SupervisorJob())
+
     override fun onCreate() {
         super.onCreate()
         appContainer = AndroidAppContainer(this)
+
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(
+                NotificationChannel(
+                    "WitnessEmergencyChannel",
+                    "Emergency Recording",
+                    NotificationManager.IMPORTANCE_HIGH,
+                ).apply {
+                    description = "Notifications for emergency recording status"
+                }
+            )
+        }
 
         val appSettingsChangedBroadcastReceiver = AppSettingsChangedBroadcastReceiver()
         ContextCompat.registerReceiver(

@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.vectorResource
+import org.wdsl.witness.state.EmergencyServiceState
 import org.wdsl.witness.viewmodel.AppViewModel
 import witness.composeapp.generated.resources.Res
 import witness.composeapp.generated.resources.robe
@@ -30,28 +31,24 @@ fun HomeScreen(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            modifier = modifier,
-            text = "This is the Home Screen",
-        )
         Icon(
             modifier = modifier,
             imageVector = vectorResource(Res.drawable.robe),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
         )
-        val recordingUiState by appViewModel.recordingUiState.collectAsStateWithLifecycle()
+        val emergencyServiceState by EmergencyServiceState.emergencyServiceState.collectAsStateWithLifecycle()
         Button(
             modifier = modifier,
             onClick = {
-                if (recordingUiState) {
+                if (emergencyServiceState is EmergencyServiceState.State.Running) {
                     appViewModel.stopAudioRecording()
                 } else {
                     appViewModel.startAudioRecording()
                 }
             },
         ) {
-            Text(if (recordingUiState) "Stop Recording" else "Start Recording")
+            Text(if (emergencyServiceState is EmergencyServiceState.State.Running) "Stop Recording" else "Start Recording")
         }
     }
 }

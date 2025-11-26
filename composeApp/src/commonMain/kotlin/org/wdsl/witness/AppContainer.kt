@@ -21,7 +21,7 @@ interface AppContainer {
  * @param platformContext The platform-specific context
  */
 open class AppContainerImpl(
-    private val platformContext: PlatformContext
+    private val platformContext: PlatformContext,
 ): AppContainer {
     override val settingsRepository: SettingsRepository by lazy {
         val settingsDataStore = getSettingsDataStore(platformContext)
