@@ -13,7 +13,6 @@ import io.ktor.http.Url
 import io.ktor.http.buildUrl
 import io.ktor.http.contentType
 import io.ktor.http.encodedPath
-import io.ktor.utils.io.core.toByteArray
 import kotlinx.serialization.json.Json
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.model.GoogleOAuth
@@ -21,7 +20,6 @@ import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
 import org.wdsl.witness.util.generateCodeChallenge
-import kotlin.io.encoding.Base64
 
 interface GoogleOAuthService {
     fun startGoogleOAuthFlow(platformContext: PlatformContext, codeVerifier: String, state: String) : Result<Unit>

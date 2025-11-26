@@ -8,7 +8,6 @@ import org.wdsl.witness.module.VibrationModule
 import org.wdsl.witness.module.audio.AudioPlayerModule
 import org.wdsl.witness.module.audio.AudioRecorderModule
 import org.wdsl.witness.usecase.EmergencyRecordingUseCase
-import org.wdsl.witness.util.CryptoManager
 
 /**
  * Platform-specific AppContainer interface.

@@ -17,8 +17,6 @@ import org.wdsl.witness.module.audio.AudioPlayerModule
 import org.wdsl.witness.module.audio.AudioRecorderModule
 import org.wdsl.witness.usecase.EmergencyRecordingUseCase
 import org.wdsl.witness.usecase.EmergencyRecordingUseCaseImpl
-import org.wdsl.witness.util.AndroidCryptoManager
-import org.wdsl.witness.util.CryptoManager
 
 /**
  * Android-specific implementation of the AppContainer.

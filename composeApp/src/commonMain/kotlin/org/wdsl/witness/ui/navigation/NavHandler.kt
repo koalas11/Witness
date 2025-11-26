@@ -9,6 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import org.wdsl.witness.ui.EmergencySoundScreen
+import org.wdsl.witness.ui.GoogleProfileScreen
 import org.wdsl.witness.ui.HomeScreen
 import org.wdsl.witness.ui.RecordingInfoScreen
 import org.wdsl.witness.ui.RecordingsScreen
