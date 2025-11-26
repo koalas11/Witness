@@ -80,6 +80,11 @@ fun NavHandler(
                         recordingId = it.recordingId,
                     )
                 }
+                entry<ScreenRoute.GoogleProfile> {
+                    GoogleProfileScreen(
+                        modifier = modifier,
+                    )
+                }
             }
         )
     }

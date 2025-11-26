@@ -30,6 +30,9 @@ interface ScreenRoute : NavKey {
     object Recordings: ScreenRoute
 
     @Serializable
+    object GoogleProfile: ScreenRoute, ShowBackButton, RemoveOnLeave
+
+    @Serializable
     object EmergencySound: ScreenRoute, ShowBackButton, RemoveOnLeave
 
     @Serializable

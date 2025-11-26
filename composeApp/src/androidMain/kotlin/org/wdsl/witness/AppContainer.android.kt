@@ -28,10 +28,6 @@ class AndroidAppContainer(
     private val context: Context,
 ): AppContainerImpl(AndroidContext(context)), PlatformAppContainer {
 
-    override val cryptoManager: CryptoManager by lazy {
-        AndroidCryptoManager
-    }
-
     override val vibrationModule: VibrationModule by lazy {
         AndroidVibrationModule(context)
     }

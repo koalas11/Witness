@@ -32,6 +32,7 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.browser)
 
             /* MEDIA 3 */
             implementation(libs.androidx.media3.exoplayer)
@@ -39,6 +40,12 @@ kotlin {
 
             implementation(libs.play.services.location)
             implementation(libs.androidx.biometric)
+
+            /* KTOR */
+            implementation(libs.ktor.client.okhttp)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -57,6 +64,7 @@ kotlin {
 
             /* SERIALIZATION */
             implementation(libs.serialization.core)
+            implementation(libs.serialization.json)
             implementation(libs.serialization.protobuf)
 
             /* NAVIGATION 3 */
@@ -73,6 +81,15 @@ kotlin {
 
             /* KOTLINX */
             implementation(libs.kotlinx.io.core)
+            implementation(libs.kotlinx.io.okio)
+
+            /* KTOR */
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.auth)
+
+            /* COIL */
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
 
             /* MAPLIBRE */
             implementation(libs.maplibre.compose)

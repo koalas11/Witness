@@ -20,6 +20,7 @@ import org.wdsl.witness.model.DynamicColorMode
 import org.wdsl.witness.model.NotificationsSetting
 import org.wdsl.witness.model.ThemeMode
 import org.wdsl.witness.state.AppSettingsState
+import org.wdsl.witness.ui.navigation.ScreenRoute
 import org.wdsl.witness.ui.util.fastUIActions
 import org.wdsl.witness.ui.util.handleOperationState
 import org.wdsl.witness.viewmodel.AppState
@@ -37,6 +38,9 @@ fun SettingsScreen(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        val enabled = handleOperationState(
+            viewModel = settingsViewModel,
+        )
         Card(
             modifier = modifier
                 .padding(16.dp),
@@ -50,10 +54,6 @@ fun SettingsScreen(
             )
             val appState by appViewModel.settingsState.collectAsStateWithLifecycle()
             val settings = (appState as AppState.Success).settings
-
-            val enabled = handleOperationState(
-                viewModel = settingsViewModel,
-            )
 
             Text(
                 modifier = modifier
@@ -178,6 +178,19 @@ fun SettingsScreen(
             },
         ) {
             Text("Fast travel to Accessibility Settings")
+        }
+        Button(
+            modifier = modifier
+                .padding(16.dp),
+            onClick = {
+                appViewModel.navigateTo(ScreenRoute.GoogleProfile)
+            },
+            enabled = enabled,
+        ) {
+            Text(
+                modifier = modifier,
+                text = "Go to Google Profile Screen",
+            )
         }
     }
 }

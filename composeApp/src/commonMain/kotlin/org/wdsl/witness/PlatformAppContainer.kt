@@ -15,11 +15,6 @@ import org.wdsl.witness.util.CryptoManager
  */
 interface PlatformAppContainer: AppContainer {
     /**
-     * Platform-specific CryptoManager instance.
-     */
-    val cryptoManager: CryptoManager
-
-    /**
      * Platform-specific VibrationModule instance.
      */
     val vibrationModule: VibrationModule
