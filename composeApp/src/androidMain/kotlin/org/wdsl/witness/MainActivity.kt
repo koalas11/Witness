@@ -4,10 +4,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.auth.AuthTabIntent
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
@@ -17,7 +17,7 @@ import org.wdsl.witness.usecase.GoogleIntegrationState
  * Main activity for the Witness application on Android.
  * This activity sets up the Compose content and provides the necessary platform context.
  */
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     lateinit var mLauncher: ActivityResultLauncher<Intent>
 
     private fun handleAuthResult(result: AuthTabIntent.AuthResult) {

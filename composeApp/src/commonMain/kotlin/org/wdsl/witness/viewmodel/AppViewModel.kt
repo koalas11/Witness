@@ -44,6 +44,9 @@ class AppViewModel(
         ScreenRoute.Home))
     val backStack: StateFlow<List<ScreenRoute>> = _backStack.asStateFlow()
 
+    private var _authenticated: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val authenticated: StateFlow<Boolean> = _authenticated.asStateFlow()
+
     private var _shouldShowBackButton: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val shouldShowBackButton: StateFlow<Boolean> = _shouldShowBackButton.asStateFlow()
 
@@ -86,6 +89,7 @@ class AppViewModel(
             newBackStack.removeAt(oldIndex)
         }
         newBackStack.add(route)
+        _authenticated.value = false
         _backStack.value = newBackStack
         _shouldShowBackButton.value = newBackStack.last() is ShowBackButton
     }
@@ -96,8 +100,13 @@ class AppViewModel(
         if (newBackStack.isEmpty()) {
             newBackStack.add(ScreenRoute.Home)
         }
+        _authenticated.value = false
         _backStack.value = newBackStack
         _shouldShowBackButton.value = newBackStack.last() is ShowBackButton
+    }
+
+    fun authenticate() {
+        _authenticated.value = true
     }
 
     fun startAudioRecording() {

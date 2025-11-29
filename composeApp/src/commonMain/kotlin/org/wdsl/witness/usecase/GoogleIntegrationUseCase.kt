@@ -9,15 +9,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.model.GoogleProfile
+import org.wdsl.witness.model.LocationData
+import org.wdsl.witness.repository.EmergencyContactsRepository
 import org.wdsl.witness.repository.GoogleAccountRepository
 import org.wdsl.witness.service.GoogleDriveService
 import org.wdsl.witness.service.GoogleGmailService
 import org.wdsl.witness.service.GoogleOAuthService
 import org.wdsl.witness.service.GoogleProfileService
+import org.wdsl.witness.util.ERROR_NOTIFICATION_CHANNEL_ID
 import org.wdsl.witness.util.Log
 import kotlin.coroutines.CoroutineContext
 
 class GoogleIntegrationUseCase(
+    private val platformContext: PlatformContext,
+    private val emergencyContactsRepository: EmergencyContactsRepository,
     private val googleAccountRepository: GoogleAccountRepository,
     private val googleOAuthService: GoogleOAuthService,
     private val googleProfileService: GoogleProfileService,
@@ -127,8 +132,19 @@ class GoogleIntegrationUseCase(
             }
     }
 
-    suspend fun sendEmergencyEmail(subject: String, gpsLat: Double, gpsLon: Double) {
-        googleGmailService.sendEmergencyEmails(listOf("marco.sanvito@hotmail.com"), subject, gpsLat, gpsLon)
+    suspend fun sendEmergencyEmail(subject: String, locationData: LocationData?) {
+        emergencyContactsRepository.getEmailEmergencyContacts()
+        .onError {
+            platformContext.sendNotification(
+                ERROR_NOTIFICATION_CHANNEL_ID,
+                "Error Sending Emergency Email",
+                "Failed to retrieve emergency contacts: ${it.message}",
+                2,
+            )
+        }
+        .onSuccess { contacts ->
+            googleGmailService.sendEmergencyEmails(contacts, subject, locationData)
+        }
     }
 
     private fun updateState() {

@@ -55,14 +55,6 @@ class GoogleIntegrationViewModel(
         }
     }
 
-    fun sendTestEmail() {
-        viewModelScope.launch {
-            val gpsLat = 46.01
-            val gpsLon = 8.959
-            googleIntegrationUseCase.sendEmergencyEmail("Test Email Witness", gpsLat, gpsLon)
-        }
-    }
-
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

@@ -33,9 +33,6 @@ interface ScreenRoute : NavKey {
     object GoogleProfile: ScreenRoute, ShowBackButton, RemoveOnLeave
 
     @Serializable
-    object EmergencySound: ScreenRoute, ShowBackButton, RemoveOnLeave
-
-    @Serializable
     data class RecordingInfo(val recordingId: Long): ScreenRoute, ShowBackButton, RemoveOnLeave
 }
 

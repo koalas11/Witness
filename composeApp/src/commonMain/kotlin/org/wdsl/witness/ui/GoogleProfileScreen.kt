@@ -87,18 +87,6 @@ fun GoogleProfileScreen(
                         .padding(8.dp),
                     text = profile.name,
                 )
-                Button(
-                    modifier = modifier
-                        .padding(16.dp),
-                    onClick = {
-                        googleIntegrationViewModel.sendTestEmail()
-                    },
-                ) {
-                    Text(
-                        modifier = modifier,
-                        text = "Send Test Email",
-                    )
-                }
             }
         }
     }

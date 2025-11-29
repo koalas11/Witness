@@ -4,4 +4,16 @@ import platform.UIKit.UIApplication
 
 data class IosContext(
     override val context: UIApplication = UIApplication.sharedApplication
-): PlatformContext
+): PlatformContext {
+    override val witnessApp: WitnessApp
+        get() = TODO("Not yet implemented")
+
+    override fun sendNotification(
+        channelId: String,
+        title: String,
+        message: String,
+        priority: Int,
+    ) {
+        TODO("Not yet implemented")
+    }
+}

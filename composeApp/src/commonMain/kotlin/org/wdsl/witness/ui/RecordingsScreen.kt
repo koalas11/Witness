@@ -56,6 +56,7 @@ fun RecordingsScreen(
     }
     LazyColumn(
         modifier = modifier
+            .padding(8.dp)
             .fillMaxSize(),
     ) {
         if (WitnessBuildConfig.DEBUG_MODE) {

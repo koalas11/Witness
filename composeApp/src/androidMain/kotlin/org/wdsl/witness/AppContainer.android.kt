@@ -56,9 +56,12 @@ class AndroidAppContainer(
 
     override val emergencyRecordingUseCase: EmergencyRecordingUseCase by lazy {
         EmergencyRecordingUseCaseImpl(
+            platformContext = AndroidContext(context),
+            emergencyContactsRepository = emergencyContactsRepository,
             recordingServiceHandler = recordingServiceHandler,
-            emergencyContactModule = emergencyContactModule,
             geoRecordingModule = geoRecordingModule,
+            emergencyContactModule = emergencyContactModule,
+            googleIntegrationUseCase = googleIntegrationUseCase,
         )
     }
 }

@@ -16,6 +16,8 @@ import org.wdsl.witness.broadcastreceiver.AppSettingsChangedBroadcastReceiver
 import org.wdsl.witness.model.EmergencyGesturesStatus
 import org.wdsl.witness.service.EmergencyGesturesAccessibilityService
 import org.wdsl.witness.state.AppSettingsState
+import org.wdsl.witness.util.EMERGENCY_NOTIFICATION_CHANNEL_ID
+import org.wdsl.witness.util.ERROR_NOTIFICATION_CHANNEL_ID
 
 /**
  * Android-specific implementation of the WitnessApp.
@@ -34,11 +36,20 @@ class WitnessAppAndroid: WitnessApp, Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager.createNotificationChannel(
                 NotificationChannel(
-                    "WitnessEmergencyChannel",
+                    EMERGENCY_NOTIFICATION_CHANNEL_ID,
                     "Emergency Recording",
                     NotificationManager.IMPORTANCE_HIGH,
                 ).apply {
                     description = "Notifications for emergency recording status"
+                }
+            )
+            notificationManager.createNotificationChannel(
+                NotificationChannel(
+                    ERROR_NOTIFICATION_CHANNEL_ID,
+                    "Error Notifications",
+                    NotificationManager.IMPORTANCE_HIGH,
+                ).apply {
+                    description = "Notifications for application errors"
                 }
             )
         }

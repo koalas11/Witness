@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import org.wdsl.witness.broadcastreceiver.EmergencyAlertReceiver.Companion.TAG
 import org.wdsl.witness.state.AppSettingsState
 
 class AppSettingsChangedBroadcastReceiver : BroadcastReceiver() {
@@ -15,5 +14,9 @@ class AppSettingsChangedBroadcastReceiver : BroadcastReceiver() {
             return
         }
         AppSettingsState.notifySettingsChanged()
+    }
+
+    companion object {
+        const val TAG = "AppSettingsChangedBR"
     }
 }

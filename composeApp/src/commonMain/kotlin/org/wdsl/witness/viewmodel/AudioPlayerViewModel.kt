@@ -9,6 +9,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.wdsl.witness.module.audio.AudioPlayerModule
 import org.wdsl.witness.storage.room.Recording
@@ -40,15 +41,25 @@ class AudioPlayerViewModel(
 
     fun CoroutineScope.observeAudioCurrentPosition() {
         _jobAudioCurrentPosition = launch {
-            while (true) {
+            while (isActive) {
                 delay(150.milliseconds)
                 _audioCurrentPosition.value = audioPlayer.getCurrentPosition()
             }
         }
         _jobAudioState = launch {
-            while (true) {
+            while (isActive) {
                 delay(200.milliseconds)
+                val duration = audioPlayer.getDuration()
+                val pos = audioPlayer.getCurrentPosition()
                 val isPlaying = audioPlayer.isPlaying()
+
+                if (duration in 1..pos) {
+                        audioPlayer.pauseAudio()
+                        audioPlayer.seekTo(0)
+                    _audioPlayerState.value = AudioPlayerState.Paused
+                    continue
+                }
+
                 when {
                     isPlaying && _audioPlayerState.value != AudioPlayerState.Playing -> {
                         _audioPlayerState.value = AudioPlayerState.Playing

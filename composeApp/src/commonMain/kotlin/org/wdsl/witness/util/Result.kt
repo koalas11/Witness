@@ -34,4 +34,11 @@ sealed class Result<out T> {
         }
         return this
     }
+
+    fun onErrorSync(action: (ResultError) -> Unit): Result<T> {
+        if (this is Error) {
+            action(error)
+        }
+        return this
+    }
 }

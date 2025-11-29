@@ -1,6 +1,7 @@
 package org.wdsl.witness.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,6 +34,10 @@ fun RecordingInfoScreen(
     Column(
         modifier = modifier,
     ) {
+        Text(
+            text = "Recording: ${selectedRecording.title}",
+            modifier = modifier,
+        )
         AudioPlayerComposable(
             modifier = modifier,
             recording = selectedRecording,

@@ -32,6 +32,7 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.appcompat)
             implementation(libs.androidx.browser)
 
             /* MEDIA 3 */
@@ -82,6 +83,7 @@ kotlin {
             /* KOTLINX */
             implementation(libs.kotlinx.io.core)
             implementation(libs.kotlinx.io.okio)
+            implementation(libs.kotlinx.datetime)
 
             /* KTOR */
             implementation(libs.ktor.client.core)
