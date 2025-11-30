@@ -1,12 +1,15 @@
 package org.wdsl.witness.service
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headers
@@ -22,11 +25,12 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.storage.room.Recording
+import org.wdsl.witness.ui.util.getFilenameTimestamp
+import org.wdsl.witness.ui.util.getFormattedTimestamp
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
 import org.wdsl.witness.util.getRecordingFile
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 interface GoogleDriveService {
@@ -45,7 +49,10 @@ class GoogleDriveServiceImpl(
         recording: Recording,
     ): Result<Unit> {
         return try {
-            val subFolderName = "${recording.recordingFileName}_${Clock.System.now().epochSeconds}"
+            val timestamp = recording.recordingFileName.subSequence(
+                "recording_".length, recording.recordingFileName.lastIndexOf(".")
+            ).toString().toLong()
+            val subFolderName = "Recording ${getFilenameTimestamp(timestamp)}"
 
             val appFolderId = createOrGetFolder(APP_FOLDER_NAME, null)
 
@@ -58,13 +65,20 @@ class GoogleDriveServiceImpl(
                 throw Exception("Failed to get recording file: ${it.message}")
             }.onSuccess { recordingFile ->
                 val metaText = buildString {
-                    appendLine("name: ${recording.recordingFileName}")
-                    appendLine("gpsPositions: ${recording.gpsPositions}")
-                    appendLine("timestamp: ${Clock.System.now().epochSeconds}")
+                    appendLine("file name: ${recording.recordingFileName}")
+                    appendLine("timestamp: ${getFormattedTimestamp(timestamp)}")
+
+                    if (recording.gpsPositions.isNotEmpty()) {
+                        val allPoints = recording.gpsPositions.joinToString("/") { pos ->
+                            "${pos.latitude},${pos.longitude}"
+                        }
+                        appendLine("Google Maps route:")
+                        appendLine("https://www.google.com/maps/dir/$allPoints")
+                    }
                 }
 
                 uploadTextFileToFolder(
-                    fileName = "${recording.recordingFileName}.txt",
+                    fileName = "recording_${subFolderName}.txt",
                     content = metaText.toByteArray(Charsets.UTF_8),
                     parentFolderId = recordingFolderId,
                 )
@@ -150,43 +164,39 @@ class GoogleDriveServiceImpl(
             put("parents", buildJsonArray { add(parentFolderId) })
         }.toString()
 
-        val boundary = "----wdsl-boundary-${Clock.System.now().epochSeconds}"
-        val crlf = "\r\n"
-        val dashBoundary = "--$boundary"
-
-        val metaPart = StringBuilder()
-            .append(dashBoundary).append(crlf)
-            .append("Content-Type: application/json; charset=UTF-8").append(crlf)
-            .append(crlf)
-            .append(metadataJson).append(crlf)
-            .toString()
-            .toByteArray(Charsets.UTF_8)
-
-        val fileHeader = StringBuilder()
-            .append(dashBoundary).append(crlf)
-            .append("Content-Type: text/plain; charset=UTF-8").append(crlf)
-            .append("Content-Disposition: attachment; filename=\"").append(fileName).append("\"").append(crlf)
-            .append(crlf)
-            .toString()
-            .toByteArray(Charsets.UTF_8)
-
-        val closing = ("$crlf--$boundary--$crlf").toByteArray(Charsets.UTF_8)
-
-        val bodyBytes: ByteArray = metaPart + fileHeader + content + closing
-
         val response: HttpResponse = httpClient.post("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart") {
-            headers {
-                append(HttpHeaders.Accept, "application/json")
-                append(HttpHeaders.ContentType, "multipart/related; boundary=$boundary")
-            }
-            setBody(bodyBytes)
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        // Metadata part
+                        append(
+                            key = "metadata",
+                            value = metadataJson,
+                            headers = Headers.build {
+                                append(
+                                    HttpHeaders.ContentType,
+                                    ContentType.Application.Json.toString()
+                                )
+                            }
+                        )
+                        // File part
+                        append(
+                            key = "file",
+                            value = content,
+                            headers = Headers.build {
+                                append(HttpHeaders.ContentType, ContentType.Text.Plain.toString())
+                            }
+                        )
+                    }
+                )
+            )
         }
 
-        if (response.status != HttpStatusCode.OK) {
-            val errorBody = response.bodyAsText()
-            throw Exception("Google Drive text upload failed with status ${response.status}: $errorBody")
+        if (response.status != HttpStatusCode.OK && response.status != HttpStatusCode.Created) {
+            throw Exception("Google Drive text upload failed: ${response.bodyAsText()}")
         }
     }
+
 
     @OptIn(ExperimentalTime::class)
     private suspend fun uploadBinaryFileToFolder(
@@ -201,43 +211,36 @@ class GoogleDriveServiceImpl(
             put("parents", buildJsonArray { add(parentFolderId) })
         }.toString()
 
-        val boundary = "----wdsl-boundary-${Clock.System.now().epochSeconds}"
-        val crlf = "\r\n"
-        val dashBoundary = "--$boundary"
-
-        val metaPart = StringBuilder()
-            .append(dashBoundary).append(crlf)
-            .append("Content-Type: application/json; charset=UTF-8").append(crlf)
-            .append(crlf)
-            .append(metadataJson).append(crlf)
-            .toString()
-            .toByteArray(Charsets.UTF_8)
-
-        val fileHeader = StringBuilder()
-            .append(dashBoundary).append(crlf)
-            .append("Content-Type: ").append(mediaMime).append(crlf)
-            .append("Content-Disposition: attachment; filename=\"").append(fileName).append("\"").append(crlf)
-            .append(crlf)
-            .toString()
-            .toByteArray(Charsets.UTF_8)
-
-        val closing = ("$crlf--$boundary--$crlf").toByteArray(Charsets.UTF_8)
-
-        val bodyBytes: ByteArray = metaPart + fileHeader + content + closing
-
         val response: HttpResponse = httpClient.post("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart") {
-            headers {
-                append(HttpHeaders.Accept, "application/json")
-                append(HttpHeaders.ContentType, "multipart/related; boundary=$boundary")
-            }
-            setBody(bodyBytes)
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        // Metadata part
+                        append(
+                            key = "metadata",
+                            value = metadataJson,
+                            headers = Headers.build {
+                                append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                            }
+                        )
+                        // File part
+                        append(
+                            key = "file",
+                            value = content,
+                            headers = Headers.build {
+                                append(HttpHeaders.ContentType, mediaMime)
+                            }
+                        )
+                    }
+                )
+            )
         }
 
-        if (response.status != HttpStatusCode.OK) {
-            val errorBody = response.bodyAsText()
-            throw Exception("Google Drive upload failed with status ${response.status}: $errorBody")
+        if (response.status != HttpStatusCode.OK && response.status != HttpStatusCode.Created) {
+            throw Exception("Google Drive binary upload failed: ${response.bodyAsText()}")
         }
     }
+
 
     companion object {
         private const val APP_FOLDER_NAME = "Witness App"

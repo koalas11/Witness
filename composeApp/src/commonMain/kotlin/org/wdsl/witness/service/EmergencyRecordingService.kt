@@ -3,16 +3,12 @@ package org.wdsl.witness.service
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.number
-import kotlinx.datetime.toLocalDateTime
 import org.wdsl.witness.PlatformAppContainer
 import org.wdsl.witness.WitnessApp
 import org.wdsl.witness.model.LocationData
 import org.wdsl.witness.state.EmergencyServiceState
 import org.wdsl.witness.storage.room.Recording
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
+import org.wdsl.witness.ui.util.getFormattedTimestamp
 
 interface EmergencyRecordingService {
     var serviceJob: Job?
@@ -58,21 +54,14 @@ interface EmergencyRecordingService {
 
     suspend fun onEmergencyRecordingStarted() {}
 
-    @OptIn(ExperimentalTime::class)
     fun saveEmergencyRecording(
         recordingFileName: String,
         gpsPositions: List<LocationData>,
     ) {
-        val timestamp = recordingFileName.subSequence("recording_".length, recordingFileName.lastIndexOf(".")).toString().toLong()
-
-        val instant = Instant.fromEpochMilliseconds(timestamp)
-        val ldt = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-        val timestampPrettyString = "${ldt.year}-${ldt.month.number.toString().padStart(2, '0')}-${
-            ldt.day.toString().padStart(2, '0')
-        } " +
-                "${ldt.hour.toString().padStart(2, '0')}:${
-                    ldt.minute.toString().padStart(2, '0')
-                }:${ldt.second.toString().padStart(2, '0')}"
+        val timestamp = recordingFileName.subSequence(
+            "recording_".length, recordingFileName.lastIndexOf(".")
+        ).toString().toLong()
+        val timestampPrettyString = getFormattedTimestamp(timestamp)
 
         val recording = Recording(
             title = "Emergency Recording: $timestampPrettyString",

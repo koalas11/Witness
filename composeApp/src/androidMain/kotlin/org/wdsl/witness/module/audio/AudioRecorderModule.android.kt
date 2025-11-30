@@ -6,6 +6,8 @@ import android.os.Build
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class AndroidAudioRecorderModule(
     private val context: Context
@@ -22,12 +24,13 @@ class AndroidAudioRecorderModule(
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     override fun startRecording(): Result<String> {
         return try {
             val dir = context.filesDir.resolve(AUDIO_RECORDER_FOLDER)
             dir.mkdir()
 
-            val outputFile = dir.resolve("recording_${System.currentTimeMillis()}.m4a")
+            val outputFile = dir.resolve("recording_${Clock.System.now().epochSeconds}.m4a")
 
             recorder = createRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
