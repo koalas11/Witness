@@ -7,8 +7,11 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class Settings(
-    var tutorialDone: Boolean = false,
-    var dynamicColorMode: DynamicColorMode = DynamicColorMode.ENABLED,
-    var themeMode: ThemeMode = ThemeMode.SYSTEM_DEFAULT,
-    var notificationsSetting: NotificationsSetting = NotificationsSetting.ALL_NOTIFICATIONS,
+    val tutorialDone: Boolean = false,
+    val dynamicColorMode: DynamicColorMode = DynamicColorMode.ENABLED,
+    val themeMode: ThemeMode = ThemeMode.SYSTEM_DEFAULT,
+    val notificationsSetting: NotificationsSetting = NotificationsSetting.ALL_NOTIFICATIONS,
+    val enableVibrationOnEmergencyRegistrationStart: Boolean = true,
+    val enableSmsOnEmergency: Boolean = true,
+    val enableEmailOnEmergency: Boolean = true,
 )

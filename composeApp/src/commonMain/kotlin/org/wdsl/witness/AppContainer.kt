@@ -126,7 +126,7 @@ open class AppContainerImpl(
                     refreshTokens {
                         var googleOAuth: GoogleOAuth? = null
                         googleAccountRepository.getGoogleOAuth()
-                            .onSuccess { it ->
+                            .onSuccess {
                                 if (it == null) {
                                     Log.d("", "No Google OAuth available for HTTP client bearer token")
                                     return@onSuccess

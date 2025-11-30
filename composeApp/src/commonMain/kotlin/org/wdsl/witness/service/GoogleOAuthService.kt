@@ -96,9 +96,13 @@ class GoogleOAuthServiceImpl(
             }
 
             Log.d(TAG, "Received OAuth token response")
-            val googleOAuth = Json.decodeFromString<GoogleOAuth>(response.bodyAsText())
-
-            Result.Success(googleOAuth)
+            val googleOAuthNew = Json.decodeFromString<GoogleOAuth>(response.bodyAsText())
+            if (googleOAuthNew.refreshToken != null) {
+                Result.Success(googleOAuthNew)
+            } else {
+                val updatedOAuth = googleOAuthNew.copy(refreshToken = googleOAuth.refreshToken)
+                Result.Success(updatedOAuth)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error handling OAuth response", e)
             Result.Error(ResultError.UnknownError("Failed to handle Google OAuth response"))

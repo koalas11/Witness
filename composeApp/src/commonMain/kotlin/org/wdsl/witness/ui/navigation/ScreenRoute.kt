@@ -30,7 +30,16 @@ interface ScreenRoute : NavKey {
     object Recordings: ScreenRoute
 
     @Serializable
+    object GeneralSettings: ScreenRoute, ShowBackButton, RemoveOnLeave
+
+    @Serializable
     object GoogleProfile: ScreenRoute, ShowBackButton, RemoveOnLeave
+
+    @Serializable
+    object SmsSettings: ScreenRoute, ShowBackButton, RemoveOnLeave
+
+    @Serializable
+    object DebugScreen: ScreenRoute, ShowBackButton, RemoveOnLeave
 
     @Serializable
     data class RecordingInfo(val recordingId: Long): ScreenRoute, ShowBackButton, RemoveOnLeave

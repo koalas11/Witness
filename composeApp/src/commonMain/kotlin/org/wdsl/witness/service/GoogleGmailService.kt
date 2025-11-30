@@ -30,6 +30,10 @@ class GoogleGmailServiceImpl(
                 return Result.Success(Unit)
             }
 
+            val toHeader = recipientEmails.joinToString(", ")
+
+            Log.d(TAG, "Sending emergency emails to: $toHeader")
+
             val bodyHtml = if (locationData == null) {
                 """
                 <html>
@@ -55,7 +59,7 @@ class GoogleGmailServiceImpl(
             }
 
             val emailContent = buildString {
-                append("To: ${recipientEmails.joinToString(",")}\r\n")
+                append("To: $toHeader\r\n")
                 append("Subject: $subject\r\n")
                 append("Content-Type: text/html; charset=UTF-8\r\n")
                 append("\r\n") // blank line separates headers from body

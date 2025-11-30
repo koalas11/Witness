@@ -1,7 +1,6 @@
 package org.wdsl.witness.viewmodel
 
 import androidx.annotation.MainThread
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -9,12 +8,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.repository.RecordingsRepository
 import org.wdsl.witness.storage.room.Recording
+import org.wdsl.witness.util.deleteRecordingFile
 
 class RecordingInfoViewModel(
     private val recordingsRepository: RecordingsRepository,
-): ViewModel() {
+): BaseOperationViewModel() {
     private var _recordingInfoUiState: MutableStateFlow<RecordingInfoUiState> = MutableStateFlow(
         RecordingInfoUiState.Loading
     )
@@ -47,6 +48,20 @@ class RecordingInfoViewModel(
                     message = "Error loading recording: ${it.message}",
                 )
             }
+        }
+    }
+
+    fun deleteRecording(platformContext: PlatformContext, recording: Recording) {
+        startOperation()
+        viewModelScope.launch {
+            recordingsRepository.deleteRecording(recording)
+                .onSuccess {
+                    operationUiMutableState.value = OperationUiState.Success("Recording deleted successfully.")
+                    deleteRecordingFile(platformContext, recording.recordingFileName)
+                }
+                .onError {
+                    operationUiMutableState.value = OperationUiState.Error("Failed to delete recording: ${it.message}")
+                }
         }
     }
 

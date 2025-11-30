@@ -158,15 +158,10 @@ buildkonfig {
     objectName = "WitnessBuildConfig"
 
     defaultConfigs {
-        buildConfigField(BOOLEAN, "DEBUG_MODE", "false")
-    }
-
-    targetConfigs {
-        create("debug") {
-            buildConfigField(BOOLEAN, "DEBUG_MODE", "true")
-        }
-        create("release") {
-            buildConfigField(BOOLEAN, "DEBUG_MODE", "false")
-        }
+        buildConfigField(
+            BOOLEAN,
+            "DEBUG_MODE",
+            if (project.hasProperty("release")) "false" else "true"
+        )
     }
 }

@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.auth.AuthTabIntent
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
+import org.wdsl.witness.state.AppSettingsState
 import org.wdsl.witness.usecase.GoogleIntegrationState
 
 /**
@@ -78,5 +79,10 @@ class MainActivity : AppCompatActivity() {
                 AppSetup(appContainer = appContainer)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        AppSettingsState.notifySettingsChanged()
     }
 }

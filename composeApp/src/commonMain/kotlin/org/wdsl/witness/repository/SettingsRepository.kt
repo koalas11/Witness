@@ -2,6 +2,8 @@ package org.wdsl.witness.repository
 
 import androidx.datastore.core.DataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import org.wdsl.witness.model.EmergencyRecordingSettings
 import org.wdsl.witness.model.Settings
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
@@ -30,6 +32,8 @@ interface SettingsRepository {
      * @return A Result indicating success or failure.
      */
     suspend fun updateSettings(modify: (Settings) -> Settings): Result<Unit>
+
+    suspend fun getEmergencyRecordingSettings(): Result<EmergencyRecordingSettings>
 }
 
 class SettingsRepositoryImpl(
@@ -61,6 +65,22 @@ class SettingsRepositoryImpl(
                 modify(currentSettings)
             }
             Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "An unknown error occurred", e)
+            Result.Error(ResultError.UnknownError("An unknown error occurred"))
+        }
+    }
+
+    override suspend fun getEmergencyRecordingSettings(): Result<EmergencyRecordingSettings> {
+        return try {
+            val settings = settingsDataStore.data.first()
+            Result.Success(
+                EmergencyRecordingSettings(
+                    settings.enableVibrationOnEmergencyRegistrationStart,
+                    settings.enableSmsOnEmergency,
+                    settings.enableEmailOnEmergency
+                )
+            )
         } catch (e: Exception) {
             Log.e(TAG, "An unknown error occurred", e)
             Result.Error(ResultError.UnknownError("An unknown error occurred"))

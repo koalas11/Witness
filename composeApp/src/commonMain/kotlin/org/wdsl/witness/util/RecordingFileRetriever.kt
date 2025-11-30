@@ -6,3 +6,8 @@ expect fun getRecordingFile(
     platformContext: PlatformContext,
     fileName: String,
 ): Result<ByteArray>
+
+expect fun deleteRecordingFile(
+    platformContext: PlatformContext,
+    fileName: String,
+): Result<Unit>

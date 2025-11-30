@@ -27,7 +27,7 @@ class AndroidGeoRecordingModule(
         override fun onLocationResult(result: LocationResult) {
             val lastLocation = result.lastLocation ?: return
             recordedLocations.add(lastLocation.toLocationData())
-            Log.d("LocationService", "Posizione registrata: ${lastLocation.latitude}")
+            Log.d("LocationService", "Registered Position: ${lastLocation.latitude}")
         }
     }
 
@@ -46,7 +46,7 @@ class AndroidGeoRecordingModule(
                 recordedLocations.add(it)
             },
             onError = {
-                Log.e("AndroidGeoRecordingModule", "start: Unable to get current location")
+                Log.e(TAG, "start: Unable to get current location")
             }
         )
         return Result.Success(Unit)
@@ -62,12 +62,13 @@ class AndroidGeoRecordingModule(
         onSuccess: (LocationData) -> Unit,
         onError: () -> Unit
     ) {
-        locationClient?.getCurrentLocation(
+        Log.d(TAG, "getCurrentLocation: Fetching current location")
+        LocationServices.getFusedLocationProviderClient(context).getCurrentLocation(
             Priority.PRIORITY_HIGH_ACCURACY,
             null
-        )?.addOnCompleteListener {
+        ).addOnCompleteListener {
             onSuccess(it.result.toLocationData())
-        }?.addOnFailureListener {
+        }.addOnFailureListener {
             onError()
         }
     }
@@ -75,5 +76,9 @@ class AndroidGeoRecordingModule(
     override fun getGeoRecordings(): List<LocationData> {
         this.stopGeoRecording()
         return recordedLocations.toList()
+    }
+
+    companion object {
+        private const val TAG = "AndroidGeoRecordingModule"
     }
 }

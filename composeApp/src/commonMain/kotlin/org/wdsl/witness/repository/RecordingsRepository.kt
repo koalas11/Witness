@@ -23,12 +23,18 @@ interface RecordingsRepository {
      */
     fun getRecordingsFlow(): Result<Flow<List<Recording>>>
 
+    suspend fun getAllRecordingFileNames(): Result<List<String>>
+
     /**
      * Inserts a new recording into the repository.
      * @param recording The Recording object to insert.
      * @return A Result indicating success or failure.
      */
     suspend fun insertRecording(recording: Recording): Result<Unit>
+
+    suspend fun deleteRecording(recording: Recording): Result<Unit>
+
+    suspend fun clearAllRecordings(): Result<Unit>
 }
 
 /**
@@ -57,12 +63,42 @@ class RecordingsRepositoryImpl(
         }
     }
 
+    override suspend fun getAllRecordingFileNames(): Result<List<String>> {
+        return try {
+            val recordings = recordingsDao.getAllRecordingFileNames()
+            Result.Success(recordings)
+        } catch (e: Exception) {
+            Log.e(TAG, "An unknown error occurred", e)
+            Result.Error(ResultError.UnknownError("An unknown error occurred"))
+        }
+    }
+
     override suspend fun insertRecording(recording: Recording): Result<Unit> {
         return try {
             recordingsDao.insertRecording(recording)
             Result.Success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "An unknown error occurred", e)
+            Result.Error(ResultError.UnknownError("An unknown error occurred"))
+        }
+    }
+
+    override suspend fun deleteRecording(recording: Recording): Result<Unit> {
+        return try {
+            recordingsDao.deleteRecording(recording)
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "An unknown error occurred", e)
+            Result.Error(ResultError.UnknownError("An unknown error occurred"))
+        }
+    }
+
+    override suspend fun clearAllRecordings(): Result<Unit> {
+        return try {
+            recordingsDao.clearAllRecordings()
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e("Recordings Repository", "An unknown error occurred", e)
             Result.Error(ResultError.UnknownError("An unknown error occurred"))
         }
     }

@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.vectorResource
+import org.wdsl.witness.platform
 import org.wdsl.witness.state.EmergencyServiceState
 import org.wdsl.witness.state.EmergencySoundState
 import org.wdsl.witness.viewmodel.AppViewModel
@@ -57,13 +58,15 @@ fun HomeScreen(
                 )
             }
             else -> {
+                val width = if (platform.isPortrait()) 0.3f else 0.2f
+                val height = if (platform.isPortrait()) 0.16f else 0.3f
                 IconButton(
                     modifier = modifier
                         .padding(top = 16.dp, end = 16.dp)
                         .align(Alignment.TopEnd)
                         .background(MaterialTheme.colorScheme.primary, CircleShape)
-                        .fillMaxWidth(0.3f)
-                        .fillMaxHeight(0.2f),
+                        .fillMaxWidth(width)
+                        .fillMaxHeight(height),
                     onClick = {
                         if (emergencySoundState.isPlaying) {
                             emergencySoundViewModel.stopEmergencySound()
@@ -86,12 +89,13 @@ fun HomeScreen(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            val width = if (platform.isPortrait()) 0.75f else 0.3f
             val emergencyServiceState by EmergencyServiceState.emergencyServiceState.collectAsStateWithLifecycle()
             IconButton(
                 modifier = modifier
                     .background(MaterialTheme.colorScheme.primary, CircleShape)
-                    .fillMaxWidth(0.75f)
-                    .fillMaxHeight(0.6f),
+                    .fillMaxWidth(width)
+                    .fillMaxHeight(0.55f),
                 onClick = {
                     if (emergencyServiceState is EmergencyServiceState.State.Running) {
                         appViewModel.stopAudioRecording()
