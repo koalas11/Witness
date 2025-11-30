@@ -29,6 +29,8 @@ import androidx.wear.compose.material.TimeText
 import androidx.wear.tooling.preview.devices.WearDevices
 import com.example.wearable.R
 import com.example.wearable.presentation.theme.WitnessTheme
+import com.google.android.gms.wearable.MessageClient
+import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Wearable
 
 class MainActivity : ComponentActivity() {
@@ -43,6 +45,7 @@ class MainActivity : ComponentActivity() {
             WearApp("Android")
         }
     }
+
 }
 
 @Composable
@@ -66,12 +69,11 @@ fun SendHelp(context: Context) {
     var lastTapTime by remember { mutableLongStateOf(0L) }
     Button(
         onClick = {
+            // Double tap detection
             val currentTime = System.currentTimeMillis()
-
             if(currentTime - lastTapTime < 400L) {
-                sendHelpMessage("/startRecording", context)
+                sendMessageToPhone("/WitnessHelpMessage", context)
             }
-
             lastTapTime = currentTime
         },
         Modifier
@@ -83,20 +85,23 @@ fun SendHelp(context: Context) {
     }
 }
 
-private fun sendHelpMessage(path: String, context: Context) {
+// Generic fun to send a message to the phone
+private fun sendMessageToPhone(path: String, context: Context) {
     val messageClient = Wearable.getMessageClient(context)
 
     Wearable.getNodeClient(context).connectedNodes
         .addOnSuccessListener { nodes ->
             nodes.forEach { node ->
-                Log.d("WearSend", "Nodo: ${node.displayName} and ${node.id}")
+                Log.d(
+                    "WearMessageService",
+                    "Node: ${node.displayName} with ID: ${node.id}")
 
                 messageClient.sendMessage(node.id, path, "start".toByteArray())
                     .addOnSuccessListener {
-                        Log.d("WearSend", "Message sent successfully")
+                        Log.d("WearMessageService", "Help message sent successfully")
                     }
                     .addOnFailureListener { exception ->
-                        Log.e("WearSend", "Error sending message", exception)
+                        Log.e("WearMessageService", "Error sending message", exception)
                     }
                 }
             }
