@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND"/>
     <attribution android:tag="audioPlayback" android:label="@string/audio_playback_attribution" />
     <attribution android:label="@string/empty" android:tag="@string/empty" />
 
@@ -70,6 +71,15 @@
             android:exported="false">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="step_counter"/>
+        </service>
+
+        <service
+            android:name=".service.WearMessageService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/startRecording" />
+            </intent-filter>
         </service>
     </application>
 

@@ -43,6 +43,9 @@ kotlin {
 
             /* KTOR */
             implementation(libs.ktor.client.okhttp)
+
+            /* WEARABLE */
+            implementation(libs.play.services.wearable)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
