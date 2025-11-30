@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wearable"
+    namespace = "org.wdsl.witness.wearable"
     compileSdk {
         version = release(36)
     }
