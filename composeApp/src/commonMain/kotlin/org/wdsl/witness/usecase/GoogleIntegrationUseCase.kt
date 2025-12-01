@@ -170,6 +170,10 @@ class GoogleIntegrationUseCase(
     }
 
     suspend fun sendEmergencyEmail(subject: String, locationData: LocationData?) {
+        if (_googleIntegrationMutableState.value !is GoogleIntegrationState.ProfileLoaded) {
+            Log.e(TAG, "No Google profile loaded, cannot send emergency email")
+            return
+        }
         emergencyContactsRepository.getEmailEmergencyContacts()
         .onError {
             platformContext.sendNotification(

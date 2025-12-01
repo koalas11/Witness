@@ -1,8 +1,8 @@
 package org.wdsl.witness
 
+import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import org.wdsl.witness.R.drawable.robe
 
 /**
@@ -15,7 +15,7 @@ data class AndroidContext(override val context: Context) : PlatformContext {
 
     override fun sendNotification(channelId: String, title: String, message: String, priority: Int) {
         val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManagerCompat
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notification = NotificationCompat.Builder(context, channelId)
             .setContentTitle(title)
             .setContentText(message)
