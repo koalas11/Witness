@@ -18,6 +18,7 @@ junit = "4.13.2"
 kotlin = "2.2.21"
 kotlinx-serialization = "1.9.0"
 kotlinx-io = "0.8.2"
+kotlinx-datetime = "0.7.1"
 material-icons-extended = "1.7.3"
 material3 = "1.10.0-alpha05"
 playServicesLocation = "21.3.0"
@@ -31,7 +32,7 @@ build-konfig = "0.17.1"
 browser = "1.9.0"
 media3 = "1.8.0"
 maplibre = "0.12.1"
-ktor = "3.3.2"
+ktor = "3.3.3"
 playServicesWearable = "18.0.0"
 composeBom = "2024.09.00"
 composeMaterial = "1.2.1"
@@ -44,6 +45,7 @@ playServicesWearableVersion = "19.0.0"
 # Kotlin
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
 kotlinx-io-okio = { module = "org.jetbrains.kotlinx:kotlinx-io-okio", version.ref = "kotlinx-io" }
 serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }

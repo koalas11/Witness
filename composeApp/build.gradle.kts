@@ -32,6 +32,7 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.appcompat)
             implementation(libs.androidx.browser)
 
             /* MEDIA 3 */
@@ -85,6 +86,7 @@ kotlin {
             /* KOTLINX */
             implementation(libs.kotlinx.io.core)
             implementation(libs.kotlinx.io.okio)
+            implementation(libs.kotlinx.datetime)
 
             /* KTOR */
             implementation(libs.ktor.client.core)
@@ -159,15 +161,10 @@ buildkonfig {
     objectName = "WitnessBuildConfig"
 
     defaultConfigs {
-        buildConfigField(BOOLEAN, "DEBUG_MODE", "false")
-    }
-
-    targetConfigs {
-        create("debug") {
-            buildConfigField(BOOLEAN, "DEBUG_MODE", "true")
-        }
-        create("release") {
-            buildConfigField(BOOLEAN, "DEBUG_MODE", "false")
-        }
+        buildConfigField(
+            BOOLEAN,
+            "DEBUG_MODE",
+            if (project.hasProperty("release")) "false" else "true"
+        )
     }
 }

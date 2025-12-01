@@ -8,6 +8,7 @@ import org.wdsl.witness.WitnessApp
 import org.wdsl.witness.model.LocationData
 import org.wdsl.witness.state.EmergencyServiceState
 import org.wdsl.witness.storage.room.Recording
+import org.wdsl.witness.ui.util.getFormattedTimestamp
 
 interface EmergencyRecordingService {
     var serviceJob: Job?
@@ -57,8 +58,13 @@ interface EmergencyRecordingService {
         recordingFileName: String,
         gpsPositions: List<LocationData>,
     ) {
+        val timestamp = recordingFileName.subSequence(
+            "recording_".length, recordingFileName.lastIndexOf(".")
+        ).toString().toLong()
+        val timestampPrettyString = getFormattedTimestamp(timestamp)
+
         val recording = Recording(
-            title = "Emergency Recording",
+            title = "Emergency Recording: $timestampPrettyString",
             recordingFileName = recordingFileName,
             gpsPositions = gpsPositions,
         )

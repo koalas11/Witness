@@ -5,6 +5,8 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import org.wdsl.witness.model.GoogleOAuth
+import org.wdsl.witness.repository.EmergencyContactsRepository
+import org.wdsl.witness.repository.EmergencyContactsRepositoryImpl
 import org.wdsl.witness.repository.GoogleAccountRepositoryImpl
 import org.wdsl.witness.repository.RecordingsRepository
 import org.wdsl.witness.repository.RecordingsRepositoryImpl
@@ -14,6 +16,8 @@ import org.wdsl.witness.service.GoogleDriveServiceImpl
 import org.wdsl.witness.service.GoogleGmailServiceImpl
 import org.wdsl.witness.service.GoogleOAuthServiceImpl
 import org.wdsl.witness.service.GoogleProfileServiceImpl
+import org.wdsl.witness.storage.datastore.EMERGENCY_CONTACTS_DATASTORE_NAME
+import org.wdsl.witness.storage.datastore.EmergencyContactsSerializer
 import org.wdsl.witness.storage.datastore.GOOGLE_OAUTH_DATASTORE_NAME
 import org.wdsl.witness.storage.datastore.GOOGLE_PROFILE_DATASTORE_NAME
 import org.wdsl.witness.storage.datastore.GoogleOAuthSerializer
@@ -32,6 +36,8 @@ interface AppContainer {
     val settingsRepository: SettingsRepository
 
     val recordingsRepository: RecordingsRepository
+
+    val emergencyContactsRepository: EmergencyContactsRepository
 
     val httpClient: HttpClient
 
@@ -56,6 +62,15 @@ open class AppContainerImpl(
     override val recordingsRepository: RecordingsRepository by lazy {
         val db = WitnessDatabase.getDatabase(platformContext)
         RecordingsRepositoryImpl(db.recordingDao())
+    }
+
+    override val emergencyContactsRepository: EmergencyContactsRepository by lazy {
+        val emergencyContactsDataStore = getDataStore(
+            platformContext,
+            EMERGENCY_CONTACTS_DATASTORE_NAME,
+            EmergencyContactsSerializer
+        )
+        EmergencyContactsRepositoryImpl(emergencyContactsDataStore)
     }
 
     private val googleAccountRepository by lazy {
@@ -111,7 +126,7 @@ open class AppContainerImpl(
                     refreshTokens {
                         var googleOAuth: GoogleOAuth? = null
                         googleAccountRepository.getGoogleOAuth()
-                            .onSuccess { it ->
+                            .onSuccess {
                                 if (it == null) {
                                     Log.d("", "No Google OAuth available for HTTP client bearer token")
                                     return@onSuccess
@@ -144,6 +159,8 @@ open class AppContainerImpl(
 
     override val googleIntegrationUseCase: GoogleIntegrationUseCase by lazy {
         GoogleIntegrationUseCase(
+            platformContext,
+            emergencyContactsRepository,
             googleAccountRepository,
             googleOAuthService,
             GoogleProfileServiceImpl(googleOAuthHttpClient),

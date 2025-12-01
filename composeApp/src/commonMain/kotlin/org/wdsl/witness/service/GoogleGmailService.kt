@@ -6,6 +6,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.core.toByteArray
+import org.wdsl.witness.model.LocationData
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
@@ -15,30 +16,50 @@ interface GoogleGmailService {
     suspend fun sendEmergencyEmails(
         recipientEmails: List<String>,
         subject: String,
-        gpsLat: Double,
-        gpsLon: Double,
+        locationData: LocationData?,
     ) : Result<Unit>
 }
 
 class GoogleGmailServiceImpl(
     private val httpClient: HttpClient,
 ): GoogleGmailService {
-    override suspend fun sendEmergencyEmails(recipientEmails: List<String>, subject: String, gpsLat: Double, gpsLon: Double) : Result<Unit> {
+    override suspend fun sendEmergencyEmails(recipientEmails: List<String>, subject: String, locationData: LocationData?) : Result<Unit> {
         return try {
-            val bodyHtml = """
+            if (recipientEmails.isEmpty()) {
+                Log.d(TAG, "No recipient emails provided, skipping email sending")
+                return Result.Success(Unit)
+            }
+
+            val toHeader = recipientEmails.joinToString(", ")
+
+            Log.d(TAG, "Sending emergency emails to: $toHeader")
+
+            val bodyHtml = if (locationData == null) {
+                """
+                <html>
+                  <body>
+                    <h3>Emergency Alert!</h3>
+                    <p>Location: pos not available</p>
+                  </body>
+                </html>
+                """.trimIndent()
+            } else {
+                """
                 <html>
                   <body>
                     <h3>Emergency Alert!</h3>
                     <p><b>Location:</b><br>
-                       Latitude: $gpsLat<br>
-                       Longitude: $gpsLon</p>
-                    <p><a href="https://maps.google.com/?q=$gpsLat,$gpsLon">View on Google Maps</a></p>
+                       Latitude: ${locationData.latitude}<br>
+                       Longitude: ${locationData.longitude}</p>
+                       Altitude: ${locationData.altitude}<br>
+                    <p><a href="https://maps.google.com/?q=${locationData.latitude},${locationData.longitude}">View on Google Maps</a></p>
                   </body>
                 </html>
                 """.trimIndent()
+            }
 
             val emailContent = buildString {
-                append("To: ${recipientEmails.joinToString(",")}\r\n")
+                append("To: $toHeader\r\n")
                 append("Subject: $subject\r\n")
                 append("Content-Type: text/html; charset=UTF-8\r\n")
                 append("\r\n") // blank line separates headers from body

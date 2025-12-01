@@ -9,15 +9,26 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.model.GoogleProfile
+import org.wdsl.witness.model.LocationData
+import org.wdsl.witness.repository.EmergencyContactsRepository
 import org.wdsl.witness.repository.GoogleAccountRepository
 import org.wdsl.witness.service.GoogleDriveService
 import org.wdsl.witness.service.GoogleGmailService
 import org.wdsl.witness.service.GoogleOAuthService
 import org.wdsl.witness.service.GoogleProfileService
+import org.wdsl.witness.storage.room.Recording
+import org.wdsl.witness.util.ERROR_NOTIFICATION_CHANNEL_ID
 import org.wdsl.witness.util.Log
+import org.wdsl.witness.util.Result
+import org.wdsl.witness.util.ResultError
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.ExperimentalTime
 
 class GoogleIntegrationUseCase(
+    private val platformContext: PlatformContext,
+    private val emergencyContactsRepository: EmergencyContactsRepository,
     private val googleAccountRepository: GoogleAccountRepository,
     private val googleOAuthService: GoogleOAuthService,
     private val googleProfileService: GoogleProfileService,
@@ -31,6 +42,37 @@ class GoogleIntegrationUseCase(
     private var _oAuthJob: CoroutineScope? = null
     private var _oAuthTempData: Pair<String, String>? = null
     private var _oAuthDataReceivedMutableState: MutableStateFlow<Pair<String, String>?>? = null
+
+    private var _isInitialized = false
+
+    @OptIn(ExperimentalTime::class)
+    fun initialize() {
+        if (_isInitialized) return
+        _isInitialized = true
+
+        platformContext.witnessApp.appScope.launch {
+            Log.d(TAG, "Initializing Google Integration Use Case")
+            googleAccountRepository.getProfileFlow()
+                .onError {
+                    Log.d(TAG, "No Google profile found during initialization")
+                    _googleIntegrationMutableState.value = GoogleIntegrationState.NoProfile
+                }
+                .onSuccess { flow ->
+                    flow.collect { profile ->
+                        if (profile != null) {
+                            Log.d(TAG, "Google profile found during initialization: $profile")
+                            _googleIntegrationMutableState.value = GoogleIntegrationState.ProfileLoaded(profile)
+                            if (profile.lastUpdated < Clock.System.now().epochSeconds - 1.days.inWholeMilliseconds) {
+                                updateProfileInfo()
+                            }
+                        } else {
+                            Log.d(TAG, "No Google profile found during initialization")
+                            _googleIntegrationMutableState.value = GoogleIntegrationState.NoProfile
+                        }
+                    }
+                }
+        }
+    }
 
     fun startGoogleOAuthFlow(coroutineContext: CoroutineContext, platformContext: PlatformContext, codeVerifier: String, state: String) {
         _oAuthTempData = Pair(codeVerifier, state)
@@ -127,12 +169,40 @@ class GoogleIntegrationUseCase(
             }
     }
 
-    suspend fun sendEmergencyEmail(subject: String, gpsLat: Double, gpsLon: Double) {
-        googleGmailService.sendEmergencyEmails(listOf("marco.sanvito@hotmail.com"), subject, gpsLat, gpsLon)
+    suspend fun sendEmergencyEmail(subject: String, locationData: LocationData?) {
+        if (_googleIntegrationMutableState.value !is GoogleIntegrationState.ProfileLoaded) {
+            Log.d(TAG, "No Google profile loaded, attempting to update profile info")
+            updateProfileInfo()
+            if (_googleIntegrationMutableState.value !is GoogleIntegrationState.ProfileLoaded) {
+                Log.d(TAG, "No Google profile loaded after update, cannot send emergency email")
+                return
+            }
+        }
+        emergencyContactsRepository.getEmailEmergencyContacts()
+        .onError {
+            platformContext.sendNotification(
+                ERROR_NOTIFICATION_CHANNEL_ID,
+                "Error Sending Emergency Email",
+                "Failed to retrieve emergency contacts: ${it.message}",
+                2,
+            )
+        }
+        .onSuccess { contacts ->
+            googleGmailService.sendEmergencyEmails(contacts, subject, locationData)
+        }
     }
 
-    private fun updateState() {
-
+    suspend fun uploadRecordingToGoogleDrive(recording: Recording): Result<Unit> {
+        return try {
+            if (_googleIntegrationMutableState.value !is GoogleIntegrationState.ProfileLoaded) {
+                Log.e(TAG, "No Google profile loaded, cannot upload recording")
+                return Result.Error(ResultError.UnknownError("No Google profile loaded"))
+            }
+            return googleDriveService.uploadRecordingToDrive(platformContext, recording)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to upload recording to Google Drive", e)
+            Result.Error(ResultError.UnknownError("Failed to upload recording to Google Drive: ${e.message}"))
+        }
     }
 
     companion object {
@@ -143,8 +213,6 @@ class GoogleIntegrationUseCase(
 sealed interface GoogleIntegrationState {
     object NoProfile : GoogleIntegrationState
     object OAuthInProgress : GoogleIntegrationState
-    object UpdatingProfile : GoogleIntegrationState
-    data class OldProfileLoaded(val googleProfile: GoogleProfile) : GoogleIntegrationState
     data class ProfileLoaded(val googleProfile: GoogleProfile) : GoogleIntegrationState
     object NeedToReauthenticate : GoogleIntegrationState
     data class Error(val message: String) : GoogleIntegrationState

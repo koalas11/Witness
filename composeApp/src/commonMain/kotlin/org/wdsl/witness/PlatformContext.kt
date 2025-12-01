@@ -5,4 +5,7 @@ package org.wdsl.witness
  */
 interface PlatformContext {
     val context: Any
+    val witnessApp: WitnessApp
+
+    fun sendNotification(channelId: String, title: String, message: String, priority: Int)
 }

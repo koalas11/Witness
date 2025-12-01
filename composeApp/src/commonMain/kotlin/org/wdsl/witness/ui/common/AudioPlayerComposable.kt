@@ -2,12 +2,14 @@ package org.wdsl.witness.ui.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +27,7 @@ import org.wdsl.witness.viewmodel.AudioPlayerViewModel
 import org.wdsl.witness.viewmodel.witnessViewModel
 
 @Composable
-fun ColumnScope.AudioPlayerComposable(
+fun AudioPlayerComposable(
     modifier: Modifier = Modifier,
     recording: Recording,
     audioPlayerViewModel: AudioPlayerViewModel = witnessViewModel(factory = AudioPlayerViewModel.Factory),
@@ -36,8 +38,8 @@ fun ColumnScope.AudioPlayerComposable(
 
     Column(
         modifier = modifier
-            .weight(0.25f)
-            .fillMaxSize()
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
             .padding(8.dp),
     ) {
         val durationMsState by audioPlayerViewModel.audioDurationMsState.collectAsStateWithLifecycle()
@@ -74,7 +76,7 @@ fun ColumnScope.AudioPlayerComposable(
             if (durationMsState > 0) {
                 Text(text = formatMsToTime(durationMsState))
             } else {
-                Text(text = "--:--")
+                Text(text = "00:00")
             }
         }
 
@@ -85,18 +87,26 @@ fun ColumnScope.AudioPlayerComposable(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             if (audioPlayerState == AudioPlayerState.Playing) {
-                Button(
+                IconButton(
                     onClick = { audioPlayerViewModel.pauseRecording() },
                     modifier = modifier,
                 ) {
-                    Text(text = "Pause")
+                    Icon(
+                        modifier = modifier,
+                        imageVector = Icons.Default.Pause,
+                        contentDescription = "Pause",
+                    )
                 }
             } else if (audioPlayerState == AudioPlayerState.RecordingReady || audioPlayerState == AudioPlayerState.Paused) {
-                Button(
+                IconButton(
                     onClick = { audioPlayerViewModel.playRecording() },
                     modifier = modifier,
                 ) {
-                    Text(text = "Play")
+                    Icon(
+                        modifier = modifier,
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Play",
+                    )
                 }
             }
         }

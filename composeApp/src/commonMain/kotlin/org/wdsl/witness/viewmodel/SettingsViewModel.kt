@@ -50,6 +50,22 @@ class SettingsViewModel(
         }
     }
 
+    fun setEnableVibrationOnEmergencyRegistrationStart(enable: Boolean) {
+        updateSettings { currentSettings ->
+            currentSettings.copy(
+                enableVibrationOnEmergencyRegistrationStart = enable
+            )
+        }
+    }
+
+    fun setEnableSmsOnEmergency(enable: Boolean) {
+        updateSettings { currentSettings ->
+            currentSettings.copy(
+                enableSmsOnEmergency = enable
+            )
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -64,23 +80,6 @@ class SettingsViewModel(
          * A sealed interface that represents the success notifications for managing transactions.
          */
         sealed interface SettingsSuccessNotifications : SuccessNotifications {
-        }
-
-        /**
-         * A sealed interface that represents the error notifications for managing transactions.
-         */
-        sealed interface ManageTransactionErrorNotifications: ErrorNotifications {
-            object TransactionNotFound : ManageTransactionErrorNotifications {
-                override val message: String = "Transaction not found"
-            }
-
-            object TitleEmpty : ManageTransactionErrorNotifications {
-                override val message: String = "Title cannot be empty"
-            }
-
-            object AmountInvalid : ManageTransactionErrorNotifications {
-                override val message: String = "Amount must be greater than 0"
-            }
         }
     }
 }

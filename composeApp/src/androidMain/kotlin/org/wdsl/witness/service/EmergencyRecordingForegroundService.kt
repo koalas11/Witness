@@ -12,7 +12,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import org.wdsl.witness.PlatformAppContainer
+import org.wdsl.witness.R.drawable.robe
 import org.wdsl.witness.WitnessApp
+import org.wdsl.witness.util.EMERGENCY_NOTIFICATION_CHANNEL_ID
 
 class EmergencyRecordingForegroundService : Service(), EmergencyRecordingService {
 
@@ -46,10 +48,10 @@ class EmergencyRecordingForegroundService : Service(), EmergencyRecordingService
 
     @SuppressLint("InlinedApi")
     private fun startForeground() {
-        val notification = NotificationCompat.Builder(this, "WitnessEmergencyChannel")
+        val notification = NotificationCompat.Builder(this, EMERGENCY_NOTIFICATION_CHANNEL_ID)
             .setContentTitle("Witness Service Active")
             .setContentText("Recording Audio and Position.")
-            .setSmallIcon(android.R.drawable.star_on)
+            .setSmallIcon(robe)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setOngoing(true)
             .build()

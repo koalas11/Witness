@@ -1,12 +1,15 @@
 package org.wdsl.witness.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +39,8 @@ fun RecordingsScreen(
     val recordingsUiState by recordingsViewModel.recordingsUiState.collectAsStateWithLifecycle()
     if (recordingsUiState is RecordingsUiState.Loading) {
         CircularProgressIndicator(
-            modifier = modifier,
+            modifier = modifier
+                .size(48.dp),
         )
         return
     } else if (recordingsUiState is RecordingsUiState.Error) {
@@ -49,15 +53,26 @@ fun RecordingsScreen(
             text = "No recordings found.",
             modifier = modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(32.dp),
             textAlign = TextAlign.Center,
         )
         return
     }
     LazyColumn(
         modifier = modifier
+            .padding(8.dp)
             .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        item {
+            Text(
+                modifier = modifier
+                    .padding(8.dp),
+                text = "Recordings:",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center
+            )
+        }
         if (WitnessBuildConfig.DEBUG_MODE) {
         }
         items(recordings, {it.id}) { recording ->

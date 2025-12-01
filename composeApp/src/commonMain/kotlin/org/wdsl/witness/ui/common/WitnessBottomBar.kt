@@ -1,7 +1,9 @@
 package org.wdsl.witness.ui.common
 
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -16,19 +18,23 @@ fun WitnessBottomBar(
     appViewModel: AppViewModel,
 ) {
     val backStack by appViewModel.backStack.collectAsStateWithLifecycle()
+    val shouldShowBackButton by appViewModel.shouldShowBackButton.collectAsStateWithLifecycle()
+    if (shouldShowBackButton) {
+        return
+    }
     NavigationBar(
         modifier = modifier,
     ) {
         MainRoute.entries.forEach { entry ->
             NavigationBarItem(
                 icon = {
-                    androidx.compose.material3.Icon(
+                    Icon(
                         imageVector = entry.icon,
                         contentDescription = if (entry.contentDescription != null) stringResource(entry.contentDescription) else null,
                     )
                 },
                 label = {
-                    androidx.compose.material3.Text(
+                    Text(
                         text = stringResource(entry.label),
                     )
                 },

@@ -1,7 +1,6 @@
 package org.wdsl.witness.viewmodel
 
 import androidx.annotation.MainThread
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.model.GoogleProfile
+import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.usecase.GoogleIntegrationState
 import org.wdsl.witness.usecase.GoogleIntegrationUseCase
 import org.wdsl.witness.util.Log
@@ -20,7 +20,7 @@ import kotlin.random.Random
 
 class GoogleIntegrationViewModel(
     private val googleIntegrationUseCase: GoogleIntegrationUseCase,
-) : ViewModel() {
+) : BaseOperationViewModel() {
     private var _googleIntegrationUiMutableState = MutableStateFlow<GoogleIntegrationUiState>(GoogleIntegrationUiState.NoProfile)
     val googleIntegrationUiState : StateFlow<GoogleIntegrationUiState> = _googleIntegrationUiMutableState.asStateFlow()
 
@@ -31,6 +31,7 @@ class GoogleIntegrationViewModel(
         _isInitialized = true
 
         viewModelScope.launch {
+            googleIntegrationUseCase.initialize()
             googleIntegrationUseCase.googleIntegrationState.collect { state ->
                 Log.d("GoogleOAuthViewModel", "Current Google OAuth State: $state")
                 when (state) {
@@ -55,11 +56,21 @@ class GoogleIntegrationViewModel(
         }
     }
 
-    fun sendTestEmail() {
+    fun uploadRecordingToGoogleDrive(
+        recording: Recording,
+    ) {
+        startOperation()
         viewModelScope.launch {
-            val gpsLat = 46.01
-            val gpsLon = 8.959
-            googleIntegrationUseCase.sendEmergencyEmail("Test Email Witness", gpsLat, gpsLon)
+            googleIntegrationUseCase.uploadRecordingToGoogleDrive(
+                recording = recording,
+            ).onSuccess {
+                Log.d("GoogleIntegrationViewModel", "Successfully uploaded recording to Google Drive")
+                operationUiMutableState.value = OperationUiState.Success("Recording uploaded to Google Drive successfully.")
+            }.onError { error ->
+                Log.e("GoogleIntegrationViewModel", "Failed to upload recording to Google Drive: ${error.message}")
+                operationUiMutableState.value =
+                    OperationUiState.Error("Failed to upload recording to Google Drive: ${error.message}")
+            }
         }
     }
 

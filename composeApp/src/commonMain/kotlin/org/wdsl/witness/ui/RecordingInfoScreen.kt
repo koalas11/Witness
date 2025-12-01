@@ -1,13 +1,37 @@
 package org.wdsl.witness.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.wdsl.witness.LocalPlatformContext
 import org.wdsl.witness.ui.common.AudioPlayerComposable
 import org.wdsl.witness.ui.common.MapComposable
+import org.wdsl.witness.ui.util.handleOperationState
+import org.wdsl.witness.viewmodel.GoogleIntegrationUiState
+import org.wdsl.witness.viewmodel.GoogleIntegrationViewModel
 import org.wdsl.witness.viewmodel.RecordingInfoUiState
 import org.wdsl.witness.viewmodel.RecordingInfoViewModel
 import org.wdsl.witness.viewmodel.witnessViewModel
@@ -17,26 +41,214 @@ fun RecordingInfoScreen(
     modifier: Modifier = Modifier,
     recordingId: Long,
     recordingInfoViewModel: RecordingInfoViewModel = witnessViewModel(factory = RecordingInfoViewModel.Factory),
+    googleIntegrationViewModel: GoogleIntegrationViewModel = witnessViewModel(factory = GoogleIntegrationViewModel.Factory)
 ) {
     LaunchedEffect(Unit) {
         recordingInfoViewModel.initialize(recordingId)
+        googleIntegrationViewModel.initialize()
     }
     val recordingInfoUiState by recordingInfoViewModel.recordingInfoUiState.collectAsStateWithLifecycle()
     if (recordingInfoUiState is RecordingInfoUiState.Loading) {
-        // Show loading state
+        CircularProgressIndicator(
+            modifier = modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+        )
         return
     } else if (recordingInfoUiState is RecordingInfoUiState.Error) {
-        // Show error state
+        Text(
+            modifier = modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            text = (recordingInfoUiState as RecordingInfoUiState.Error).message,
+            textAlign = TextAlign.Center,
+        )
         return
     }
     val selectedRecording = (recordingInfoUiState as RecordingInfoUiState.Loaded).recording
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .padding(8.dp),
     ) {
-        AudioPlayerComposable(
-            modifier = modifier,
-            recording = selectedRecording,
-        )
+        Card(
+            modifier = modifier
+                .weight(0.30f),
+        ) {
+            Column(
+                modifier = modifier,
+            ) {
+                Text(
+                    modifier = modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
+                    text = "Title: ${selectedRecording.title}",
+                    textAlign = TextAlign.Center,
+                )
+                AudioPlayerComposable(
+                    modifier = modifier,
+                    recording = selectedRecording,
+                )
+                val googleIntegrationUiState by googleIntegrationViewModel.googleIntegrationUiState.collectAsStateWithLifecycle()
+                val enabledRec = handleOperationState(
+                    viewModel = recordingInfoViewModel,
+                )
+                if (googleIntegrationUiState !is GoogleIntegrationUiState.Profile) {
+                    var openConfirm by remember { mutableStateOf(false) }
+                    IconButton(
+                        modifier = modifier
+                            .padding(end = 16.dp)
+                            .align(Alignment.End),
+                        onClick = {
+                            openConfirm = true
+                        },
+                        enabled = enabledRec,
+                    ) {
+                        Icon(
+                            modifier = modifier,
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete Recording",
+                        )
+                    }
+                    if (!openConfirm) {
+                        return@Column
+                    }
+                    AlertDialog(
+                        onDismissRequest = {
+                            openConfirm = false
+                        },
+                        title = {
+                            Text(text = "Confirm Deletion")
+                        },
+                        text = {
+                            Text("Are you sure you want to delete this recording? This action cannot be undone.")
+                        },
+                        confirmButton = {
+                            val platformContext = LocalPlatformContext.current
+                            Button(
+                                onClick = {
+                                    recordingInfoViewModel.deleteRecording(
+                                        platformContext = platformContext,
+                                        recording = selectedRecording,
+                                    )
+                                    openConfirm = false
+                                },
+                            ) {
+                                Text("Delete")
+                            }
+                        },
+                        dismissButton = {
+                            Button(
+                                onClick = {
+                                    openConfirm = false
+                                },
+                            ) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
+                    return@Column
+                }
+
+                val enabledGoogle = handleOperationState(
+                    viewModel = googleIntegrationViewModel,
+                )
+                val enabled = enabledRec && enabledGoogle
+                var openConfirm by remember { mutableStateOf(false) }
+
+                Row(
+                    modifier = modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Button(
+                        modifier = modifier
+                            .padding(horizontal = 8.dp)
+                            .fillMaxWidth(0.8f)
+                            .align(Alignment.CenterVertically),
+                        onClick = {
+                            googleIntegrationViewModel.uploadRecordingToGoogleDrive(
+                                recording = selectedRecording,
+                            )
+                        },
+                        enabled = enabled,
+                    ) {
+                        Row(
+                            modifier = modifier,
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            Row(
+                                modifier = modifier,
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                            ) {
+                                Icon(
+                                    modifier = modifier
+                                        .padding(end = 8.dp),
+                                    imageVector = Icons.Default.UploadFile,
+                                    contentDescription = "Upload Icon",
+                                )
+                                Text(
+                                    modifier = modifier,
+                                    text = "Upload to Google Drive",
+                                )
+                            }
+                        }
+                    }
+                    IconButton(
+                        modifier = modifier
+                            .padding(start = 16.dp),
+                        onClick = {
+                            openConfirm = true
+                        },
+                        enabled = enabled,
+                    ) {
+                        Icon(
+                            modifier = modifier,
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete Recording",
+                        )
+                    }
+                }
+                if (!openConfirm) {
+                    return@Column
+                }
+                AlertDialog(
+                    onDismissRequest = {
+                        openConfirm = false
+                    },
+                    title = {
+                        Text(text = "Confirm Deletion")
+                    },
+                    text = {
+                        Text("Are you sure you want to delete this recording? This action cannot be undone.")
+                    },
+                    confirmButton = {
+                        val platformContext = LocalPlatformContext.current
+                        Button(
+                            onClick = {
+                                recordingInfoViewModel.deleteRecording(
+                                    platformContext = platformContext,
+                                    recording = selectedRecording,
+                                )
+                                openConfirm = false
+                            },
+                        ) {
+                            Text("Delete")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = {
+                                openConfirm = false
+                            },
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+        }
         MapComposable(
             modifier = modifier,
             recording = selectedRecording,

@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import kotlinx.serialization.json.JsonObject
+import org.maplibre.compose.camera.CameraPosition
 import org.maplibre.compose.camera.rememberCameraState
 import org.maplibre.compose.expressions.dsl.const
 import org.maplibre.compose.expressions.dsl.format
@@ -41,6 +42,7 @@ import org.maplibre.spatialk.geojson.BoundingBox
 import org.maplibre.spatialk.geojson.Feature
 import org.maplibre.spatialk.geojson.FeatureCollection
 import org.maplibre.spatialk.geojson.Point
+import org.maplibre.spatialk.geojson.Position
 import org.maplibre.spatialk.geojson.dsl.featureCollectionOf
 import org.maplibre.spatialk.geojson.toJson
 import org.wdsl.witness.storage.room.Recording
@@ -51,12 +53,22 @@ fun ColumnScope.MapComposable(
     modifier: Modifier = Modifier,
     recording: Recording,
 ) {
-    val cameraState = rememberCameraState()
+    val cameraState = rememberCameraState(
+        CameraPosition(
+            target = Position(
+                recording.gpsPositions.firstOrNull()?.longitude ?: 0.0,
+                recording.gpsPositions.firstOrNull()?.latitude ?: 0.0,
+            ),
+            tilt = 45.0,
+            zoom = 16.0,
+        )
+    )
     val styleState = rememberStyleState()
 
     Box(
         modifier = modifier
-            .weight(0.75f)
+            .padding(8.dp)
+            .weight(0.7f)
             .fillMaxSize(),
     ) {
         var boundingBox by remember {
@@ -97,7 +109,7 @@ fun ColumnScope.MapComposable(
                 GeoJsonData.JsonString(data),
             )
 
-            val marker = rememberVectorPainter(Icons.Default.Star)
+            val marker = rememberVectorPainter(Icons.Default.LocationOn)
 
             if (recording.gpsPositions.isNotEmpty()) {
                 SymbolLayer(

@@ -3,7 +3,10 @@ package org.wdsl.witness.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -11,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.wdsl.witness.LocalNotificationsSetting
 import org.wdsl.witness.ui.navigation.NavHandler
@@ -44,11 +48,14 @@ fun App(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 CircularProgressIndicator(
-                    modifier = modifier,
+                    modifier = modifier
+                        .size(48.dp)
+                        .padding(bottom = 16.dp),
                 )
                 Text(
                     modifier = modifier,
-                    text = "Loading..."
+                    text = "Loading...",
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
         }

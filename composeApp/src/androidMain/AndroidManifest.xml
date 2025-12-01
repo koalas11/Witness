@@ -13,7 +13,10 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" android:minSdkVersion="33" />
     <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND"/>
+  
     <attribution android:tag="audioPlayback" android:label="@string/audio_playback_attribution" />
     <attribution android:label="@string/empty" android:tag="@string/empty" />
 
@@ -29,11 +32,11 @@
     <application
         android:name=".WitnessAppAndroid"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/app_logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/app_logo_round"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        android:theme="@style/Theme.Biometrics">
         <activity
             android:exported="true"
             android:launchMode="singleTop"
