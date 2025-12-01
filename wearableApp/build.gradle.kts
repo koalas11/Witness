@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,36 +8,47 @@ plugins {
 
 android {
     namespace = "org.wdsl.witness.wearable"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "org.wdsl.witness"
-        minSdk = 30
-        targetSdk = 36
+        minSdk = libs.versions.android.minSdk.get().toInt() + 2
+        targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
-
     }
 
     buildTypes {
-        release {
+        debug {
             isMinifyEnabled = false
+            isShrinkResources = false
+            isDebuggable = true
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+
     useLibrary("wear-sdk")
+
     buildFeatures {
         compose = true
     }
@@ -44,19 +57,12 @@ android {
 dependencies {
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)
-    implementation(libs.compose.material3)
+    implementation(libs.wear.compose.material3)
     implementation(libs.compose.ui)
+    implementation(libs.material.icons.extended)
     implementation(libs.play.services.wearable)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation("androidx.wear.compose:compose-material3:1.5.5")
-//    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.material.icons.extended)
     implementation(libs.androidx.core.splashscreen)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

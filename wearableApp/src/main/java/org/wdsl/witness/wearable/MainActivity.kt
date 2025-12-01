@@ -1,23 +1,16 @@
 package org.wdsl.witness.wearable
 
 import android.content.Context
-import android.graphics.drawable.shapes.OvalShape
-import android.media.TimedText
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PowerSettingsNew
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -26,14 +19,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.fromColorLong
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.IconButton
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.tooling.preview.devices.WearDevices
-import org.wdsl.witness.wearable.theme.WitnessTheme
 import com.google.android.gms.wearable.Wearable
+import org.wdsl.witness.wearable.theme.WitnessTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,17 +36,14 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        setTheme(android.R.style.Theme_DeviceDefault)
-
         setContent {
-            WearApp("Android")
+            WearApp()
         }
     }
 }
 
 @Composable
-fun WearApp(context: String) {
-    val context = LocalContext.current
+fun WearApp() {
     WitnessTheme {
         Box(
             modifier = Modifier
@@ -60,13 +52,13 @@ fun WearApp(context: String) {
             contentAlignment = Alignment.Center
         ) {
             TimeText()
-            SendHelp(context)
+            SendHelp()
         }
     }
 }
 
 @Composable
-fun SendHelp(context: Context) {
+fun SendHelp() {
     var lastTapTime by remember { mutableLongStateOf(0L) }
 //    Button(
 //        onClick = {
@@ -91,6 +83,7 @@ fun SendHelp(context: Context) {
 //            fontSize = 24.sp
 //        )
 //    }
+    val context = LocalContext.current
     IconButton (
         modifier = Modifier
             .fillMaxSize(0.7f)
@@ -139,5 +132,5 @@ private fun sendMessageToPhone(path: String, context: Context) {
 @Preview(device = WearDevices.SMALL_ROUND, showSystemUi = true)
 @Composable
 fun DefaultPreview() {
-    WearApp("Preview Android")
+    WearApp()
 }
