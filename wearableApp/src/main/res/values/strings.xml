@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Witness</string>
+    <string name="send_help">SEND HELP</string>
+    <string name="hello_world">From the Square world,\nHello, %1$s!</string>
+</resources>
