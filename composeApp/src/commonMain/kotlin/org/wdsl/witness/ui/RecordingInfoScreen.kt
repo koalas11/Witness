@@ -80,7 +80,8 @@ fun RecordingInfoScreen(
                 Text(
                     modifier = modifier
                         .padding(top = 8.dp)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .weight(0.06f),
                     text = "Title: ${selectedRecording.title}",
                     textAlign = TextAlign.Center,
                 )
@@ -97,7 +98,8 @@ fun RecordingInfoScreen(
                     IconButton(
                         modifier = modifier
                             .padding(end = 16.dp)
-                            .align(Alignment.End),
+                            .align(Alignment.End)
+                            .weight(0.1f),
                         onClick = {
                             openConfirm = true
                         },
@@ -156,7 +158,9 @@ fun RecordingInfoScreen(
                 var openConfirm by remember { mutableStateOf(false) }
 
                 Row(
-                    modifier = modifier.fillMaxWidth(),
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .weight(0.1f),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {

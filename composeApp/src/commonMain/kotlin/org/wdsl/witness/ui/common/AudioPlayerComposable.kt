@@ -2,6 +2,7 @@ package org.wdsl.witness.ui.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,7 +28,7 @@ import org.wdsl.witness.viewmodel.AudioPlayerViewModel
 import org.wdsl.witness.viewmodel.witnessViewModel
 
 @Composable
-fun AudioPlayerComposable(
+fun ColumnScope.AudioPlayerComposable(
     modifier: Modifier = Modifier,
     recording: Recording,
     audioPlayerViewModel: AudioPlayerViewModel = witnessViewModel(factory = AudioPlayerViewModel.Factory),
@@ -40,7 +41,7 @@ fun AudioPlayerComposable(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
-            .padding(8.dp),
+            .weight(0.14f),
     ) {
         val durationMsState by audioPlayerViewModel.audioDurationMsState.collectAsStateWithLifecycle()
         val audioPlayerCurrentPosition by audioPlayerViewModel.audioCurrentPosition.collectAsStateWithLifecycle()
