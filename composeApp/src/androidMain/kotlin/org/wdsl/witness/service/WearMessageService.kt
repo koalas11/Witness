@@ -4,8 +4,15 @@ import android.util.Log
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
+import org.wdsl.witness.WitnessApp
+import org.wdsl.witness.state.EmergencyServiceState
+import org.wdsl.witness.usecase.EmergencyRecordingUseCase
 
 class WearMessageService : WearableListenerService() {
+
+    private val emergencyRecordingUseCase: EmergencyRecordingUseCase by lazy {
+        (application as WitnessApp).appContainer.emergencyRecordingUseCase
+    }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
         super.onMessageReceived(messageEvent)
@@ -15,8 +22,15 @@ class WearMessageService : WearableListenerService() {
             "Message received with path: ${messageEvent.path}"
         )
 
+        val senderNodeId = messageEvent.sourceNodeId
+        val currentRecordingState = EmergencyServiceState.emergencyServiceState.value
+
         if(messageEvent.path == "/WitnessHelpMessage") {
-            val senderNodeId = messageEvent.sourceNodeId
+
+            if (currentRecordingState !is EmergencyServiceState.State.Running) {
+                emergencyRecordingUseCase.startEmergencyRecording()
+            }
+
             sendMessageToWearable(
                 senderNodeId,
                 "/WitnessConfirmationMessage",
