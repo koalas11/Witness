@@ -11,12 +11,12 @@ fun getFormattedTimestamp(timestamp: Long): String {
     val instant = Instant.fromEpochMilliseconds(timestamp)
     val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     val year = dateTime.year.toString()
-    val month = dateTime.month.toString().padStart(2, '0')
+    val month = dateTime.month.number.toString().padStart(2, '0')
     val day = dateTime.day.toString().padStart(2, '0')
     val hour = dateTime.hour.toString().padStart(2, '0')
     val minute = dateTime.minute.toString().padStart(2, '0')
     val second = dateTime.second.toString().padStart(2, '0')
-    return "$year-$month-$day $hour:$minute:$second"
+    return "${day}-${month}-${year} ${hour}:${minute}:${second}"
 }
 
 @OptIn(ExperimentalTime::class)
@@ -29,5 +29,5 @@ fun getFilenameTimestamp(timestamp: Long): String {
     val hour = dateTime.hour.toString().padStart(2, '0')
     val minute = dateTime.minute.toString().padStart(2, '0')
     val second = dateTime.second.toString().padStart(2, '0')
-    return "${year}y_${month}m_${day}d_${hour}h_${minute}m_${second}s"
+    return "${day}d_${month}m_${year}y_${hour}h_${minute}m_${second}s"
 }

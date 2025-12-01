@@ -89,7 +89,6 @@ class AppViewModel(
             newBackStack.removeAt(oldIndex)
         }
         newBackStack.add(route)
-        _authenticated.value = false
         _backStack.value = newBackStack
         _shouldShowBackButton.value = newBackStack.last() is ShowBackButton
     }
@@ -100,7 +99,6 @@ class AppViewModel(
         if (newBackStack.isEmpty()) {
             newBackStack.add(ScreenRoute.Home)
         }
-        _authenticated.value = false
         _backStack.value = newBackStack
         _shouldShowBackButton.value = newBackStack.last() is ShowBackButton
     }

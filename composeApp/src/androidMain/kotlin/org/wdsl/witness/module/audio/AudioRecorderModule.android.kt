@@ -30,7 +30,7 @@ class AndroidAudioRecorderModule(
             val dir = context.filesDir.resolve(AUDIO_RECORDER_FOLDER)
             dir.mkdir()
 
-            val outputFile = dir.resolve("recording_${Clock.System.now().epochSeconds}.m4a")
+            val outputFile = dir.resolve("recording_${Clock.System.now().toEpochMilliseconds()}.m4a")
 
             recorder = createRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
