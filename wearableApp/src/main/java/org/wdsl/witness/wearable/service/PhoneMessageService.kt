@@ -17,13 +17,12 @@ class PhoneMessageService: WearableListenerService() {
 
 
         if(messageEvent.path == "/WitnessHelpConfirmationMessage") {
-            VibrationUtil.vibrate(this, 2000)
+            VibrationUtil.vibrate(this, 1000)
         } else if (messageEvent.path == "/WitnessWhistleConfirmationMessage") {
-            val waveTimings = longArrayOf(0, 100, 50, 100, 50, 200, 50, 100, 50, 100)
-            val waveAmplitudes = intArrayOf(0, 128, 0, 180, 0, 255, 0, 180, 0, 128)
+            val waveTimings = longArrayOf(0, 100, 50, 100, 50, 100, 50, 100, 50, 100)
+            val waveAmplitudes = intArrayOf(0, 255, 0, 255, 0, 255, 0, 255, 0, 255)
             val waveEffect = VibrationEffect.createWaveform(waveTimings, waveAmplitudes, -1)
 
-            // 4. Call the new utility method with the created effect
             VibrationUtil.vibrate(this, waveEffect)
         }
     }
