@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +40,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
 import org.wdsl.witness.wearable.theme.WitnessTheme
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.delay
+import org.wdsl.witness.wearable.util.ConfirmationMessageState
 
 class MainActivity : ComponentActivity() {
 
@@ -75,6 +77,7 @@ fun WearApp() {
 fun SendHelp(context: Context) {
     var lastTapTime by remember { mutableLongStateOf(0L) }
     var isPressed by remember { mutableStateOf(false) }
+    val isConfirmed by ConfirmationMessageState.isConfirmed.collectAsState()
 
     val animatedColor by animateColorAsState(
         targetValue = if (isPressed) Color(0xFF008B8B) else Color(0xFF3DCFDC),
@@ -113,6 +116,7 @@ fun SendHelp(context: Context) {
             modifier = Modifier.fillMaxSize(0.8f),
             imageVector = Icons.Filled.PlayArrow,
             contentDescription = "Action Button",
+            tint = if(isConfirmed) Color.Red else Color.Black
         )
     }
 }

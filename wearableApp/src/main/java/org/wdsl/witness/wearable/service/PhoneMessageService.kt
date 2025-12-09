@@ -4,6 +4,7 @@ import android.os.VibrationEffect
 import android.util.Log
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
+import org.wdsl.witness.wearable.util.ConfirmationMessageState
 import org.wdsl.witness.wearable.util.VibrationUtil
 
 class PhoneMessageService: WearableListenerService() {
@@ -19,6 +20,7 @@ class PhoneMessageService: WearableListenerService() {
 
             "/WitnessHelpConfirmationMessage" -> {
                 VibrationUtil.vibrate(this, 1000)
+                ConfirmationMessageState.setConfirmed(true)
             }
 
             "/WitnessWhistleConfirmationMessage" -> {
