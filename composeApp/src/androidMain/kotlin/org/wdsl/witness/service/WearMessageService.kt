@@ -28,12 +28,18 @@ class WearMessageService : WearableListenerService() {
         if(messageEvent.path == "/WitnessHelpMessage") {
 
             if (currentRecordingState !is EmergencyServiceState.State.Running) {
-                emergencyRecordingUseCase.startEmergencyRecording()
+//                emergencyRecordingUseCase.startEmergencyRecording()
             }
 
             sendMessageToWearable(
                 senderNodeId,
-                "/WitnessConfirmationMessage",
+                "/WitnessHelpConfirmationMessage",
+                "start".toByteArray()
+            )
+        } else if (messageEvent.path == "/WitnessWhistleMessage") {
+            sendMessageToWearable(
+                senderNodeId,
+                path = "/WitnessWhistleConfirmationMessage",
                 "start".toByteArray()
             )
         }
