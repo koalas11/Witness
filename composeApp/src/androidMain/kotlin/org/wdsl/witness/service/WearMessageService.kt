@@ -32,6 +32,7 @@ class WearMessageService : WearableListenerService() {
         val senderNodeId = messageEvent.sourceNodeId
         val currentRecordingState = EmergencyServiceState.emergencyServiceState.value
 
+        // Start the app
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
@@ -40,15 +41,19 @@ class WearMessageService : WearableListenerService() {
         when (messageEvent.path) {
 
             "/WitnessHelpMessage" -> {
-                if (currentRecordingState !is EmergencyServiceState.State.Running) {
-                    emergencyRecordingUseCase.startEmergencyRecording()
-                }
+                try {
+                    if (currentRecordingState !is EmergencyServiceState.State.Running) {
+                        emergencyRecordingUseCase.startEmergencyRecording()
+                    }
 
-                sendMessageToWearable(
-                    senderNodeId,
-                    "/WitnessHelpConfirmationMessage",
-                    "start".toByteArray()
-                )
+                    sendMessageToWearable(
+                        senderNodeId,
+                        "/WitnessHelpConfirmationMessage",
+                        "start".toByteArray()
+                    )
+                } catch (e: Exception) {
+                    Log.e("WearMessageService", "Error starting emergency recording", e)
+                }
             }
 
             "/WitnessWhistleMessage" -> {
