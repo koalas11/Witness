@@ -5,6 +5,7 @@ import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
 import org.wdsl.witness.WitnessApp
+import org.wdsl.witness.module.SoundAlertModule
 import org.wdsl.witness.state.EmergencyServiceState
 import org.wdsl.witness.usecase.EmergencyRecordingUseCase
 
@@ -12,6 +13,10 @@ class WearMessageService : WearableListenerService() {
 
     private val emergencyRecordingUseCase: EmergencyRecordingUseCase by lazy {
         (application as WitnessApp).appContainer.emergencyRecordingUseCase
+    }
+
+    private val soundAlertModule: SoundAlertModule by lazy {
+        (application as WitnessApp).appContainer.soundAlertModule
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
@@ -25,26 +30,31 @@ class WearMessageService : WearableListenerService() {
         val senderNodeId = messageEvent.sourceNodeId
         val currentRecordingState = EmergencyServiceState.emergencyServiceState.value
 
-        if(messageEvent.path == "/WitnessHelpMessage") {
+        when (messageEvent.path) {
 
-            if (currentRecordingState !is EmergencyServiceState.State.Running) {
-//                emergencyRecordingUseCase.startEmergencyRecording()
+            "/WitnessHelpMessage" -> {
+                if (currentRecordingState !is EmergencyServiceState.State.Running) {
+                    emergencyRecordingUseCase.startEmergencyRecording()
+                }
+
+                sendMessageToWearable(
+                    senderNodeId,
+                    "/WitnessHelpConfirmationMessage",
+                    "start".toByteArray()
+                )
             }
 
-            sendMessageToWearable(
-                senderNodeId,
-                "/WitnessHelpConfirmationMessage",
-                "start".toByteArray()
-            )
-        } else if (messageEvent.path == "/WitnessWhistleMessage") {
-            sendMessageToWearable(
-                senderNodeId,
-                path = "/WitnessWhistleConfirmationMessage",
-                "start".toByteArray()
-            )
+            "/WitnessWhistleMessage" -> {
+                soundAlertModule.playAlertSound()
+
+                sendMessageToWearable(
+                    senderNodeId,
+                    "/WitnessWhistleConfirmationMessage",
+                    "start".toByteArray()
+                )
+            }
         }
     }
-
     private fun sendMessageToWearable(nodeId: String, path: String, message: ByteArray) {
         Wearable
             .getMessageClient(this)
