@@ -1,9 +1,11 @@
 package org.wdsl.witness.service
 
+import android.content.Intent
 import android.util.Log
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
+import org.wdsl.witness.MainActivity
 import org.wdsl.witness.WitnessApp
 import org.wdsl.witness.module.SoundAlertModule
 import org.wdsl.witness.state.EmergencyServiceState
@@ -30,6 +32,11 @@ class WearMessageService : WearableListenerService() {
         val senderNodeId = messageEvent.sourceNodeId
         val currentRecordingState = EmergencyServiceState.emergencyServiceState.value
 
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        startActivity(intent)
+
         when (messageEvent.path) {
 
             "/WitnessHelpMessage" -> {
@@ -45,7 +52,7 @@ class WearMessageService : WearableListenerService() {
             }
 
             "/WitnessWhistleMessage" -> {
-                soundAlertModule.playAlertSound()
+//                soundAlertModule.playAlertSound()
 
                 sendMessageToWearable(
                     senderNodeId,

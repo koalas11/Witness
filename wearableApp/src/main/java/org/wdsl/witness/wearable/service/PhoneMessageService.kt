@@ -15,15 +15,19 @@ class PhoneMessageService: WearableListenerService() {
             "Message received from phone with path: ${messageEvent.path}"
         )
 
+        when(messageEvent.path) {
 
-        if(messageEvent.path == "/WitnessHelpConfirmationMessage") {
-            VibrationUtil.vibrate(this, 1000)
-        } else if (messageEvent.path == "/WitnessWhistleConfirmationMessage") {
-            val waveTimings = longArrayOf(0, 100, 50, 100, 50, 100, 50, 100, 50, 100)
-            val waveAmplitudes = intArrayOf(0, 255, 0, 255, 0, 255, 0, 255, 0, 255)
-            val waveEffect = VibrationEffect.createWaveform(waveTimings, waveAmplitudes, -1)
+            "/WitnessHelpConfirmationMessage" -> {
+                VibrationUtil.vibrate(this, 1000)
+            }
 
-            VibrationUtil.vibrate(this, waveEffect)
+            "/WitnessWhistleConfirmationMessage" -> {
+                val waveTimings = longArrayOf(0, 100, 50, 100, 50, 100, 50, 100, 50, 100)
+                val waveAmplitudes = intArrayOf(0, 255, 0, 255, 0, 255, 0, 255, 0, 255)
+                val waveEffect = VibrationEffect.createWaveform(waveTimings, waveAmplitudes, -1)
+
+                VibrationUtil.vibrate(this, waveEffect)
+            }
         }
     }
 }
