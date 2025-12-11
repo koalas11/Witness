@@ -6,14 +6,17 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.EmergencyRecording
 import androidx.compose.material.icons.filled.Sports
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -30,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.tooling.preview.devices.WearDevices
@@ -77,6 +81,8 @@ fun SendHelp(context: Context) {
     var whistleIcon by remember { mutableStateOf(false) }
     val isConfirmed by ConfirmationMessageState.isConfirmed.collectAsState()
 
+    val progress = remember { Animatable(0f) }
+
     val animatedColor by animateColorAsState(
         targetValue = if (isPressed) Color(0xFF008B8B) else Color(0xFF3DCFDC),
         label = "Button Color Animation"
@@ -86,38 +92,58 @@ fun SendHelp(context: Context) {
         if (isPressed) {
             delay(200L)
             whistleIcon = true;
-            delay(1800L)
+            progress.snapTo(0f)
+            progress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 1800)
+            )
             Log.d("WearMessageService", "Long press after 2s")
             sendMessageToPhone(WearableMessageConstants.WHISTLE_MESSAGE_PATH, context)
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize(0.7f)
-            .background(color = animatedColor, shape = CircleShape)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        isPressed = true
-                        tryAwaitRelease() // Wait until the finger is lifted
-                        whistleIcon = false;
-                        isPressed = false
-                    },
-                    onDoubleTap = {
-                        Log.d("WearMessageService", "Double Tap Detected")
-                        sendMessageToPhone(WearableMessageConstants.HELP_MESSAGE_PATH, context)
-                    },
-                )
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            modifier = Modifier.fillMaxSize(0.8f),
-            imageVector = if(!whistleIcon) Icons.Filled.PlayArrow else Icons.Filled.Sports,
-            contentDescription = "Action Button",
-            tint = if(isConfirmed && !whistleIcon) Color.Red else Color.Black
-        )
+    Box(contentAlignment = Alignment.Center) {
+        if (whistleIcon) {
+            /***
+             * https://kotlinlang.org/api/compose-multiplatform/material3/androidx.compose.material3/-circular-progress-indicator.html
+             * https://developer.android.com/reference/com/google/android/material/progressindicator/CircularProgressIndicator
+             */
+            CircularProgressIndicator(
+                modifier = Modifier.fillMaxSize(0.8f),
+                progress = { progress.value },
+                color = MaterialTheme.colorScheme.secondary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                strokeWidth = 12.dp
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize(0.7f)
+                .background(color = animatedColor, shape = CircleShape)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onPress = {
+                            isPressed = true
+                            tryAwaitRelease() // Wait until the finger is lifted
+                            whistleIcon = false;
+                            isPressed = false
+                        },
+                        onDoubleTap = {
+                            Log.d("WearMessageService", "Double Tap Detected")
+                            sendMessageToPhone(WearableMessageConstants.HELP_MESSAGE_PATH, context)
+                        },
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                modifier = Modifier.fillMaxSize(0.8f),
+                imageVector = if(!whistleIcon) Icons.Filled.EmergencyRecording else Icons.Filled.Sports,
+                contentDescription = "Emergency Button",
+                tint = if(isConfirmed && !whistleIcon) Color.Red else Color.Black
+            )
+        }
     }
 }
 
