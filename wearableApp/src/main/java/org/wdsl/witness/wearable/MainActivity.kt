@@ -41,6 +41,7 @@ import org.wdsl.witness.wearable.theme.WitnessTheme
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.delay
 import org.wdsl.witness.wearable.util.ConfirmationMessageState
+import org.wdsl.witness.shared.WearableMessageConstants
 
 class MainActivity : ComponentActivity() {
 
@@ -88,7 +89,7 @@ fun SendHelp(context: Context) {
         if (isPressed) {
             delay(2000L)
             Log.d("WearMessageService", "Long press after 2s")
-            sendMessageToPhone("/WitnessWhistleMessage", context)
+            sendMessageToPhone(WearableMessageConstants.WHISTLE_MESSAGE_PATH, context)
             isPressed = false
         }
     }
@@ -106,7 +107,7 @@ fun SendHelp(context: Context) {
                     },
                     onDoubleTap = {
                         Log.d("WearMessageService", "Double Tap Detected")
-                        sendMessageToPhone("/WitnessHelpMessage", context)
+                        sendMessageToPhone(WearableMessageConstants.HELP_MESSAGE_PATH, context)
                     },
                 )
             },

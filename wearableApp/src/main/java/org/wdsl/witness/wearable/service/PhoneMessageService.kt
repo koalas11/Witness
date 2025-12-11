@@ -6,6 +6,7 @@ import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 import org.wdsl.witness.wearable.util.ConfirmationMessageState
 import org.wdsl.witness.wearable.util.VibrationUtil
+import org.wdsl.witness.shared.WearableMessageConstants
 
 class PhoneMessageService: WearableListenerService() {
     override fun onMessageReceived(messageEvent: MessageEvent) {
@@ -18,12 +19,12 @@ class PhoneMessageService: WearableListenerService() {
 
         when(messageEvent.path) {
 
-            "/WitnessHelpConfirmationMessage" -> {
+            WearableMessageConstants.HELP_CONFIRMATION_PATH -> {
                 VibrationUtil.vibrate(this, 1000)
                 ConfirmationMessageState.setConfirmed(true)
             }
 
-            "/WitnessWhistleConfirmationMessage" -> {
+            WearableMessageConstants.WHISTLE_CONFIRMATION_PATH -> {
                 val waveTimings = longArrayOf(0, 100, 50, 100, 50, 100, 50, 100, 50, 100)
                 val waveAmplitudes = intArrayOf(0, 255, 0, 255, 0, 255, 0, 255, 0, 255)
                 val waveEffect = VibrationEffect.createWaveform(waveTimings, waveAmplitudes, -1)

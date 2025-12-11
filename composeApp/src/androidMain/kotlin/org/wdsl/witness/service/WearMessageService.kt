@@ -10,6 +10,7 @@ import org.wdsl.witness.WitnessApp
 import org.wdsl.witness.module.SoundAlertModule
 import org.wdsl.witness.state.EmergencyServiceState
 import org.wdsl.witness.usecase.EmergencyRecordingUseCase
+import org.wdsl.witness.shared.WearableMessageConstants
 
 class WearMessageService : WearableListenerService() {
 
@@ -40,7 +41,7 @@ class WearMessageService : WearableListenerService() {
 
         when (messageEvent.path) {
 
-            "/WitnessHelpMessage" -> {
+            WearableMessageConstants.HELP_MESSAGE_PATH -> {
                 try {
                     if (currentRecordingState !is EmergencyServiceState.State.Running) {
                         emergencyRecordingUseCase.startEmergencyRecording()
@@ -48,7 +49,7 @@ class WearMessageService : WearableListenerService() {
 
                     sendMessageToWearable(
                         senderNodeId,
-                        "/WitnessHelpConfirmationMessage",
+                        WearableMessageConstants.HELP_CONFIRMATION_PATH,
                         "start".toByteArray()
                     )
                 } catch (e: Exception) {
@@ -56,12 +57,12 @@ class WearMessageService : WearableListenerService() {
                 }
             }
 
-            "/WitnessWhistleMessage" -> {
-//                soundAlertModule.playAlertSound()
+            WearableMessageConstants.WHISTLE_MESSAGE_PATH -> {
+                soundAlertModule.playAlertSound()
 
                 sendMessageToWearable(
                     senderNodeId,
-                    "/WitnessWhistleConfirmationMessage",
+                    WearableMessageConstants.WHISTLE_CONFIRMATION_PATH,
                     "start".toByteArray()
                 )
             }
