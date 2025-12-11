@@ -6,16 +6,12 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmergencyRecording
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Sports
 import androidx.compose.material3.Icon
@@ -34,14 +30,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.wear.compose.material3.IconButton
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.tooling.preview.devices.WearDevices
-import org.wdsl.witness.wearable.theme.WitnessTheme
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.delay
-import org.wdsl.witness.wearable.util.ConfirmationMessageState
 import org.wdsl.witness.shared.WearableMessageConstants
+import org.wdsl.witness.wearable.theme.WitnessTheme
+import org.wdsl.witness.wearable.util.ConfirmationMessageState
 
 class MainActivity : ComponentActivity() {
 
@@ -78,6 +74,7 @@ fun WearApp() {
 fun SendHelp(context: Context) {
     var lastTapTime by remember { mutableLongStateOf(0L) }
     var isPressed by remember { mutableStateOf(false) }
+    var whistleIcon by remember { mutableStateOf(false) }
     val isConfirmed by ConfirmationMessageState.isConfirmed.collectAsState()
 
     val animatedColor by animateColorAsState(
@@ -87,10 +84,11 @@ fun SendHelp(context: Context) {
 
     LaunchedEffect(isPressed) {
         if (isPressed) {
-            delay(2000L)
+            delay(200L)
+            whistleIcon = true;
+            delay(1800L)
             Log.d("WearMessageService", "Long press after 2s")
             sendMessageToPhone(WearableMessageConstants.WHISTLE_MESSAGE_PATH, context)
-            isPressed = false
         }
     }
 
@@ -103,6 +101,7 @@ fun SendHelp(context: Context) {
                     onPress = {
                         isPressed = true
                         tryAwaitRelease() // Wait until the finger is lifted
+                        whistleIcon = false;
                         isPressed = false
                     },
                     onDoubleTap = {
@@ -115,9 +114,9 @@ fun SendHelp(context: Context) {
     ) {
         Icon(
             modifier = Modifier.fillMaxSize(0.8f),
-            imageVector = Icons.Filled.PlayArrow,
+            imageVector = if(!whistleIcon) Icons.Filled.PlayArrow else Icons.Filled.Sports,
             contentDescription = "Action Button",
-            tint = if(isConfirmed) Color.Red else Color.Black
+            tint = if(isConfirmed && !whistleIcon) Color.Red else Color.Black
         )
     }
 }

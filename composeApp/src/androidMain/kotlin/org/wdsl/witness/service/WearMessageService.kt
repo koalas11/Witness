@@ -58,7 +58,7 @@ class WearMessageService : WearableListenerService() {
             }
 
             WearableMessageConstants.WHISTLE_MESSAGE_PATH -> {
-                soundAlertModule.playAlertSound()
+//                soundAlertModule.playAlertSound()
 
                 sendMessageToWearable(
                     senderNodeId,
