@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Witness</string>
+    <string name="help_confirmation_message">Recording can be stopped from the phone</string>
 </resources>

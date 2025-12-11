@@ -47,7 +47,7 @@ fun HelpButton(
         modifier = modifier
     ) {
         if (whistleLongPress) {
-            /***
+            /*
              * Circular porgress bar when the button is hold to activate the whistle
              * Sources:
              * https://kotlinlang.org/api/compose-multiplatform/material3/androidx.compose.material3/-circular-progress-indicator.html
