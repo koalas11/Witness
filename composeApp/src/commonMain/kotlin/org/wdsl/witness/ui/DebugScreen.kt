@@ -21,6 +21,12 @@ import org.wdsl.witness.ui.util.handleOperationState
 import org.wdsl.witness.viewmodel.DebugViewModel
 import org.wdsl.witness.viewmodel.witnessViewModel
 
+/**
+ * A composable function that displays the debug screen.
+ *
+ * @param modifier The modifier to be applied to the composable.
+ * @param debugViewModel The ViewModel that holds the debug state.
+ */
 @Composable
 fun DebugScreen(
     modifier: Modifier = Modifier,
@@ -41,7 +47,7 @@ fun DebugScreen(
             val platformContext = LocalPlatformContext.current
             Row(
                 modifier = modifier
-                    .padding(top = 8.dp)
+                    .padding(8.dp)
                     .fillMaxWidth(0.9f)
                     .align(Alignment.Start)
                     .clip(CircleShape)
@@ -51,6 +57,7 @@ fun DebugScreen(
                             debugViewModel.clearAllRecordings(platformContext)
                         },
                     ),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     modifier = modifier

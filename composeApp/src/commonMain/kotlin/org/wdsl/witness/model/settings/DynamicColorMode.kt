@@ -1,4 +1,4 @@
-package org.wdsl.witness.model
+package org.wdsl.witness.model.settings
 
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.StringResource
@@ -6,6 +6,11 @@ import witness.composeapp.generated.resources.Res
 import witness.composeapp.generated.resources.disabled
 import witness.composeapp.generated.resources.enabled
 
+/**
+ * Represents the dynamic color mode settings.
+ *
+ * @property label The string resource representing the label for the mode.
+ */
 @Serializable
 enum class DynamicColorMode(
     val label: StringResource,

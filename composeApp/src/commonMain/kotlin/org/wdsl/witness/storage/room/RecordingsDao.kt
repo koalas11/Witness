@@ -5,7 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import org.wdsl.witness.model.LlmSummary
+import org.wdsl.witness.llm.LlmSummary
 
 /**
  * Data Access Object (DAO) for managing recordings in the Room database.

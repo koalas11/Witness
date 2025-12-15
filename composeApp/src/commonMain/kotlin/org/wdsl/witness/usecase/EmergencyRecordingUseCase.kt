@@ -1,8 +1,11 @@
 package org.wdsl.witness.usecase
 
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.module.EmergencyContactModule
@@ -15,15 +18,51 @@ import org.wdsl.witness.util.ERROR_NOTIFICATION_CHANNEL_ID
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
+/**
+ * Use case interface for managing emergency recording functionality.
+ */
 interface EmergencyRecordingUseCase {
+    /**
+     * StateFlow indicating whether emergency recording is active.
+     */
     val emergencyRecordingActive: StateFlow<Boolean>
+    /**
+     * Contacts emergency contacts via SMS and/or email.
+     *
+     * @param smsOn Whether to contact via SMS.
+     * @param emailOn Whether to contact via email.
+     * @return A Result indicating success or failure.
+     */
     fun contactEmergencyContacts(smsOn: Boolean, emailOn: Boolean): Result<Unit>
+    /**
+     * Starts emergency recording.
+     *
+     * @return A Result indicating success or failure.
+     */
     fun startEmergencyRecording(): Result<Unit>
+    /**
+     * Stops emergency recording.
+     *
+     * @return A Result indicating success or failure.
+     */
     fun stopEmergencyRecording(): Result<Unit>
 }
 
+/**
+ * Implementation of EmergencyRecordingUseCase.
+ *
+ * @param platformContext The platform context.
+ * @param settingsRepository Repository for accessing settings.
+ * @param emergencyContactsRepository Repository for accessing emergency contacts.
+ * @param vibrationModule Module for handling device vibration.
+ * @param recordingServiceHandler Handler for managing recording services.
+ * @param geoRecordingModule Module for geolocation during recording.
+ * @param emergencyContactModule Module for contacting emergency contacts.
+ * @param googleIntegrationUseCase Use case for Google integration functionalities.
+ */
 class EmergencyRecordingUseCaseImpl(
     private val platformContext: PlatformContext,
     private val settingsRepository: SettingsRepository,
@@ -39,6 +78,8 @@ class EmergencyRecordingUseCaseImpl(
         MutableStateFlow(false)
     override val emergencyRecordingActive: StateFlow<Boolean>
         = _emergencyRecordingActive.asStateFlow()
+
+    private var routineContactContactsJob: Job? = null
 
     override fun contactEmergencyContacts(smsOn: Boolean, emailOn: Boolean): Result<Unit> {
         return try {
@@ -75,18 +116,18 @@ class EmergencyRecordingUseCaseImpl(
                 onError = {
                     platformContext.sendNotification(
                         ERROR_NOTIFICATION_CHANNEL_ID,
-                        "Error",
-                        "Failed to retrieve current location.",
+                        "Emergency Contact",
+                        "Failed to retrieve current location, emergency contacts will still be notified.",
                         2,
                     )
                     if (smsOn) {
                         platformContext.witnessApp.appScope.launch {
                             emergencyContactsRepository.getSMSEmergencyContacts().onSuccess {
                                 emergencyContactModule.contactEmergencyContacts(null, emptyList())
-                                    .onErrorSync { error ->
+                                    .onError { error ->
                                         platformContext.sendNotification(
                                             ERROR_NOTIFICATION_CHANNEL_ID,
-                                            "Error",
+                                            "Emergency Contact",
                                             "Failed to contact emergency contacts: ${error.message}",
                                             2,
                                         )
@@ -125,16 +166,24 @@ class EmergencyRecordingUseCaseImpl(
                             2,
                         )
                     }
-                    .onSuccess { (vibrationOn, smsOn, emailOn) ->
+                    .onSuccess { (vibrationOn, smsOn, emailOn, routineContactContacts) ->
                         if (vibrationOn) {
                             vibrationModule.vibrate(0.5.seconds.inWholeMilliseconds)
                         }
                         if (smsOn || emailOn) {
-                            contactEmergencyContacts(smsOn, emailOn)
+                            if (routineContactContacts) {
+                                routineContactContactsJob = platformContext.witnessApp.appScope.launch {
+                                    while (isActive) {
+                                        contactEmergencyContacts(smsOn, emailOn)
+                                        delay(5.minutes)
+                                    }
+                                }
+                            } else {
+                                contactEmergencyContacts(smsOn, emailOn)
+                            }
                         }
                         Log.d(TAG, "Emergency recording started with settings - Vibration: $vibrationOn SMS: $smsOn Email: $emailOn")
                     }
-
             }
             recordingServiceHandler.startEmergencyRecordingService()
             _emergencyRecordingActive.value = true
@@ -147,8 +196,9 @@ class EmergencyRecordingUseCaseImpl(
 
     override fun stopEmergencyRecording(): Result<Unit> {
         return try {
-            //recordingServiceHandler.stopEmergencyRecordingService()
             _emergencyRecordingActive.value = false
+            routineContactContactsJob?.cancel()
+            routineContactContactsJob = null
             Result.Success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to stop emergency recording", e)

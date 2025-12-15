@@ -8,8 +8,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.wdsl.witness.model.DynamicColorMode
-import org.wdsl.witness.model.ThemeMode
+import org.wdsl.witness.model.settings.DynamicColorMode
+import org.wdsl.witness.model.settings.ThemeMode
 import org.wdsl.witness.platform
 import org.wdsl.witness.viewmodel.AppViewModel
 

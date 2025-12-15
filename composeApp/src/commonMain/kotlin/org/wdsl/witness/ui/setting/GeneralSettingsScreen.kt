@@ -20,15 +20,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
-import org.wdsl.witness.model.DynamicColorMode
-import org.wdsl.witness.model.NotificationsSetting
-import org.wdsl.witness.model.ThemeMode
+import org.wdsl.witness.model.settings.DynamicColorMode
+import org.wdsl.witness.model.settings.NotificationsSetting
+import org.wdsl.witness.model.settings.ThemeMode
 import org.wdsl.witness.ui.util.handleOperationState
 import org.wdsl.witness.viewmodel.AppState
 import org.wdsl.witness.viewmodel.AppViewModel
 import org.wdsl.witness.viewmodel.SettingsViewModel
 import org.wdsl.witness.viewmodel.witnessViewModel
 
+/**
+ * A composable function that displays the general settings screen.
+ *
+ * @param modifier The modifier to be applied to the composable.
+ * @param appViewModel The ViewModel that holds the application state.
+ * @param settingsViewModel The ViewModel that holds the settings state.
+ */
 @Composable
 fun GeneralSettingsScreen(
     modifier: Modifier = Modifier,
@@ -163,11 +170,6 @@ fun GeneralSettingsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
             ) {
-                Text(
-                    modifier = modifier,
-                    text = "Enable Vibration:",
-                    textAlign = TextAlign.Center,
-                )
                 Checkbox(
                     modifier = modifier,
                     checked = settings.enableVibrationOnEmergencyRegistrationStart,
@@ -175,6 +177,11 @@ fun GeneralSettingsScreen(
                         settingsViewModel.setEnableVibrationOnEmergencyRegistrationStart(isChecked)
                     },
                     enabled = enabled,
+                )
+                Text(
+                    modifier = modifier,
+                    text = "Enable Vibration",
+                    textAlign = TextAlign.Center,
                 )
             }
         }

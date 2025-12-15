@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.wdsl.witness.PlatformContext
-import org.wdsl.witness.model.GoogleProfile
+import org.wdsl.witness.model.google.GoogleProfile
+import org.wdsl.witness.repository.SettingsRepository
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.usecase.GoogleIntegrationState
 import org.wdsl.witness.usecase.GoogleIntegrationUseCase
@@ -18,10 +19,16 @@ import org.wdsl.witness.util.Log
 import kotlin.io.encoding.Base64
 import kotlin.random.Random
 
+/**
+ * ViewModel for managing Google Integration functionality.
+ *
+ * @param googleIntegrationUseCase Use case for Google Integration operations.
+ */
 class GoogleIntegrationViewModel(
     private val googleIntegrationUseCase: GoogleIntegrationUseCase,
+    private val settingsRepository: SettingsRepository,
 ) : BaseOperationViewModel() {
-    private var _googleIntegrationUiMutableState = MutableStateFlow<GoogleIntegrationUiState>(GoogleIntegrationUiState.NoProfile)
+    private var _googleIntegrationUiMutableState = MutableStateFlow<GoogleIntegrationUiState>(GoogleIntegrationUiState.Loading)
     val googleIntegrationUiState : StateFlow<GoogleIntegrationUiState> = _googleIntegrationUiMutableState.asStateFlow()
 
     private var _isInitialized = false
@@ -36,9 +43,13 @@ class GoogleIntegrationViewModel(
                 Log.d("GoogleOAuthViewModel", "Current Google OAuth State: $state")
                 when (state) {
                     is GoogleIntegrationState.OAuthInProgress -> {
+                        _googleIntegrationUiMutableState.value = GoogleIntegrationUiState.OAuthInProgress
                     }
                     is GoogleIntegrationState.ProfileLoaded -> {
                         _googleIntegrationUiMutableState.value = GoogleIntegrationUiState.Profile(state.googleProfile)
+                    }
+                    is GoogleIntegrationState.NoProfile -> {
+                        _googleIntegrationUiMutableState.value = GoogleIntegrationUiState.NoProfile
                     }
                     else -> {
                     }
@@ -74,12 +85,50 @@ class GoogleIntegrationViewModel(
         }
     }
 
+    fun signOut() {
+        startOperation()
+        viewModelScope.launch {
+            googleIntegrationUseCase.signOutAndDeleteAccount()
+                .onSuccess {
+                    Log.d("GoogleIntegrationViewModel", "Successfully signed out and deleted Google account integration")
+                    operationUiMutableState.value = OperationUiState.Success("Signed out from Google successfully.")
+                }
+                .onError { error ->
+                    Log.e("GoogleIntegrationViewModel", "Failed to sign out from Google: ${error.message}")
+                    operationUiMutableState.value =
+                        OperationUiState.Error("Failed to sign out from Google: ${error.message}")
+                }
+        }
+    }
+
+    fun setEnableEmailOnEmergency(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.updateSettings { settings ->
+                settings.copy(
+                    enableEmailOnEmergency = enabled
+                )
+            }
+        }
+    }
+
+    fun setUploadRecordingToDriveOnEnd(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.updateSettings { settings ->
+                settings.copy(
+                    uploadRecordingToDriveOnEnd = enabled
+                )
+            }
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val googleIntegrationUseCase = witnessAppContainer().googleIntegrationUseCase
+                val settingsRepository = witnessAppContainer().settingsRepository
                 GoogleIntegrationViewModel(
                     googleIntegrationUseCase = googleIntegrationUseCase,
+                    settingsRepository = settingsRepository,
                 )
             }
         }
@@ -89,6 +138,7 @@ class GoogleIntegrationViewModel(
 sealed interface GoogleIntegrationUiState {
     object NoProfile : GoogleIntegrationUiState
     object Loading : GoogleIntegrationUiState
+    object OAuthInProgress : GoogleIntegrationUiState
     data class Profile(val googleProfile: GoogleProfile) : GoogleIntegrationUiState
     data class Error(val message: String) : GoogleIntegrationUiState
 }

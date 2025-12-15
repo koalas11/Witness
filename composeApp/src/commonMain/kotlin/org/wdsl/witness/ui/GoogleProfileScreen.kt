@@ -1,6 +1,7 @@
 package org.wdsl.witness.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,10 +12,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,15 +41,26 @@ import coil3.PlatformContext
 import coil3.compose.AsyncImage
 import org.wdsl.witness.LocalPlatformContext
 import org.wdsl.witness.ui.util.handleOperationState
+import org.wdsl.witness.viewmodel.AppState
+import org.wdsl.witness.viewmodel.AppViewModel
 import org.wdsl.witness.viewmodel.EmailContactsUiState
 import org.wdsl.witness.viewmodel.EmailContactsViewModel
 import org.wdsl.witness.viewmodel.GoogleIntegrationUiState
 import org.wdsl.witness.viewmodel.GoogleIntegrationViewModel
 import org.wdsl.witness.viewmodel.witnessViewModel
 
+/**
+ * A composable screen for managing Google profile settings and email contacts.
+ *
+ * @param modifier The modifier to be applied to the GoogleProfileScreen.
+ * @param appViewModel The ViewModel managing the overall app state.
+ * @param googleIntegrationViewModel The ViewModel managing Google integration state.
+ * @param emailContactsViewModel The ViewModel managing email contacts state.
+ */
 @Composable
 fun GoogleProfileScreen(
     modifier: Modifier = Modifier,
+    appViewModel: AppViewModel,
     googleIntegrationViewModel: GoogleIntegrationViewModel = witnessViewModel(factory = GoogleIntegrationViewModel.Factory),
     emailContactsViewModel: EmailContactsViewModel = witnessViewModel(factory = EmailContactsViewModel.Factory),
 ) {
@@ -94,11 +109,36 @@ fun GoogleProfileScreen(
             }
 
             is GoogleIntegrationUiState.Loading -> {
-                Text(
+                Box(
+                    modifier = modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        modifier = modifier
+                            .size(48.dp),
+                    )
+                }
+                return
+            }
+
+            is GoogleIntegrationUiState.OAuthInProgress -> {
+                Row(
                     modifier = modifier
                         .padding(16.dp),
-                    text = "Loading...",
-                )
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    CircularProgressIndicator(
+                        modifier = modifier
+                            .padding(vertical = 16.dp)
+                            .padding(end = 16.dp),
+                    )
+                    Text(
+                        modifier = modifier
+                            .padding(vertical = 16.dp),
+                        text = "OAuth In Progress...",
+                    )
+                }
                 return
             }
 
@@ -114,23 +154,92 @@ fun GoogleProfileScreen(
                     modifier = modifier
                         .padding(16.dp)
                 ) {
-                    AsyncImage(
-                        modifier = modifier
-                            .clip(CircleShape)
-                            .size(128.dp)
-                            .padding(8.dp)
-                            .align(Alignment.CenterHorizontally),
-                        model = profile.picture,
-                        contentDescription = null,
-                        imageLoader = imageLoader,
-                    )
-                    Text(
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AsyncImage(
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(CircleShape),
+                            model = profile.picture,
+                            contentDescription = "Profile Picture",
+                            imageLoader = imageLoader,
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            Text(
+                                text = profile.name,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                text = profile.email,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        IconButton(
+                            modifier = modifier
+                                .padding(8.dp),
+                            onClick = {
+                                googleIntegrationViewModel.signOut()
+                            },
+                            enabled = enabled,
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Logout,
+                                contentDescription = "Sign Out",
+                            )
+                        }
+                    }
+
+                    val settingsState = appViewModel.settingsState.collectAsStateWithLifecycle()
+                    val settings = (settingsState.value as AppState.Success).settings
+                    Row(
                         modifier = modifier
                             .fillMaxWidth()
                             .padding(8.dp),
-                        text = profile.name,
-                        textAlign = TextAlign.Center,
-                    )
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = settings.enableEmailOnEmergency,
+                            onCheckedChange = { checked ->
+                                googleIntegrationViewModel.setEnableEmailOnEmergency(checked)
+                            },
+                            enabled = enabled,
+                        )
+                        Text(
+                            modifier = modifier,
+                            text = "Enable Email on Emergency Contacts",
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Row(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = settings.uploadRecordingToDriveOnEnd,
+                            onCheckedChange = { checked ->
+                                googleIntegrationViewModel.setUploadRecordingToDriveOnEnd(checked)
+                            },
+                            enabled = enabled,
+                        )
+                        Text(
+                            modifier = modifier,
+                            text = "Upload Recording to Google Drive When Recording Ends",
+                            textAlign = TextAlign.Center
+                        )
+                    }
                     Row(
                         modifier = modifier
                             .fillMaxWidth()

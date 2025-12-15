@@ -13,6 +13,11 @@ import org.wdsl.witness.repository.RecordingsRepository
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.util.deleteRecordingFile
 
+/**
+ * ViewModel for managing recording information and operations.
+ *
+ * @param recordingsRepository Repository for accessing recordings.
+ */
 class RecordingInfoViewModel(
     private val recordingsRepository: RecordingsRepository,
 ): BaseOperationViewModel() {

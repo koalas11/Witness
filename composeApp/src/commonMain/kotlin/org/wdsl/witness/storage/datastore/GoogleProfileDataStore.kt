@@ -6,7 +6,7 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.IOException
-import org.wdsl.witness.model.GoogleProfile
+import org.wdsl.witness.model.google.GoogleProfile
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.cryptoManager
 
@@ -21,7 +21,9 @@ object GoogleProfileSerializer : OkioSerializer<GoogleProfile?> {
 
     override suspend fun readFrom(source: BufferedSource): GoogleProfile? {
         return try {
-            ProtoBuf.decodeFromByteArray(GoogleProfile.serializer(), cryptoManager.decrypt(source))
+            val decrypted = cryptoManager.decrypt(source)
+            if (decrypted.isEmpty()) return null
+            ProtoBuf.decodeFromByteArray(GoogleProfile.serializer(), decrypted)
         } catch (e: IOException) {
             Log.e(
                 TAG,
@@ -32,8 +34,11 @@ object GoogleProfileSerializer : OkioSerializer<GoogleProfile?> {
     }
 
     override suspend fun writeTo(t: GoogleProfile?, sink: BufferedSink) {
-        if (t == null) return
-        val bytes = ProtoBuf.encodeToByteArray(GoogleProfile.serializer(), t)
+        val bytes = if (t != null) {
+            ProtoBuf.encodeToByteArray(GoogleProfile.serializer(), t)
+        } else {
+            ByteArray(0)
+        }
         cryptoManager.encrypt(bytes, sink)
     }
 

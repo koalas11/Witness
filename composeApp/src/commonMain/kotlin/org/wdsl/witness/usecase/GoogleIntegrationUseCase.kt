@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.wdsl.witness.PlatformContext
-import org.wdsl.witness.model.GoogleProfile
 import org.wdsl.witness.model.LocationData
+import org.wdsl.witness.model.google.GoogleProfile
 import org.wdsl.witness.repository.EmergencyContactsRepository
 import org.wdsl.witness.repository.GoogleAccountRepository
 import org.wdsl.witness.service.GoogleDriveService
@@ -26,6 +26,17 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.ExperimentalTime
 
+/**
+ * Use case class for managing Google integration functionalities.
+ *
+ * @property platformContext The platform context for accessing application-level resources.
+ * @property emergencyContactsRepository Repository for managing emergency contacts.
+ * @property googleAccountRepository Repository for managing Google account data.
+ * @property googleOAuthService Service for handling Google OAuth operations.
+ * @property googleProfileService Service for retrieving Google profile information.
+ * @property googleGmailService Service for sending emails via Gmail.
+ * @property googleDriveService Service for uploading files to Google Drive.
+ */
 class GoogleIntegrationUseCase(
     private val platformContext: PlatformContext,
     private val emergencyContactsRepository: EmergencyContactsRepository,
@@ -45,6 +56,9 @@ class GoogleIntegrationUseCase(
 
     private var _isInitialized = false
 
+    /**
+     * Initializes the Google integration use case by loading the Google profile if available.
+     */
     @OptIn(ExperimentalTime::class)
     fun initialize() {
         if (_isInitialized) return
@@ -74,6 +88,14 @@ class GoogleIntegrationUseCase(
         }
     }
 
+    /**
+     * Starts the Google OAuth flow by launching a coroutine to wait for the OAuth response.
+     *
+     * @param coroutineContext The coroutine context to launch the OAuth flow in.
+     * @param platformContext The platform-specific context for opening the custom tab.
+     * @param codeVerifier The code verifier for PKCE.
+     * @param state The state parameter to prevent CSRF attacks.
+     */
     fun startGoogleOAuthFlow(coroutineContext: CoroutineContext, platformContext: PlatformContext, codeVerifier: String, state: String) {
         _oAuthTempData = Pair(codeVerifier, state)
         _googleIntegrationMutableState.value = GoogleIntegrationState.OAuthInProgress
@@ -98,6 +120,12 @@ class GoogleIntegrationUseCase(
         googleOAuthService.startGoogleOAuthFlow(platformContext, codeVerifier, state)
     }
 
+    /**
+     * Sets the OAuth response data received from the OAuth redirect.
+     *
+     * @param state The state value received in the OAuth response.
+     * @param code The authorization code received in the OAuth response.
+     */
     fun setOAuthResponseData(state: String, code: String) {
         requireNotNull(_oAuthDataReceivedMutableState)
         if (state == "" || code == "") {
@@ -108,6 +136,9 @@ class GoogleIntegrationUseCase(
         _oAuthDataReceivedMutableState!!.value = Pair(state, code)
     }
 
+    /**
+     * Waits for the OAuth response data to be received and handles it accordingly.
+     */
     suspend fun waitForOAuthResponse() {
         _oAuthDataReceivedMutableState = MutableStateFlow(null)
         _oAuthDataReceivedMutableState!!.collect {
@@ -121,6 +152,14 @@ class GoogleIntegrationUseCase(
         }
     }
 
+    /**
+     * Handles the Google OAuth response by validating the state and exchanging the code for tokens.
+     *
+     * @param codeVerifier The code verifier used in the OAuth flow.
+     * @param oldState The original state value sent in the OAuth request.
+     * @param state The state value received in the OAuth response.
+     * @param code The authorization code received in the OAuth response.
+     */
     suspend fun handleGoogleOAuthResponse(
         codeVerifier: String,
         oldState: String,
@@ -148,6 +187,9 @@ class GoogleIntegrationUseCase(
         }
     }
 
+    /**
+     * Updates the Google profile information by retrieving it from the GoogleProfileService.
+     */
     suspend fun updateProfileInfo() {
         googleAccountRepository.getGoogleOAuth()
             .onError {
@@ -169,6 +211,12 @@ class GoogleIntegrationUseCase(
             }
     }
 
+    /**
+     * Sends emergency emails to all configured emergency contacts.
+     *
+     * @param subject The subject of the emergency email.
+     * @param locationData Optional location data to include in the email.
+     */
     suspend fun sendEmergencyEmail(subject: String, locationData: LocationData?) {
         if (_googleIntegrationMutableState.value !is GoogleIntegrationState.ProfileLoaded) {
             Log.d(TAG, "No Google profile loaded, attempting to update profile info")
@@ -192,6 +240,12 @@ class GoogleIntegrationUseCase(
         }
     }
 
+    /**
+     * Uploads a recording to Google Drive.
+     *
+     * @param recording The recording to be uploaded.
+     * @return A Result indicating success or failure of the upload operation.
+     */
     suspend fun uploadRecordingToGoogleDrive(recording: Recording): Result<Unit> {
         return try {
             if (_googleIntegrationMutableState.value !is GoogleIntegrationState.ProfileLoaded) {
@@ -205,11 +259,54 @@ class GoogleIntegrationUseCase(
         }
     }
 
+    /**
+     * Signs out the user and deletes the Google account data locally.
+     */
+    suspend fun signOutAndDeleteAccount(): Result<Unit> {
+        val googleOAuth = googleAccountRepository.getGoogleOAuth().getSuccessOrNull()
+        if (googleOAuth == null) {
+            Log.d(TAG, "No Google Account To SignOut.")
+            googleAccountRepository.clearAllData()
+            _googleIntegrationMutableState.value = GoogleIntegrationState.NoProfile
+            return Result.Success(Unit)
+        }
+
+        googleOAuthService.revokeToken(googleOAuth.accessToken, googleOAuth.refreshToken)
+            .onSuccess {
+                Log.d(TAG, "Successfully revoked Google OAuth token.")
+            }
+            .onError {
+                Log.w(TAG, "Failed to revoke Google OAuth token: ${it.message}")
+            }
+
+        googleAccountRepository.clearAllData()
+            .onSuccess {
+                Log.d(TAG, "Successfully cleared Google account data from repository.")
+            }
+            .onError {
+                Log.e(TAG, "Failed to clear Google account data from repository: ${it.message}")
+            }
+
+        emergencyContactsRepository.removeAllEmailEmergencyContacts()
+            .onSuccess {
+                Log.d(TAG, "Successfully removed all email emergency contacts.")
+            }
+            .onError {
+                Log.e(TAG, "Failed to remove email emergency contacts: ${it.message}")
+            }
+
+        _googleIntegrationMutableState.value = GoogleIntegrationState.NoProfile
+        return Result.Success(Unit)
+    }
+
     companion object {
         private const val TAG = "GoogleIntegrationUseCase"
     }
 }
 
+/**
+ * Represents the state of Google integration within the application.
+ */
 sealed interface GoogleIntegrationState {
     object NoProfile : GoogleIntegrationState
     object OAuthInProgress : GoogleIntegrationState

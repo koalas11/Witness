@@ -13,6 +13,12 @@ import org.wdsl.witness.repository.RecordingsRepository
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.usecase.GeminiApiUseCase
 
+/**
+ * ViewModel for managing recording summaries.
+ *
+ * @param recordingsRepository Repository for accessing recordings.
+ * @param geminiApiUseCase Use case for interacting with the Gemini API.
+ */
 class RecordingSummaryViewModel(
     private val recordingsRepository: RecordingsRepository,
     private val geminiApiUseCase: GeminiApiUseCase,

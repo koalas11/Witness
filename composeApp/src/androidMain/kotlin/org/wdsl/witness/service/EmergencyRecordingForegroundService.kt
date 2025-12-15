@@ -11,11 +11,16 @@ import androidx.core.app.ServiceCompat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import org.wdsl.witness.AndroidContext
 import org.wdsl.witness.PlatformAppContainer
+import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.R.drawable.robe
 import org.wdsl.witness.WitnessApp
 import org.wdsl.witness.util.EMERGENCY_NOTIFICATION_CHANNEL_ID
 
+/**
+ * Foreground service to handle emergency recording.
+ */
 class EmergencyRecordingForegroundService : Service(), EmergencyRecordingService {
 
     override var serviceJob: Job? = null
@@ -24,6 +29,8 @@ class EmergencyRecordingForegroundService : Service(), EmergencyRecordingService
     override val appContainer: PlatformAppContainer
         get() = witnessApp.appContainer
 
+    override val platformContext: PlatformContext
+        get() = AndroidContext(applicationContext)
     override val witnessApp: WitnessApp
         get() = application as WitnessApp
 
@@ -39,7 +46,7 @@ class EmergencyRecordingForegroundService : Service(), EmergencyRecordingService
     }
 
     override fun onDestroy() {
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Emergency recording ended.", Toast.LENGTH_SHORT).show()
         serviceJob?.cancel()
         serviceJob = null
     }

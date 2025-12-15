@@ -5,18 +5,31 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.json.Json
-import org.wdsl.witness.model.GoogleOAuth
-import org.wdsl.witness.model.GoogleProfile
+import org.wdsl.witness.model.google.GoogleOAuth
+import org.wdsl.witness.model.google.GoogleProfile
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
 import kotlin.time.ExperimentalTime
 
+/**
+ * Service interface for fetching Google profile information.
+ */
 interface GoogleProfileService {
-
+    /**
+     * Fetches the Google profile information using the provided OAuth credentials.
+     *
+     * @param googleOAuth The Google OAuth credentials.
+     * @return A [Result] containing the [GoogleProfile] on success or a [ResultError] on failure.
+     */
     suspend fun getProfileInfo(googleOAuth: GoogleOAuth) : Result<GoogleProfile>
 }
 
+/**
+ * Implementation of [GoogleProfileService] using Ktor HTTP client.
+ *
+ * @property httpClient The Ktor HTTP client used for making requests.
+ */
 class GoogleProfileServiceImpl(
     private val httpClient: HttpClient,
 ) : GoogleProfileService {

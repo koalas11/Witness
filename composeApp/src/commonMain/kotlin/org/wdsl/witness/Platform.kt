@@ -10,8 +10,14 @@ import androidx.compose.runtime.Composable
  * @property version The version of the Platform.
  */
 interface Platform {
+    /**
+     * The name of the Platform.
+     */
     val name: String
 
+    /**
+     * The version of the Platform.
+     */
     val version: Int
 
     /**

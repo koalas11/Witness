@@ -14,6 +14,11 @@ import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
 
+/**
+ * Android implementation of the SoundAlertModule using ExoPlayer.
+ *
+ * @param context The Android context.
+ */
 class AndroidSoundAlertModule(
     private val context: Context
 ): SoundAlertModule {

@@ -11,10 +11,25 @@ import org.wdsl.witness.WitnessBuildConfig
 import org.wdsl.witness.state.EmergencyServiceState
 import org.wdsl.witness.state.EmergencySoundState
 
+/**
+ * Action string for emergency intents.
+ */
 const val ACTION_WITNESS_EMERGENCY = "${WitnessBuildConfig.PACKAGE_NAME}.action.EMERGENCY"
+
+
+/**
+ * URI constants for starting recording and emergency alert.
+ */
 const val START_RECORDING_URI = "content://${WitnessBuildConfig.PACKAGE_NAME}/startRecording"
+
+/**
+ * URI constant for starting emergency alert.
+ */
 const val START_EMERGENCY_ALERT_URI = "content://${WitnessBuildConfig.PACKAGE_NAME}/startEmergencyAlert"
 
+/**
+ * BroadcastReceiver to handle emergency recording and alert sound requests.
+ */
 class EmergencyBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action

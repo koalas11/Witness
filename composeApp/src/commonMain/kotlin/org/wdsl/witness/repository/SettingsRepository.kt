@@ -3,8 +3,8 @@ package org.wdsl.witness.repository
 import androidx.datastore.core.DataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import org.wdsl.witness.model.EmergencyRecordingSettings
-import org.wdsl.witness.model.Settings
+import org.wdsl.witness.model.settings.EmergencyRecordingSettings
+import org.wdsl.witness.model.settings.Settings
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
@@ -33,9 +33,23 @@ interface SettingsRepository {
      */
     suspend fun updateSettings(modify: (Settings) -> Settings): Result<Unit>
 
+    /**
+     * Retrieves the emergency recording settings.
+     * @return A Result containing EmergencyRecordingSettings or an error.
+     */
     suspend fun getEmergencyRecordingSettings(): Result<EmergencyRecordingSettings>
+
+    /**
+     * Checks if uploading to Drive is enabled in the settings.
+     * @return A Result containing a Boolean indicating if upload to Drive is enabled or an error.
+     */
+    suspend fun getUploadToDriveEnabled(): Result<Boolean>
 }
 
+/**
+ * Implementation of the SettingsRepository using DataStore.
+ * @param settingsDataStore The DataStore instance for Settings.
+ */
 class SettingsRepositoryImpl(
     private val settingsDataStore: DataStore<Settings>
 ): SettingsRepository {
@@ -78,9 +92,20 @@ class SettingsRepositoryImpl(
                 EmergencyRecordingSettings(
                     settings.enableVibrationOnEmergencyRegistrationStart,
                     settings.enableSmsOnEmergency,
-                    settings.enableEmailOnEmergency
+                    settings.enableEmailOnEmergency,
+                    settings.enableRoutineContactContacts,
                 )
             )
+        } catch (e: Exception) {
+            Log.e(TAG, "An unknown error occurred", e)
+            Result.Error(ResultError.UnknownError("An unknown error occurred"))
+        }
+    }
+
+    override suspend fun getUploadToDriveEnabled(): Result<Boolean> {
+        return try {
+            val settings = settingsDataStore.data.first()
+            Result.Success(settings.uploadRecordingToDriveOnEnd)
         } catch (e: Exception) {
             Log.e(TAG, "An unknown error occurred", e)
             Result.Error(ResultError.UnknownError("An unknown error occurred"))

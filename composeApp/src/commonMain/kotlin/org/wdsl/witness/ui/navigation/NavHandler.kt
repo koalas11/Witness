@@ -19,7 +19,6 @@ import org.wdsl.witness.ui.common.WitnessBottomBar
 import org.wdsl.witness.ui.common.WitnessTopBar
 import org.wdsl.witness.ui.setting.GeneralSettingsScreen
 import org.wdsl.witness.ui.setting.SmsSettingsScreen
-import org.wdsl.witness.util.Log
 import org.wdsl.witness.viewmodel.AppViewModel
 import org.wdsl.witness.viewmodel.EmergencySoundViewModel
 import org.wdsl.witness.viewmodel.witnessViewModel
@@ -29,6 +28,7 @@ import org.wdsl.witness.viewmodel.witnessViewModel
  *
  * @param modifier The modifier to be applied to the NavHandler.
  * @param appViewModel The ViewModel for the application.
+ * @param emergencySoundViewModel The ViewModel for emergency sound functionality.
  */
 @Composable
 fun NavHandler(
@@ -38,9 +38,6 @@ fun NavHandler(
 ) {
     val backStack by appViewModel.backStack.collectAsStateWithLifecycle()
     val authenticated by appViewModel.authenticated.collectAsStateWithLifecycle()
-
-    Log.d("NavHandler", "BackStack: $backStack")
-    Log.d("NavHandler", "Authenticated: $authenticated")
 
     Scaffold(
         modifier = modifier,
@@ -108,6 +105,7 @@ fun NavHandler(
                     ) {
                         GoogleProfileScreen(
                             modifier = modifier,
+                            appViewModel = appViewModel,
                         )
                     }
                 }

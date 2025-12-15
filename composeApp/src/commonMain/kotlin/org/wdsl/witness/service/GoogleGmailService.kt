@@ -12,7 +12,18 @@ import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
 import kotlin.io.encoding.Base64
 
+/**
+ * Service interface for sending emails via Google Gmail API.
+ */
 interface GoogleGmailService {
+    /**
+     * Sends emergency emails to the specified recipient emails with the given subject and location data.
+     *
+     * @param recipientEmails List of recipient email addresses.
+     * @param subject Subject of the email.
+     * @param locationData Optional location data to include in the email body.
+     * @return Result indicating success or failure of the email sending operation.
+     */
     suspend fun sendEmergencyEmails(
         recipientEmails: List<String>,
         subject: String,
@@ -20,6 +31,11 @@ interface GoogleGmailService {
     ) : Result<Unit>
 }
 
+/**
+ * Implementation of GoogleGmailService using Ktor HttpClient.
+ *
+ * @param httpClient The Ktor HttpClient used for making HTTP requests.
+ */
 class GoogleGmailServiceImpl(
     private val httpClient: HttpClient,
 ): GoogleGmailService {

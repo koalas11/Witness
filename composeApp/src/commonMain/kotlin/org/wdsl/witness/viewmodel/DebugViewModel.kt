@@ -8,6 +8,11 @@ import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.repository.RecordingsRepository
 import org.wdsl.witness.util.deleteRecordingFile
 
+/**
+ * ViewModel for debugging purposes, providing operations such as clearing all recordings.
+ *
+ * @param recordingsRepository Repository for managing recordings.
+ */
 class DebugViewModel(
     private val recordingsRepository: RecordingsRepository,
 ): BaseOperationViewModel() {

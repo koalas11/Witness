@@ -10,6 +10,11 @@ import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
 
+/**
+ * Android implementation of the EmergencyContactModule.
+ *
+ * @param context The Android context.
+ */
 class AndroidEmergencyContactModule(
     private val context: Context,
 ) : EmergencyContactModule {

@@ -8,7 +8,7 @@ import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import org.wdsl.witness.model.NotificationsSetting
+import org.wdsl.witness.model.settings.NotificationsSetting
 import org.wdsl.witness.ui.App
 
 /**

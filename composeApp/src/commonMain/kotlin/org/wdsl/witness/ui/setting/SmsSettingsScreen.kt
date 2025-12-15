@@ -1,6 +1,7 @@
 package org.wdsl.witness.ui.setting
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +41,14 @@ import org.wdsl.witness.viewmodel.SmsContactsUiState
 import org.wdsl.witness.viewmodel.SmsContactsViewModel
 import org.wdsl.witness.viewmodel.witnessViewModel
 
+/**
+ * A composable screen for managing SMS emergency contacts settings.
+ *
+ * @param modifier The modifier to be applied to the SmsSettingsScreen.
+ * @param appViewModel The ViewModel managing the overall app state.
+ * @param settingsViewModel The ViewModel managing the settings state.
+ * @param smsContactsViewModel The ViewModel managing the SMS contacts state.
+ */
 @Composable
 fun SmsSettingsScreen(
     modifier: Modifier = Modifier,
@@ -53,11 +62,16 @@ fun SmsSettingsScreen(
     }
     val smsContactsState by smsContactsViewModel.smsContactsState.collectAsStateWithLifecycle()
     if (smsContactsState is SmsContactsUiState.Loading) {
-        CircularProgressIndicator(
+        Box(
             modifier = modifier
-                .fillMaxSize()
-                .size(48.dp),
-        )
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(
+                modifier = modifier
+                    .size(48.dp),
+            )
+        }
         return
     }
     if (smsContactsState is SmsContactsUiState.Error) {
@@ -102,11 +116,6 @@ fun SmsSettingsScreen(
                     return@Row
                 }
                 val settings = (settingsState as AppState.Success).settings
-                Text(
-                    modifier = modifier,
-                    text = "Enable SMS Emergency Contacts",
-                    textAlign = TextAlign.Center,
-                )
                 Checkbox(
                     modifier = modifier,
                     checked = settings.enableSmsOnEmergency,
@@ -114,6 +123,11 @@ fun SmsSettingsScreen(
                         settingsViewModel.setEnableSmsOnEmergency(isChecked)
                     },
                     enabled = enabled,
+                )
+                Text(
+                    modifier = modifier,
+                    text = "Enable SMS Emergency Contacts",
+                    textAlign = TextAlign.Center,
                 )
             }
             Row(

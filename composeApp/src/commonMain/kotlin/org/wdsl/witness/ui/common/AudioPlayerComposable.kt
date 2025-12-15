@@ -27,6 +27,13 @@ import org.wdsl.witness.viewmodel.AudioPlayerState
 import org.wdsl.witness.viewmodel.AudioPlayerViewModel
 import org.wdsl.witness.viewmodel.witnessViewModel
 
+/**
+ * A composable that provides an audio player interface for playing recordings.
+ *
+ * @param modifier The modifier to be applied to the audio player composable.
+ * @param recording The recording to be played.
+ * @param audioPlayerViewModel The ViewModel managing the audio player state and actions.
+ */
 @Composable
 fun ColumnScope.AudioPlayerComposable(
     modifier: Modifier = Modifier,

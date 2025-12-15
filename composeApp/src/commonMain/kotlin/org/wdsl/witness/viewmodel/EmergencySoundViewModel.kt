@@ -7,6 +7,11 @@ import kotlinx.coroutines.launch
 import org.wdsl.witness.module.SoundAlertModule
 import org.wdsl.witness.state.EmergencySoundState
 
+/**
+ * ViewModel for managing emergency sound operations.
+ *
+ * @property soundAlertModule The module responsible for sound alert functionalities.
+ */
 class EmergencySoundViewModel(
     private val soundAlertModule: SoundAlertModule,
 ) : BaseOperationViewModel() {

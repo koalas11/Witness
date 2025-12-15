@@ -11,6 +11,11 @@ import org.wdsl.witness.broadcastreceiver.START_EMERGENCY_ALERT_URI
 import org.wdsl.witness.broadcastreceiver.START_RECORDING_URI
 import kotlin.time.Duration.Companion.seconds
 
+/**
+ * AccessibilityService to detect emergency gestures via volume button presses.
+ * Triple press of Volume Up starts emergency recording.
+ * Triple press of Volume Down starts emergency alert sound.
+ */
 class EmergencyGesturesAccessibilityService : AccessibilityService() {
 
     private lateinit var emergencyRecordingTimeWindow: LongArray

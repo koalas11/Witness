@@ -9,6 +9,11 @@ import org.wdsl.witness.util.ResultError
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
+/**
+ * Android implementation of AudioRecorderModule using MediaRecorder API.
+ *
+ * @param context The Android context.
+ */
 class AndroidAudioRecorderModule(
     private val context: Context
 ): AudioRecorderModule {

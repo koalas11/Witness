@@ -11,6 +11,9 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
+/**
+ * Android implementation of CryptoManager using Android KeyStore.
+ */
 object AndroidCryptoManager: CryptoManager {
     private const val ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
     private const val BLOCK_MODE = KeyProperties.BLOCK_MODE_GCM
@@ -95,4 +98,7 @@ object AndroidCryptoManager: CryptoManager {
     }
 }
 
+/**
+ * CryptoManager instance for Android platform.
+ */
 actual val cryptoManager: CryptoManager = AndroidCryptoManager

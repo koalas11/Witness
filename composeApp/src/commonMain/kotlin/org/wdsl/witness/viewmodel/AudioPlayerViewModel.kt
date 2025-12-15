@@ -15,6 +15,11 @@ import org.wdsl.witness.module.audio.AudioPlayerModule
 import org.wdsl.witness.storage.room.Recording
 import kotlin.time.Duration.Companion.milliseconds
 
+/**
+ * ViewModel for managing audio playback functionality.
+ *
+ * @param audioPlayer The AudioPlayerModule for handling audio playback.
+ */
 class AudioPlayerViewModel(
     private val audioPlayer: AudioPlayerModule,
 ): ViewModel() {

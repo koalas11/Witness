@@ -16,4 +16,8 @@ data class IosContext(
     ) {
         TODO("Not yet implemented")
     }
+
+    override fun checkRequiredPermissionsForEmergencyRecording(): Boolean {
+        TODO("Not yet implemented")
+    }
 }

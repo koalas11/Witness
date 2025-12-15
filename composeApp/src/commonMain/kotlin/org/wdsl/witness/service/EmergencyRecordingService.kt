@@ -4,23 +4,63 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.wdsl.witness.PlatformAppContainer
+import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.WitnessApp
 import org.wdsl.witness.model.LocationData
 import org.wdsl.witness.state.EmergencyServiceState
 import org.wdsl.witness.storage.room.Recording
-import org.wdsl.witness.ui.util.getFormattedTimestamp
+import org.wdsl.witness.util.EMERGENCY_NOTIFICATION_CHANNEL_ID
+import org.wdsl.witness.util.getFormattedTimestamp
 
+/**
+ * Interface defining the emergency recording service functionality.
+ */
 interface EmergencyRecordingService {
+    /**
+     * Job representing the ongoing emergency recording process.
+     */
     var serviceJob: Job?
+
+    /**
+     * Reference to the platform-specific context.
+     */
+    val platformContext: PlatformContext
+
+    /**
+     * Reference to the WitnessApp instance.
+     */
     val witnessApp: WitnessApp
+
+    /**
+     * Reference to the platform-specific application container.
+     */
     val appContainer: PlatformAppContainer
 
+    /**
+     * The default coroutine dispatcher for executing tasks.
+     */
     var defaultDispatcher: CoroutineDispatcher
 
+    /**
+     * Starts the emergency recording process.
+     *
+     * @param stopService A lambda function to stop the service.
+     */
     fun startEmergencyRecording(
         stopService: () -> Unit,
     ) {
         if (!witnessApp.appContainer.emergencyRecordingUseCase.emergencyRecordingActive.value) {
+            stopService()
+            return
+        }
+
+        if (!platformContext.checkRequiredPermissionsForEmergencyRecording()) {
+            platformContext.sendNotification(
+                channelId = EMERGENCY_NOTIFICATION_CHANNEL_ID,
+                title = "Emergency Recording",
+                message = "Emergency recording failed to start due to missing permissions, emergency contacts will still be notified.",
+                priority = 2,
+            )
             stopService()
             return
         }
@@ -57,8 +97,12 @@ interface EmergencyRecordingService {
         }
     }
 
-    suspend fun onEmergencyRecordingStarted() {}
-
+    /**
+     * Saves the emergency recording along with GPS positions.
+     *
+     * @param recordingFileName The name of the recording file.
+     * @param gpsPositions The list of GPS positions recorded during the emergency.
+     */
     fun saveEmergencyRecording(
         recordingFileName: String,
         gpsPositions: List<LocationData>,
@@ -82,9 +126,11 @@ interface EmergencyRecordingService {
             EmergencyServiceState.setEmergencyServiceState(EmergencyServiceState.State.Idle)
         }
         witnessApp.appScope.launch(defaultDispatcher) {
-            appContainer.googleIntegrationUseCase.uploadRecordingToGoogleDrive(
-                recording = recording,
-            )
+            if (witnessApp.appContainer.settingsRepository.getUploadToDriveEnabled().getSuccessOrNull() == true) {
+                appContainer.googleIntegrationUseCase.uploadRecordingToGoogleDrive(
+                    recording = recording,
+                )
+            }
         }
     }
 }

@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.wdsl.witness.model.DynamicColorMode
-import org.wdsl.witness.model.NotificationsSetting
-import org.wdsl.witness.model.Settings
-import org.wdsl.witness.model.ThemeMode
+import org.wdsl.witness.model.settings.DynamicColorMode
+import org.wdsl.witness.model.settings.NotificationsSetting
+import org.wdsl.witness.model.settings.Settings
+import org.wdsl.witness.model.settings.ThemeMode
 import org.wdsl.witness.repository.SettingsRepository
 import org.wdsl.witness.ui.navigation.ScreenRoute
 import org.wdsl.witness.ui.navigation.ShowBackButton
@@ -24,6 +24,7 @@ import org.wdsl.witness.util.ResultError
  * ViewModel for managing application settings and state.
  *
  * @property settingsRepository The repository for accessing and updating settings.
+ * @property emergencyRecordingUseCase The use case for managing emergency recording.
  */
 class AppViewModel(
     private val settingsRepository: SettingsRepository,

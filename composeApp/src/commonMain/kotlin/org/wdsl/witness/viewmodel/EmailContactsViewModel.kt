@@ -10,6 +10,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.wdsl.witness.repository.EmergencyContactsRepository
 
+/**
+ * ViewModel for managing email emergency contacts.
+ *
+ * @param emergencyContactsRepository Repository for accessing emergency contacts.
+ */
 class EmailContactsViewModel(
     private val emergencyContactsRepository: EmergencyContactsRepository,
 ) : BaseOperationViewModel() {

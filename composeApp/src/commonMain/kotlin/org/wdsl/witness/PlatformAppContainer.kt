@@ -33,9 +33,23 @@ interface PlatformAppContainer: AppContainer {
      */
     val audioPlayerModule: AudioPlayerModule
 
+    /**
+     * Platform-specific GeoRecordingModule instance.
+     */
     val geoRecordingModule: GeoRecordingModule
+
+    /**
+     * Platform-specific EmergencyContactModule instance.
+     */
     val emergencyContactModule: EmergencyContactModule
 
+    /**
+     * Platform-specific RecordingServiceHandler instance.
+     */
     val recordingServiceHandler: RecordingServiceHandler
+
+    /**
+     * Platform-specific EmergencyRecordingUseCase instance.
+     */
     val emergencyRecordingUseCase: EmergencyRecordingUseCase
 }

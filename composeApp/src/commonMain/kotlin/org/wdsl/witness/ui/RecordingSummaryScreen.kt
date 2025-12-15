@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
 import org.wdsl.witness.LocalPlatformContext
-import org.wdsl.witness.model.Emotion
+import org.wdsl.witness.llm.Emotion
 import org.wdsl.witness.ui.util.handleOperationState
 import org.wdsl.witness.viewmodel.RecordingSummaryUiState
 import org.wdsl.witness.viewmodel.RecordingSummaryViewModel
@@ -47,6 +47,13 @@ import witness.composeapp.generated.resources.gemini
 import witness.composeapp.generated.resources.sentiment_extremely_dissatisfied
 import witness.composeapp.generated.resources.sentiment_sad
 
+/**
+ * A composable screen that displays the summary of a recording
+ *
+ * @param modifier The modifier to be applied to the RecordingSummaryScreen.
+ * @param recordingId The ID of the recording to display the summary for.
+ * @param recordingSummaryViewModel The ViewModel managing the recording summary state.
+ */
 @Composable
 fun RecordingSummaryScreen(
     modifier: Modifier = Modifier,
@@ -113,7 +120,7 @@ fun RecordingSummaryScreen(
             )
 
             val segments = selectedRecording.llmSummary?.segments
-            if (segments != null) {
+            if (segments != null && segments.isNotEmpty()) {
                 var selectedIdx by rememberSaveable { mutableStateOf(0) }
                 Card(
                     modifier = modifier
@@ -291,6 +298,12 @@ fun RecordingSummaryScreen(
                         )
                     }
                 }
+            }
+            if (!enabled) {
+                CircularProgressIndicator(
+                    modifier = modifier
+                        .padding(8.dp),
+                )
             }
         }
     }

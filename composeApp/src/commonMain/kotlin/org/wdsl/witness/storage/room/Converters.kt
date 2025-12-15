@@ -6,9 +6,12 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.encodeToByteArray
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.protobuf.ProtoBuf
-import org.wdsl.witness.model.LlmSummary
+import org.wdsl.witness.llm.LlmSummary
 import org.wdsl.witness.model.LocationData
 
+/**
+ * Converters for Room database to handle complex data types.
+ */
 @OptIn(ExperimentalSerializationApi::class)
 class Converters {
     @TypeConverter

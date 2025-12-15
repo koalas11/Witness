@@ -13,22 +13,61 @@ import io.ktor.http.Url
 import io.ktor.http.buildUrl
 import io.ktor.http.contentType
 import io.ktor.http.encodedPath
+import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
 import org.wdsl.witness.PlatformContext
-import org.wdsl.witness.model.GoogleOAuth
+import org.wdsl.witness.model.google.GoogleOAuth
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
 import org.wdsl.witness.util.generateCodeChallenge
 
+/**
+ * Service interface for handling Google OAuth operations.
+ */
 interface GoogleOAuthService {
+    /**
+     * Starts the Google OAuth flow by opening a custom tab with the authorization URL.
+     *
+     * @param platformContext The platform-specific context for opening the custom tab.
+     * @param codeVerifier The code verifier for PKCE.
+     * @param state The state parameter to prevent CSRF attacks.
+     * @return A [Result] indicating success or failure.
+     */
     fun startGoogleOAuthFlow(platformContext: PlatformContext, codeVerifier: String, state: String) : Result<Unit>
 
+    /**
+     * Handles the Google OAuth response by exchanging the authorization code for tokens.
+     *
+     * @param codeVerifier The code verifier for PKCE.
+     * @param code The authorization code received from Google.
+     * @return A [Result] containing the [GoogleOAuth] tokens or an error.
+     */
     suspend fun handleGoogleOAuthResponse(codeVerifier: String, code: String) : Result<GoogleOAuth>
 
+    /**
+     * Refreshes the Google OAuth tokens using the refresh token.
+     *
+     * @param googleOAuth The current [GoogleOAuth] containing the refresh token.
+     * @return A [Result] containing the new [GoogleOAuth] tokens or an error.
+     */
     suspend fun refreshGoogleOAuth(googleOAuth: GoogleOAuth): Result<GoogleOAuth>
+
+    /**
+     * Revokes the given OAuth token.
+     *
+     * @param accessToken The access token to revoke.
+     * @param refreshToken The refresh token to revoke (optional).
+     * @return A [Result] indicating success or failure.
+     */
+    suspend fun revokeToken(accessToken: String, refreshToken: String?): Result<Unit>
 }
 
+/**
+ * Implementation of the [GoogleOAuthService] using Ktor HTTP client.
+ *
+ * @param httpClient The Ktor HTTP client for making network requests.
+ */
 class GoogleOAuthServiceImpl(
     private val httpClient: HttpClient,
 ) : GoogleOAuthService {
@@ -106,6 +145,30 @@ class GoogleOAuthServiceImpl(
         } catch (e: Exception) {
             Log.e(TAG, "Error handling OAuth response", e)
             Result.Error(ResultError.UnknownError("Failed to handle Google OAuth response"))
+        }
+    }
+
+    override suspend fun revokeToken(accessToken: String, refreshToken: String?): Result<Unit> {
+        return try {
+            val response: HttpResponse = httpClient.post("https://oauth2.googleapis.com/revoke") {
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    FormDataContent(Parameters.build {
+                        append("token", refreshToken ?: accessToken)
+                    })
+                )
+            }
+
+            if (response.status.isSuccess()) {
+                Log.d(TAG, "Revoke token request completed successfully.")
+                Result.Success(Unit)
+            } else {
+                Log.w(TAG, "Failed to revoke token, status: ${response.status}, body: ${response.bodyAsText()}")
+                Result.Error(ResultError.UnknownError("Failed to revoke token, status: ${response.status}"))
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error during token revocation", e)
+            Result.Error(ResultError.UnknownError("Unknown error during token revocation: ${e.message}"))
         }
     }
 

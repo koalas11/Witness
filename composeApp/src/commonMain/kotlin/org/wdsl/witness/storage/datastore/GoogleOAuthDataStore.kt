@@ -6,7 +6,7 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.IOException
-import org.wdsl.witness.model.GoogleOAuth
+import org.wdsl.witness.model.google.GoogleOAuth
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.cryptoManager
 
@@ -21,7 +21,9 @@ object GoogleOAuthSerializer : OkioSerializer<GoogleOAuth?> {
 
     override suspend fun readFrom(source: BufferedSource): GoogleOAuth? {
         return try {
-            ProtoBuf.decodeFromByteArray(GoogleOAuth.serializer(), cryptoManager.decrypt(source))
+            val decrypted = cryptoManager.decrypt(source)
+            if (decrypted.isEmpty()) return null
+            ProtoBuf.decodeFromByteArray(GoogleOAuth.serializer(), decrypted)
         } catch (e: IOException) {
             Log.e(
                 TAG,
@@ -32,8 +34,11 @@ object GoogleOAuthSerializer : OkioSerializer<GoogleOAuth?> {
     }
 
     override suspend fun writeTo(t: GoogleOAuth?, sink: BufferedSink) {
-        if (t == null) return
-        val bytes = ProtoBuf.encodeToByteArray(GoogleOAuth.serializer(), t)
+        val bytes = if (t != null) {
+            ProtoBuf.encodeToByteArray(GoogleOAuth.serializer(), t)
+        } else {
+            ByteArray(0)
+        }
         cryptoManager.encrypt(bytes, sink)
     }
 

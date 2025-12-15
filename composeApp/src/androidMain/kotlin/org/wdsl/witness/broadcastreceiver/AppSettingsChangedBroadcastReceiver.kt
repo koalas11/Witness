@@ -6,6 +6,9 @@ import android.content.Intent
 import android.util.Log
 import org.wdsl.witness.state.AppSettingsState
 
+/**
+ * BroadcastReceiver to listen for application settings changes.
+ */
 class AppSettingsChangedBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action

@@ -25,21 +25,37 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.storage.room.Recording
-import org.wdsl.witness.ui.util.getFilenameTimestamp
-import org.wdsl.witness.ui.util.getFormattedTimestamp
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
+import org.wdsl.witness.util.getFilenameTimestamp
+import org.wdsl.witness.util.getFormattedTimestamp
 import org.wdsl.witness.util.getRecordingFile
 import kotlin.time.ExperimentalTime
 
+/**
+ * Service interface for uploading recordings to Google Drive.
+ */
 interface GoogleDriveService {
+
+    /**
+     * Uploads a recording to Google Drive.
+     *
+     * @param platformContext The platform-specific context.
+     * @param recording The recording to upload.
+     * @return Result indicating success or failure of the upload.
+     */
     suspend fun uploadRecordingToDrive(
         platformContext: PlatformContext,
         recording: Recording
     ): Result<Unit>
 }
 
+/**
+ * Implementation of the GoogleDriveService using Ktor HTTP client.
+ *
+ * @param httpClient The Ktor HTTP client for making requests.
+ */
 class GoogleDriveServiceImpl(
     private val httpClient: HttpClient,
 ): GoogleDriveService {
@@ -49,6 +65,7 @@ class GoogleDriveServiceImpl(
         recording: Recording,
     ): Result<Unit> {
         return try {
+            Log.d(TAG, "uploadRecordingToDrive: Starting upload of recording to Google Drive")
             val timestamp = recording.recordingFileName.subSequence(
                 "recording_".length, recording.recordingFileName.lastIndexOf(".")
             ).toString().toLong()
@@ -65,7 +82,6 @@ class GoogleDriveServiceImpl(
                 throw Exception("Failed to get recording file: ${it.message}")
             }.onSuccess { recordingFile ->
                 val metaText = buildString {
-                    appendLine("file name: ${recording.recordingFileName}")
                     appendLine("timestamp: ${getFormattedTimestamp(timestamp)}")
 
                     if (recording.gpsPositions.isNotEmpty()) {
@@ -78,20 +94,21 @@ class GoogleDriveServiceImpl(
                 }
 
                 uploadTextFileToFolder(
-                    fileName = "recording_${subFolderName}.txt",
+                    fileName = "${subFolderName}.txt",
                     content = metaText.toByteArray(Charsets.UTF_8),
                     parentFolderId = recordingFolderId,
                 )
 
                 val mediaMime = "audio/m4a"
                 uploadBinaryFileToFolder(
-                    fileName = recording.recordingFileName,
+                    fileName = recording.recordingFileName.subSequence(0, "recording".length).toString() + ".m4a",
                     content = recordingFile,
                     mediaMime = mediaMime,
                     parentFolderId = recordingFolderId,
                 )
             }
 
+            Log.d(TAG, "uploadRecordingToDrive: Successfully uploaded recording to Google Drive")
             Result.Success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "uploadRecordingToDrive: Failed to upload recording to Google Drive", e)

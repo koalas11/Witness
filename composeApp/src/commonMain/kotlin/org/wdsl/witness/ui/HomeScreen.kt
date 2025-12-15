@@ -36,6 +36,7 @@ import witness.composeapp.generated.resources.mobile_sound_2
  *
  * @param modifier The modifier to be applied to the Home Screen.
  * @param appViewModel The ViewModel for the application.
+ * @param emergencySoundViewModel The ViewModel for managing emergency sound.
  */
 @Composable
 fun HomeScreen(

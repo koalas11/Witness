@@ -14,7 +14,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.WitnessBuildConfig
-import org.wdsl.witness.model.LlmSummary
+import org.wdsl.witness.llm.LlmSummary
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
@@ -22,8 +22,18 @@ import org.wdsl.witness.util.ResultError
 import org.wdsl.witness.util.getRecordingFile
 import kotlin.io.encoding.Base64
 
+/**
+ * Use case for interacting with the Gemini API to generate audio summaries.
+ */
 class GeminiApiUseCase() {
 
+    /**
+     * Generates an audio summary for the given recording using the Gemini API.
+     *
+     * @param platformContext The platform-specific context.
+     * @param recording The recording for which to generate the summary.
+     * @return A [Result] containing the [LlmSummary] on success or a [ResultError] on failure.
+     */
     suspend fun getAudioSummary(
         platformContext: PlatformContext,
         recording: Recording

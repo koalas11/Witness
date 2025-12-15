@@ -2,6 +2,7 @@ package org.wdsl.witness
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
@@ -22,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var mLauncher: ActivityResultLauncher<Intent>
 
     private fun handleAuthResult(result: AuthTabIntent.AuthResult) {
-        Log.d("GoogleOAuthActivity", "handleAuthResult called with resultCode=${result.resultCode}")
+        Log.d(TAG, "handleAuthResult called with resultCode=${result.resultCode}")
 
         var message = when (result.resultCode) {
             AuthTabIntent.RESULT_OK -> "Received auth result."
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         if (result.resultCode == AuthTabIntent.RESULT_OK) {
             message += " Uri: " + result.resultUri
-            Log.d("MainActivity", message)
+            Log.d(TAG, message)
             val uri = result.resultUri
             processAuthUri(uri)
         }
@@ -44,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         val appContainer = (application as WitnessApp).appContainer
         if (appContainer.googleIntegrationUseCase.googleIntegrationState.value !is GoogleIntegrationState.OAuthInProgress) {
             Log.w(
-                "MainActivity",
+                TAG,
                 "Ignoring auth response because OAuth state is not InProgress. Current state: ${appContainer.googleIntegrationUseCase.googleIntegrationState.value}"
             )
             return
@@ -59,7 +60,7 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        Log.d("MainActivity", "onNewIntent: intent.data=${intent.data}")
+        Log.d(TAG, "onNewIntent: intent.data=${intent.data}")
         processAuthUri(intent.data)
     }
 
@@ -67,8 +68,10 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        setShowWhenLocked(true)
-        setTurnScreenOn(true)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        }
 
         val appContainer = (application as WitnessApp).appContainer
 
@@ -87,5 +90,9 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         AppSettingsState.notifySettingsChanged()
+    }
+
+    companion object {
+        const val TAG = "MainActivity"
     }
 }

@@ -35,6 +35,8 @@ import witness.composeapp.generated.resources.robe
  * A top app bar composable for the Witness application.
  *
  * @param modifier The modifier to be applied to the top app bar.
+ * @param appViewModel The AppViewModel instance for managing app state and navigation.
+ * @param emergencySoundViewModel The EmergencySoundViewModel instance for managing emergency sound state.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

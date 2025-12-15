@@ -17,15 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import kotlinx.serialization.json.JsonObject
 import org.maplibre.compose.camera.CameraPosition
 import org.maplibre.compose.camera.rememberCameraState
 import org.maplibre.compose.expressions.dsl.const
-import org.maplibre.compose.expressions.dsl.format
 import org.maplibre.compose.expressions.dsl.image
-import org.maplibre.compose.expressions.dsl.offset
-import org.maplibre.compose.expressions.dsl.span
+import org.maplibre.compose.layers.LineLayer
 import org.maplibre.compose.layers.SymbolLayer
 import org.maplibre.compose.map.MapOptions
 import org.maplibre.compose.map.MaplibreMap
@@ -41,6 +38,7 @@ import org.maplibre.compose.util.ClickResult
 import org.maplibre.spatialk.geojson.BoundingBox
 import org.maplibre.spatialk.geojson.Feature
 import org.maplibre.spatialk.geojson.FeatureCollection
+import org.maplibre.spatialk.geojson.LineString
 import org.maplibre.spatialk.geojson.Point
 import org.maplibre.spatialk.geojson.Position
 import org.maplibre.spatialk.geojson.dsl.featureCollectionOf
@@ -48,6 +46,12 @@ import org.maplibre.spatialk.geojson.toJson
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.util.Log
 
+/**
+ * A composable that displays a map with GPS positions from a recording.
+ *
+ * @param modifier The modifier to be applied to the map container.
+ * @param recording The recording containing GPS positions to be displayed on the map.
+ */
 @Composable
 fun ColumnScope.MapComposable(
     modifier: Modifier = Modifier,
@@ -89,6 +93,7 @@ fun ColumnScope.MapComposable(
             options = MapOptions(ornamentOptions = OrnamentOptions.OnlyLogo),
         ) {
             var data by remember { mutableStateOf(featureCollectionOf().toJson()) }
+            var lineData by remember { mutableStateOf(featureCollectionOf().toJson()) }
 
             LaunchedEffect(recording.id) {
                 val features = recording.gpsPositions.map { gpsPosition ->
@@ -103,15 +108,34 @@ fun ColumnScope.MapComposable(
                 }
                 boundingBox = boundingBoxFromFeatures(features)
                 data = FeatureCollection(features).toJson()
+
+                if (recording.gpsPositions.size >= 2) {
+                    val linePositions = recording.gpsPositions.map { p ->
+                        Position(p.longitude, p.latitude)
+                    }
+                    val lineFeature = Feature(
+                        geometry = LineString(linePositions),
+                        properties = JsonObject(emptyMap())
+                    )
+                    lineData = FeatureCollection(listOf(lineFeature)).toJson()
+                } else {
+                    lineData = FeatureCollection<LineString, JsonObject>(emptyList()).toJson()
+                }
             }
 
-            val gpsSource = rememberGeoJsonSource(
-                GeoJsonData.JsonString(data),
-            )
+            val gpsSource = rememberGeoJsonSource(GeoJsonData.JsonString(data))
+            val lineSource = rememberGeoJsonSource(GeoJsonData.JsonString(lineData))
 
             val marker = rememberVectorPainter(Icons.Default.LocationOn)
 
             if (recording.gpsPositions.isNotEmpty()) {
+                LineLayer(
+                    id = "gps_line",
+                    source = lineSource,
+                    color = const(MaterialTheme.colorScheme.primary),
+                    width = const(2.dp),
+                    dasharray = const(listOf(4.0, 2.0))
+                )
                 SymbolLayer(
                     id = "gps_symbols",
                     source = gpsSource,
@@ -120,14 +144,6 @@ fun ColumnScope.MapComposable(
                         ClickResult.Consume
                     },
                     iconImage = image(marker),
-                    textField =
-                        format(
-                            span(image("stuff")),
-                            span(" "),
-                        ),
-                    textFont = const(listOf("Noto Sans Regular")),
-                    textColor = const(MaterialTheme.colorScheme.onBackground),
-                    textOffset = offset(0.em, 0.6.em),
                 )
             }
         }

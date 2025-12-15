@@ -5,6 +5,11 @@ import android.content.Intent
 import androidx.core.content.ContextCompat
 import org.wdsl.witness.service.EmergencyRecordingForegroundService
 
+/**
+ * Implementation of RecordingServiceHandler for Android platform.
+ *
+ * @param context The Android context.
+ */
 class RecordingServiceHandlerImpl(
     private val context: Context,
 ) : RecordingServiceHandler {

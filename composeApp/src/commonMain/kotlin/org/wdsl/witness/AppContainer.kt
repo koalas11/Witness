@@ -4,7 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
-import org.wdsl.witness.model.GoogleOAuth
+import org.wdsl.witness.model.google.GoogleOAuth
 import org.wdsl.witness.repository.EmergencyContactsRepository
 import org.wdsl.witness.repository.EmergencyContactsRepositoryImpl
 import org.wdsl.witness.repository.GoogleAccountRepositoryImpl
@@ -34,18 +34,39 @@ import org.wdsl.witness.util.Log
  * Application Container interface for Dependency Injection
  */
 interface AppContainer {
+    /**
+     * Settings Repository
+     */
     val settingsRepository: SettingsRepository
 
+    /**
+     * Recordings Repository
+     */
     val recordingsRepository: RecordingsRepository
 
+    /**
+     * Emergency Contacts Repository
+     */
     val emergencyContactsRepository: EmergencyContactsRepository
 
+    /**
+     * Ktor HTTP Client
+     */
     val httpClient: HttpClient
 
+    /**
+     * Ktor HTTP Client with Google OAuth Bearer Token support
+     */
     val googleOAuthHttpClient: HttpClient
 
+    /**
+     * Google Integration Use Case
+     */
     val googleIntegrationUseCase: GoogleIntegrationUseCase
 
+    /**
+     * Gemini API Use Case
+     */
     val geminiApiUseCase: GeminiApiUseCase
 }
 

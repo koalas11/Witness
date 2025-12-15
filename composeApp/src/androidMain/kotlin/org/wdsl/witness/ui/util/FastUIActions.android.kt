@@ -26,6 +26,9 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.model.NotificationType
 
+/**
+ * Android implementation of FastUIActions.
+ */
 object AndroidFastUIActions: FastUIActions {
     override fun openAccessibilityServicesSettings(platformContext: PlatformContext) {
         val context = platformContext.context as Context
@@ -267,4 +270,7 @@ object AndroidFastUIActions: FastUIActions {
     }
 }
 
+/**
+ * Actual instance of FastUIActions for Android.
+ */
 actual val fastUIActions: FastUIActions = AndroidFastUIActions

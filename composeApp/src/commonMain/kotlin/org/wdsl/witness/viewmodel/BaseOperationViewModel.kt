@@ -7,6 +7,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.wdsl.witness.util.Result
 import org.wdsl.witness.util.ResultError
 
+/**
+ * A base ViewModel class that provides common functionality for handling operations and their
+ * states.
+ */
 abstract class BaseOperationViewModel(): ViewModel() {
     protected var operationUiMutableState: MutableStateFlow<OperationUiState> =
         MutableStateFlow(OperationUiState.Idle)

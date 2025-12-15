@@ -6,6 +6,11 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 
+/**
+ * Android implementation of the VibrationModule.
+ *
+ * @param context The Android context.
+ */
 class AndroidVibrationModule(
     private val context: Context
 ) : VibrationModule {

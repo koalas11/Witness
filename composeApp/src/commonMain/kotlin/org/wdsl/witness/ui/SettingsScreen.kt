@@ -45,6 +45,12 @@ import org.wdsl.witness.util.AUDIO_RECORDING_PERMISSION
 import org.wdsl.witness.util.FINE_LOCATION_PERMISSION
 import org.wdsl.witness.viewmodel.AppViewModel
 
+/**
+ * A composable function that represents the Settings screen of the application.
+ *
+ * @param modifier The modifier to be applied to the SettingsScreen.
+ * @param appViewModel The ViewModel that holds the application state and handles navigation.
+ */
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,

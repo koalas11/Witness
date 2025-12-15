@@ -6,7 +6,7 @@ import kotlinx.serialization.protobuf.ProtoBuf
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.IOException
-import org.wdsl.witness.model.Settings
+import org.wdsl.witness.model.settings.Settings
 import org.wdsl.witness.util.Log
 
 /**

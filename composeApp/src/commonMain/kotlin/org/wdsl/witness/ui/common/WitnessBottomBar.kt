@@ -12,6 +12,12 @@ import org.jetbrains.compose.resources.stringResource
 import org.wdsl.witness.ui.navigation.MainRoute
 import org.wdsl.witness.viewmodel.AppViewModel
 
+/**
+ * A composable that represents the bottom navigation bar for the Witness application.
+ *
+ * @param modifier The modifier to be applied to the WitnessBottomBar.
+ * @param appViewModel The ViewModel for the application.
+ */
 @Composable
 fun WitnessBottomBar(
     modifier: Modifier = Modifier,

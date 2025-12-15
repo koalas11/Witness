@@ -1,9 +1,11 @@
 package org.wdsl.witness.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,6 +45,15 @@ import org.wdsl.witness.viewmodel.witnessViewModel
 import witness.composeapp.generated.resources.Res
 import witness.composeapp.generated.resources.gemini
 
+/**
+ * A composable screen that displays information about a specific recording.
+ *
+ * @param modifier The modifier to be applied to the RecordingInfoScreen.
+ * @param recordingId The ID of the recording to display information for.
+ * @param appViewModel The ViewModel managing the overall app state.
+ * @param recordingInfoViewModel The ViewModel managing the recording info state.
+ * @param googleIntegrationViewModel The ViewModel managing Google integration state.
+ */
 @Composable
 fun RecordingInfoScreen(
     modifier: Modifier = Modifier,
@@ -57,11 +68,16 @@ fun RecordingInfoScreen(
     }
     val recordingInfoUiState by recordingInfoViewModel.recordingInfoUiState.collectAsStateWithLifecycle()
     if (recordingInfoUiState is RecordingInfoUiState.Loading) {
-        CircularProgressIndicator(
+        Box(
             modifier = modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-        )
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(
+                modifier = modifier
+                    .size(48.dp),
+            )
+        }
         return
     } else if (recordingInfoUiState is RecordingInfoUiState.Error) {
         Text(

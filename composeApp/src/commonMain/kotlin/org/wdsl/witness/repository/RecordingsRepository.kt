@@ -1,7 +1,7 @@
 package org.wdsl.witness.repository
 
 import kotlinx.coroutines.flow.Flow
-import org.wdsl.witness.model.LlmSummary
+import org.wdsl.witness.llm.LlmSummary
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.storage.room.RecordingsDao
 import org.wdsl.witness.util.Log
@@ -24,6 +24,10 @@ interface RecordingsRepository {
      */
     fun getRecordingsFlow(): Result<Flow<List<Recording>>>
 
+    /**
+     * Retrieves all recording file names.
+     * @return A Result containing a list of recording file names or an error.
+     */
     suspend fun getAllRecordingFileNames(): Result<List<String>>
 
     /**
@@ -33,12 +37,32 @@ interface RecordingsRepository {
      */
     suspend fun insertRecording(recording: Recording): Result<Unit>
 
+    /**
+     * Deletes a recording from the repository.
+     * @param recording The Recording object to delete.
+     * @return A Result indicating success or failure.
+     */
     suspend fun deleteRecording(recording: Recording): Result<Unit>
 
+    /**
+     * Clears all recordings from the repository.
+     * @return A Result indicating success or failure.
+     */
     suspend fun clearAllRecordings(): Result<Unit>
 
+    /**
+     * Creates a summary for a specific recording.
+     * @param recordingId The ID of the recording.
+     * @param summary The LlmSummary object containing the summary details.
+     * @return A Result indicating success or failure.
+     */
     suspend fun createRecordingSummary(recordingId: Long, summary: LlmSummary): Result<Unit>
 
+    /**
+     * Deletes the summary for a specific recording.
+     * @param recordingId The ID of the recording.
+     * @return A Result indicating success or failure.
+     */
     suspend fun deleteRecordingSummary(recordingId: Long): Result<Unit>
 }
 

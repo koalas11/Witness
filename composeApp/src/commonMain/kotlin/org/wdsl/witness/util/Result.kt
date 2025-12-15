@@ -17,6 +17,9 @@ sealed class Result<out T> {
         return this
     }
 
+    /**
+     * Returns the value of the [Success] result or null if it's an [Error]
+     */
     fun getSuccessOrNull(): T? {
         return if (this is Success) {
             data
@@ -29,13 +32,6 @@ sealed class Result<out T> {
      * Returns the value of the [Error] result
      */
     suspend fun onError(action: suspend (ResultError) -> Unit): Result<T> {
-        if (this is Error) {
-            action(error)
-        }
-        return this
-    }
-
-    fun onErrorSync(action: (ResultError) -> Unit): Result<T> {
         if (this is Error) {
             action(error)
         }

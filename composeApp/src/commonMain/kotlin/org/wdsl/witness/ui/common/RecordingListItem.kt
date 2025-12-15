@@ -13,6 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.wdsl.witness.storage.room.Recording
 
+/**
+ * A composable that represents a single item in a list of recordings.
+ *
+ * @param modifier The modifier to be applied to the RecordingListItem.
+ * @param recording The recording data to be displayed.
+ * @param onClick The callback to be invoked when the item is clicked.
+ */
 @Composable
 fun RecordingListItem(
     modifier: Modifier = Modifier,

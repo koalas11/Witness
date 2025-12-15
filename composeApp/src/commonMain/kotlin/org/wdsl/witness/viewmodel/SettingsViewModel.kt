@@ -5,12 +5,17 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.launch
-import org.wdsl.witness.model.DynamicColorMode
-import org.wdsl.witness.model.NotificationsSetting
-import org.wdsl.witness.model.Settings
-import org.wdsl.witness.model.ThemeMode
+import org.wdsl.witness.model.settings.DynamicColorMode
+import org.wdsl.witness.model.settings.NotificationsSetting
+import org.wdsl.witness.model.settings.Settings
+import org.wdsl.witness.model.settings.ThemeMode
 import org.wdsl.witness.repository.SettingsRepository
 
+/**
+ * ViewModel for managing user settings.
+ *
+ * @property settingsRepository The repository for accessing and updating settings.
+ */
 class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
 ) : BaseOperationViewModel() {

@@ -11,6 +11,11 @@ import kotlinx.coroutines.launch
 import org.wdsl.witness.repository.RecordingsRepository
 import org.wdsl.witness.storage.room.Recording
 
+/**
+ * ViewModel for managing recordings UI state.
+ *
+ * @param recordingsRepository Repository for accessing recordings data.
+ */
 class RecordingsViewModel(
     private val recordingsRepository: RecordingsRepository,
 ): ViewModel() {
