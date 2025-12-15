@@ -1,6 +1,7 @@
 package org.wdsl.witness.repository
 
 import kotlinx.coroutines.flow.Flow
+import org.wdsl.witness.model.LlmSummary
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.storage.room.RecordingsDao
 import org.wdsl.witness.util.Log
@@ -35,6 +36,10 @@ interface RecordingsRepository {
     suspend fun deleteRecording(recording: Recording): Result<Unit>
 
     suspend fun clearAllRecordings(): Result<Unit>
+
+    suspend fun createRecordingSummary(recordingId: Long, summary: LlmSummary): Result<Unit>
+
+    suspend fun deleteRecordingSummary(recordingId: Long): Result<Unit>
 }
 
 /**
@@ -99,6 +104,26 @@ class RecordingsRepositoryImpl(
             Result.Success(Unit)
         } catch (e: Exception) {
             Log.e("Recordings Repository", "An unknown error occurred", e)
+            Result.Error(ResultError.UnknownError("An unknown error occurred"))
+        }
+    }
+
+    override suspend fun createRecordingSummary(recordingId: Long, summary: LlmSummary): Result<Unit> {
+        return try {
+            recordingsDao.createRecordingSummary(recordingId, summary)
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "An unknown error occurred", e)
+            Result.Error(ResultError.UnknownError("An unknown error occurred"))
+        }
+    }
+
+    override suspend fun deleteRecordingSummary(recordingId: Long): Result<Unit> {
+        return try {
+            recordingsDao.deleteRecordingSummary(recordingId)
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "An unknown error occurred", e)
             Result.Error(ResultError.UnknownError("An unknown error occurred"))
         }
     }

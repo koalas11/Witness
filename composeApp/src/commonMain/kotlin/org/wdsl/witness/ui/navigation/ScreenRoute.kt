@@ -43,6 +43,9 @@ interface ScreenRoute : NavKey {
 
     @Serializable
     data class RecordingInfo(val recordingId: Long): ScreenRoute, ShowBackButton, RemoveOnLeave
+
+    @Serializable
+    data class RecordingSummary(val recordingId: Long): ScreenRoute, ShowBackButton, RemoveOnLeave
 }
 
 enum class MainRoute(

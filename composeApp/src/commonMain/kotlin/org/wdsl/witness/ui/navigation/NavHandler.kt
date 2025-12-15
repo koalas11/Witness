@@ -12,6 +12,7 @@ import org.wdsl.witness.ui.DebugScreen
 import org.wdsl.witness.ui.GoogleProfileScreen
 import org.wdsl.witness.ui.HomeScreen
 import org.wdsl.witness.ui.RecordingInfoScreen
+import org.wdsl.witness.ui.RecordingSummaryScreen
 import org.wdsl.witness.ui.RecordingsScreen
 import org.wdsl.witness.ui.SettingsScreen
 import org.wdsl.witness.ui.common.WitnessBottomBar
@@ -87,6 +88,13 @@ fun NavHandler(
                 }
                 entry<ScreenRoute.RecordingInfo> {
                     RecordingInfoScreen(
+                        modifier = modifier,
+                        recordingId = it.recordingId,
+                        appViewModel = appViewModel,
+                    )
+                }
+                entry<ScreenRoute.RecordingSummary> {
+                    RecordingSummaryScreen(
                         modifier = modifier,
                         recordingId = it.recordingId,
                     )
