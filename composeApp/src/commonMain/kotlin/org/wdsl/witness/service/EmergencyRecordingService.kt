@@ -113,7 +113,7 @@ interface EmergencyRecordingService {
         val timestampPrettyString = getFormattedTimestamp(timestamp)
 
         val recording = Recording(
-            title = "Emergency Recording: $timestampPrettyString",
+            title = "Recording: $timestampPrettyString",
             recordingFileName = recordingFileName,
             gpsPositions = gpsPositions,
         )
