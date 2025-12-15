@@ -1,9 +1,9 @@
 # Witness
 
----
 > Final project for the *Android Programming Project (APP)* – Università della Svizzera italiana, Fall 2025
+---
 
-**Witness** is an Android app developed for the *Mobile and Wearable Computing* course (Università della Svizzera italiana, Fall 2025).  
+**Witness** is a mobile and wearable application developed for the *Mobile and Wearable Computing* course (Università della Svizzera italiana, Fall 2025).  
 The project provides a personal security system to assist users in emergency or unsafe situations.
 
 ## Team
@@ -24,17 +24,13 @@ The project provides a personal security system to assist users in emergency or 
 - **Sensors:** Microphone, GPS, Fingerprint Scanner / FaceID
 - **Actuators:** Vibration, Speaker
 
-## Ethical Considerations
-The app raises **privacy concerns**, as continuous audio and location recording may capture sensitive data.  
-Users can customize functionality and data sharing in settings.
-
 ## Code architecture overview
 
 ### High-level overview
 - Purpose: share domain and data logic across platforms while keeping platform UIs native and thin.
 - Main components: shared KMP modules (domain & data), platform modules/services (adapters), and UI modules (platform-specific).
 
-### Architecture and layers (concise)
+### Architecture and layers
 - **UI layer**
     - Platform-specific UIs (Android Compose, Wear UI, iOS SwiftUI).
     - Observes ViewModel state and sends user events to ViewModels.
@@ -112,5 +108,21 @@ Design notes:
 
 ## Screenshots
 
-![Android App - Main Screen](screenshots/android_main_screen.png)
-*Android App - Main Screen*
+### Mobile App
+
+<div style="text-align:center;">
+  <img src="screenshots/home_screen.png" alt="Home Screen" style="width:45%; max-width:600px;" />
+  <img src="screenshots/recording_info.png" alt="Recording Info" style="width:45%; max-width:600px;" />
+</div>
+
+<div style="text-align:center;">
+  <img src="screenshots/recording_info_llm.png" title="App - Recording Info LLM Screen" alt="Recording Info LLM" width="45%"/>
+  <img src="screenshots/google_profile.png" title="App - Google Profile Screen" alt="Google Profile" width="45%"/>
+</div>
+
+### Wearable App
+
+<div style="text-align:center;">
+  <img src="screenshots/wearable_home.png" title="Wearable App - Home Screen" alt="Wearable Home" width="45%"/>
+  <img src="screenshots/wearable_whistle.png" title="Wearable App - Whistle Screen" alt="Wearable Whistle" width="45%"/>
+</div>
