@@ -3,11 +3,11 @@ package org.wdsl.witness.wearable
 import android.R.style.Theme_DeviceDefault
 import android.content.Context
 import android.os.Bundle
-import android.os.SystemClock.uptimeMillis
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -20,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +35,7 @@ import kotlinx.coroutines.delay
 import org.wdsl.witness.shared.WearableMessageConstants
 import org.wdsl.witness.wearable.composables.HelpButton
 import org.wdsl.witness.wearable.theme.WitnessTheme
-import org.wdsl.witness.wearable.util.ConfirmationMessageState
+import org.wdsl.witness.wearable.util.EmergencyRecordingMessageState
 
 class MainActivity : ComponentActivity() {
 
@@ -74,7 +73,7 @@ fun SendHelpScreen(context: Context) {
     var lastTapTime by remember { mutableLongStateOf(0L) }
     var isPressed by remember { mutableStateOf(false) }
     var whistleLongPress by remember { mutableStateOf(false) }
-    val isConfirmed by ConfirmationMessageState.isConfirmed.collectAsState()
+    val isConfirmed by EmergencyRecordingMessageState.isEmergencyRecording.collectAsState()
 
     val progress = remember { Animatable(0f) }
 
@@ -82,12 +81,12 @@ fun SendHelpScreen(context: Context) {
     // animation of the progress bar
     LaunchedEffect(isPressed) {
         if (isPressed) {
+            progress.snapTo(0f)
             delay(200L)
             whistleLongPress = true;
-            progress.snapTo(0f)
             progress.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(durationMillis = 1800)
+                animationSpec = tween(durationMillis = 1800, easing = LinearEasing)
             )
             Log.d("WearMessageService", "Long press after 2s")
             sendMessageToPhone(WearableMessageConstants.WHISTLE_MESSAGE_PATH, context)

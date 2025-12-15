@@ -50,18 +50,18 @@ class WearMessageService : WearableListenerService() {
                             delay(500)
                         }
 
-                        //                    sendMessageToWearable(
-//                        senderNodeId,
-//                        WearableMessageConstants.HELP_CONFIRMATION_PATH,
-//                        "start".toByteArray()
-//                    )
+                        sendMessageToWearable(
+                            senderNodeId,
+                            WearableMessageConstants.HELP_CONFIRMATION_PATH,
+                            "start".toByteArray()
+                        )
 
                         EmergencyServiceState.emergencyServiceState.collect { state ->
                             if (state == EmergencyServiceState.State.Idle) {
 
                                 sendMessageToWearable(
                                     senderNodeId,
-                                    WearableMessageConstants.HELP_CONFIRMATION_PATH,
+                                    WearableMessageConstants.HELP_STOP_PATH,
                                     "start".toByteArray()
                                 )
 

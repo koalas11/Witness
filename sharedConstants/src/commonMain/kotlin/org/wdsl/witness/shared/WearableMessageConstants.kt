@@ -8,5 +8,6 @@ object WearableMessageConstants {
 
     // From the phone to the wearable
     const val HELP_CONFIRMATION_PATH = "/WitnessHelpConfirmationMessage"
+    const val HELP_STOP_PATH = "/WitnessHelpStopMessage"
     const val WHISTLE_CONFIRMATION_PATH = "/WitnessWhistleConfirmationMessage"
 }

@@ -65,5 +65,6 @@ dependencies {
     implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.compose.material3)
     implementation(project(":sharedConstants"))
 }

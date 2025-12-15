@@ -5,7 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
-import org.wdsl.witness.wearable.util.ConfirmationMessageState
+import org.wdsl.witness.wearable.util.EmergencyRecordingMessageState
 import org.wdsl.witness.wearable.util.VibrationUtil
 import org.wdsl.witness.shared.WearableMessageConstants
 import org.wdsl.witness.wearable.R
@@ -23,8 +23,14 @@ class PhoneMessageService: WearableListenerService() {
 
             WearableMessageConstants.HELP_CONFIRMATION_PATH -> {
                 VibrationUtil.vibrate(this, 1000)
-                ConfirmationMessageState.setConfirmed(true)
+                EmergencyRecordingMessageState.setIsEmergencyRecording(true)
                 Toast.makeText(this, R.string.help_confirmation_message, Toast.LENGTH_LONG).show()
+            }
+
+            WearableMessageConstants.HELP_STOP_PATH -> {
+                VibrationUtil.vibrate(this, 500)
+                EmergencyRecordingMessageState.setIsEmergencyRecording(false)
+                Toast.makeText(this, R.string.help_stop_message, Toast.LENGTH_LONG).show()
             }
 
             WearableMessageConstants.WHISTLE_CONFIRMATION_PATH -> {
