@@ -18,8 +18,13 @@ import org.wdsl.witness.broadcastreceiver.START_RECORDING_URI
 import org.wdsl.witness.shared.WearableMessageConstants
 import org.wdsl.witness.state.EmergencyServiceState
 
+/**
+ * Service responsible for handling messages received from the wearable device
+ */
 class WearMessageService : WearableListenerService() {
 
+    // Job used to monitor the emergency service lifecycle
+    // and to send state updates back to the wearable
     private var job: Job? = null
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
@@ -30,10 +35,16 @@ class WearMessageService : WearableListenerService() {
             "Message received with path: ${messageEvent.path}"
         )
 
+        // ID of the wearable node that sent the message
         val senderNodeId = messageEvent.sourceNodeId
 
         when (messageEvent.path) {
 
+            /**
+             * Emergency help request sent from the wearable.
+             * Starts emergency recording on the phone and notifies
+             * the wearable when the recording has started
+             */
             WearableMessageConstants.HELP_MESSAGE_PATH -> {
                 try {
                     val intent = Intent(ACTION_WITNESS_EMERGENCY)
@@ -50,15 +61,19 @@ class WearMessageService : WearableListenerService() {
                             delay(500)
                         }
 
+                        // Notify the wearable that recording has started
                         sendMessageToWearable(
                             senderNodeId,
                             WearableMessageConstants.HELP_CONFIRMATION_PATH,
                             "start".toByteArray()
                         )
 
+                        // Observe service state changes to detect when
+                        // the emergency recording is stopped
                         EmergencyServiceState.emergencyServiceState.collect { state ->
                             if (state == EmergencyServiceState.State.Idle) {
 
+                                // Notify the wearable that recording has stopped
                                 sendMessageToWearable(
                                     senderNodeId,
                                     WearableMessageConstants.HELP_STOP_PATH,
@@ -74,6 +89,9 @@ class WearMessageService : WearableListenerService() {
                 }
             }
 
+            /**
+             * Whistle activation request sent from the wearable
+             */
             WearableMessageConstants.WHISTLE_MESSAGE_PATH -> {
 
                 try {
@@ -94,6 +112,15 @@ class WearMessageService : WearableListenerService() {
             }
         }
     }
+
+
+    /**
+     * Sends a message back to a specific wearable
+     *
+     * @param nodeId ID of the target wearable node
+     * @param path Message path identifying the event
+     * @param message Payload to send
+     */
     private fun sendMessageToWearable(nodeId: String, path: String, message: ByteArray) {
         Wearable
             .getMessageClient(this)
