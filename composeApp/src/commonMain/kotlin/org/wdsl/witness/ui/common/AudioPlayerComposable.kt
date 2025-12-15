@@ -40,7 +40,7 @@ fun AudioPlayerComposable(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp)
-            .padding(8.dp),
+            .weight(0.14f),
     ) {
         val durationMsState by audioPlayerViewModel.audioDurationMsState.collectAsStateWithLifecycle()
         val audioPlayerCurrentPosition by audioPlayerViewModel.audioCurrentPosition.collectAsStateWithLifecycle()

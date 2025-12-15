@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import org.wdsl.witness.model.LlmSummary
 
 /**
  * Data Access Object (DAO) for managing recordings in the Room database.
@@ -29,4 +30,10 @@ interface RecordingsDao {
 
     @Query("DELETE FROM recording")
     suspend fun clearAllRecordings()
+
+    @Query("UPDATE recording SET llmSummary = :llmSummary WHERE id = :id")
+    suspend fun createRecordingSummary(id: Long, llmSummary: LlmSummary)
+
+    @Query("UPDATE recording SET llmSummary = null WHERE id = :id")
+    suspend fun deleteRecordingSummary(id: Long)
 }

@@ -3,6 +3,7 @@ package org.wdsl.witness.wearable
 import android.R.style.Theme_DeviceDefault
 import android.content.Context
 import android.os.Bundle
+import android.os.SystemClock.uptimeMillis
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -118,7 +120,7 @@ fun SendHelpScreen(context: Context) {
 // Generic fun to send a message to the phone with a specific path
 fun sendMessageToPhone(path: String, context: Context) {
     val messageClient = Wearable.getMessageClient(context)
-
+    Log.d("WearMessageService", "Sending message to phone with path: $path")
     Wearable.getNodeClient(context).connectedNodes
         .addOnSuccessListener { nodes ->
             nodes.forEach { node ->

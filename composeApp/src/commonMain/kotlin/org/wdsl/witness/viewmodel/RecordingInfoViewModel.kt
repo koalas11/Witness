@@ -21,13 +21,13 @@ class RecordingInfoViewModel(
     )
     val recordingInfoUiState: StateFlow<RecordingInfoUiState> = _recordingInfoUiState.asStateFlow()
 
-    private var _isInitialized = false
+    private var _isInitialized = -1L
 
     @MainThread
     fun initialize(recordingId: Long) {
-        if (_isInitialized)
+        if (_isInitialized == recordingId)
             return
-        _isInitialized = true
+        _isInitialized = recordingId
 
         viewModelScope.launch {
             recordingsRepository.getRecordingFlowById(recordingId).onSuccess { flow ->

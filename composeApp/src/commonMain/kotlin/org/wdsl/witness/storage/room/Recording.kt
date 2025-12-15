@@ -2,6 +2,7 @@ package org.wdsl.witness.storage.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.wdsl.witness.model.LlmSummary
 import org.wdsl.witness.model.LocationData
 
 /**
@@ -13,4 +14,5 @@ data class Recording(
     val title: String,
     val recordingFileName: String,
     val gpsPositions: List<LocationData>,
+    val llmSummary: LlmSummary? = null,
 )

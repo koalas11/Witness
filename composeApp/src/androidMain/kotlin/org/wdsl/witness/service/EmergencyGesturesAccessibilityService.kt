@@ -5,8 +5,10 @@ import android.content.Intent
 import android.util.Log
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
-import org.wdsl.witness.MainActivity
-import org.wdsl.witness.WitnessApp
+import androidx.core.net.toUri
+import org.wdsl.witness.broadcastreceiver.ACTION_WITNESS_EMERGENCY
+import org.wdsl.witness.broadcastreceiver.START_EMERGENCY_ALERT_URI
+import org.wdsl.witness.broadcastreceiver.START_RECORDING_URI
 import kotlin.time.Duration.Companion.seconds
 
 class EmergencyGesturesAccessibilityService : AccessibilityService() {
@@ -24,7 +26,6 @@ class EmergencyGesturesAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         // Not used in this service
-
     }
 
     override fun onInterrupt() {
@@ -43,16 +44,11 @@ class EmergencyGesturesAccessibilityService : AccessibilityService() {
                     if (emergencyRecordingTimeWindow[2] - emergencyRecordingTimeWindow[0] <= 2.seconds.inWholeMilliseconds) {
                         emergencyRecordingTimeWindowIndex = 0
                         emergencyRecordingTimeWindow = longArrayOf(0, 0, 0) // Reset time window
-                        // Trigger emergency alert
-                        // Launch MainActivity with emergency info
-                        val activityIntent =
-                            Intent(this.applicationContext, MainActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                            putExtra("IS_EMERGENCY", true)
-                        }
-                        this.startActivity(activityIntent)
 
-                        (application as WitnessApp).appContainer.emergencyRecordingUseCase.startEmergencyRecording()
+                        val intent = Intent(ACTION_WITNESS_EMERGENCY)
+                            .setData(START_RECORDING_URI.toUri())
+                            .setPackage(packageName)
+                        sendBroadcast(intent)
                     }
                 }
             }
@@ -65,15 +61,11 @@ class EmergencyGesturesAccessibilityService : AccessibilityService() {
                     if (emergencyAlertSoundTimeWindow[2] - emergencyAlertSoundTimeWindow[0] <= 2.seconds.inWholeMilliseconds) {
                         emergencyAlertSoundTimeWindowIndex = 0
                         emergencyAlertSoundTimeWindow = longArrayOf(0, 0, 0) // Reset time window
-                        // Launch MainActivity with emergency info
-                        val activityIntent =
-                            Intent(this.applicationContext, MainActivity::class.java).apply {
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                                putExtra("IS_EMERGENCY", true)
-                            }
-                        this.startActivity(activityIntent)
-                        // Trigger emergency alert sound
-                        (application as WitnessApp).appContainer.soundAlertModule.playAlertSound()
+
+                        val intent = Intent(ACTION_WITNESS_EMERGENCY)
+                            .setData(START_EMERGENCY_ALERT_URI.toUri())
+                            .setPackage(packageName)
+                        sendBroadcast(intent)
                     }
                 }
             }

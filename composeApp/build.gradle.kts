@@ -1,5 +1,7 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -11,6 +13,8 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.buildkonfig)
 }
+
+val commonPackageName = "org.wdsl.witness"
 
 kotlin {
     androidTarget {
@@ -109,11 +113,11 @@ kotlin {
 }
 
 android {
-    namespace = "org.wdsl.witness"
+    namespace = commonPackageName
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "org.wdsl.witness"
+        applicationId = commonPackageName
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -159,14 +163,37 @@ dependencies {
 }
 
 buildkonfig {
-    packageName = "org.wdsl.witness"
+    packageName = commonPackageName
     objectName = "WitnessBuildConfig"
 
     defaultConfigs {
         buildConfigField(
             BOOLEAN,
             "DEBUG_MODE",
-            if (project.hasProperty("release")) "false" else "true"
+            if (project.hasProperty("release")) "false" else "true",
+            nullable = false,
+            const = true,
+        )
+        buildConfigField(
+            STRING,
+            "PACKAGE_NAME",
+            commonPackageName,
+            nullable = false,
+            const = true,
+        )
+        val lp = rootProject.file("local.properties")
+        val geminiApiKey: String? =
+            if (lp.exists()) {
+                Properties().apply { load(lp.inputStream()) }
+                    .getProperty("geminiApiKey") ?: ""
+            } else ""
+
+        buildConfigField(
+            STRING,
+            "GEMINI_API_KEY",
+            geminiApiKey,
+            nullable = false,
+            const = true,
         )
     }
 }

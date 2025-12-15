@@ -85,6 +85,14 @@
                 <data android:scheme="wear" android:host="*" android:pathPrefix="/WitnessWhistleMessage" />
             </intent-filter>
         </service>
+
+        <receiver
+            android:name=".broadcastreceiver.EmergencyBroadcastReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="org.wdsl.witness.action.EMERGENCY_RECORDING" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

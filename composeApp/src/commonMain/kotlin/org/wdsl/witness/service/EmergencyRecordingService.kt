@@ -24,31 +24,36 @@ interface EmergencyRecordingService {
             stopService()
             return
         }
-        EmergencyServiceState.setEmergencyServiceState(EmergencyServiceState.State.Running)
 
-        val audioRecorderModule = witnessApp.appContainer.audioRecorderModule
-        val recordingFileName = audioRecorderModule.startRecording().getSuccessOrNull()
+        runCatching {
+            val audioRecorderModule = witnessApp.appContainer.audioRecorderModule
+            val recordingFileName = audioRecorderModule.startRecording().getSuccessOrNull()
 
-        if (recordingFileName == null) {
-            stopService()
-            return
-        }
+            if (recordingFileName == null) {
+                stopService()
+                return
+            }
 
-        val geoRecordingModule = witnessApp.appContainer.geoRecordingModule
-        geoRecordingModule.startGeoRecording()
+            val geoRecordingModule = witnessApp.appContainer.geoRecordingModule
+            geoRecordingModule.startGeoRecording()
 
-        serviceJob = witnessApp.appScope.launch(defaultDispatcher) {
-            witnessApp.appContainer.emergencyRecordingUseCase.emergencyRecordingActive.collect {
-                if (!it) {
-                    audioRecorderModule.stopRecording()
-                    geoRecordingModule.stopGeoRecording()
-                    saveEmergencyRecording(
-                        recordingFileName,
-                        geoRecordingModule.getGeoRecordings(),
-                    )
-                    stopService()
+            EmergencyServiceState.setEmergencyServiceState(EmergencyServiceState.State.Running)
+            serviceJob = witnessApp.appScope.launch(defaultDispatcher) {
+                witnessApp.appContainer.emergencyRecordingUseCase.emergencyRecordingActive.collect {
+                    if (!it) {
+                        audioRecorderModule.stopRecording()
+                        geoRecordingModule.stopGeoRecording()
+                        saveEmergencyRecording(
+                            recordingFileName,
+                            geoRecordingModule.getGeoRecordings(),
+                        )
+                        stopService()
+                    }
                 }
             }
+        }.onFailure {
+            EmergencyServiceState.setEmergencyServiceState(EmergencyServiceState.State.Error("Failed to start emergency recording"))
+            stopService()
         }
     }
 
@@ -75,6 +80,11 @@ interface EmergencyRecordingService {
                 EmergencyServiceState.setEmergencyServiceState(EmergencyServiceState.State.Error("Failed to save emergency recording"))
             }
             EmergencyServiceState.setEmergencyServiceState(EmergencyServiceState.State.Idle)
+        }
+        witnessApp.appScope.launch(defaultDispatcher) {
+            appContainer.googleIntegrationUseCase.uploadRecordingToGoogleDrive(
+                recording = recording,
+            )
         }
     }
 }

@@ -26,6 +26,7 @@ import org.wdsl.witness.storage.datastore.SETTINGS_DATASTORE_NAME
 import org.wdsl.witness.storage.datastore.SettingsSerializer
 import org.wdsl.witness.storage.datastore.getDataStore
 import org.wdsl.witness.storage.room.WitnessDatabase
+import org.wdsl.witness.usecase.GeminiApiUseCase
 import org.wdsl.witness.usecase.GoogleIntegrationUseCase
 import org.wdsl.witness.util.Log
 
@@ -44,6 +45,8 @@ interface AppContainer {
     val googleOAuthHttpClient: HttpClient
 
     val googleIntegrationUseCase: GoogleIntegrationUseCase
+
+    val geminiApiUseCase: GeminiApiUseCase
 }
 
 /**
@@ -167,5 +170,9 @@ open class AppContainerImpl(
             GoogleGmailServiceImpl(googleOAuthHttpClient),
             GoogleDriveServiceImpl(googleOAuthHttpClient),
         )
+    }
+
+    override val geminiApiUseCase: GeminiApiUseCase by lazy {
+        GeminiApiUseCase()
     }
 }
