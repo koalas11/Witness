@@ -8,17 +8,16 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -29,6 +28,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.tooling.preview.devices.WearDevices
 import com.google.android.gms.wearable.Wearable
@@ -36,7 +36,7 @@ import kotlinx.coroutines.delay
 import org.wdsl.witness.shared.WearableMessageConstants
 import org.wdsl.witness.wearable.composables.HelpButton
 import org.wdsl.witness.wearable.theme.WitnessTheme
-import org.wdsl.witness.wearable.util.ConfirmationMessageState
+import org.wdsl.witness.wearable.util.EmergencyRecordingMessageState
 
 class MainActivity : ComponentActivity() {
 
@@ -71,23 +71,34 @@ fun WearApp() {
 
 @Composable
 fun SendHelpScreen(context: Context) {
-    var lastTapTime by remember { mutableLongStateOf(0L) }
-    var isPressed by remember { mutableStateOf(false) }
-    var whistleLongPress by remember { mutableStateOf(false) }
-    val isConfirmed by ConfirmationMessageState.isConfirmed.collectAsState()
 
+    // Tracks whether the button is currently pressed
+    var isPressed by remember { mutableStateOf(false) }
+
+    // Tracks if the button is being held
+    var whistleLongPress by remember { mutableStateOf(false) }
+
+    // Observes the emergency recording state coming from the phone
+    val isEmergencyRecording by EmergencyRecordingMessageState.isEmergencyRecording.collectAsState()
+
+    // Value used to animate the circular progress indicator
     val progress = remember { Animatable(0f) }
 
-    // When the button is being hold, wait 200ms and then change the icon and start the
-    // animation of the progress bar
+    /**
+     * Handles long-press logic:
+     * - waits for a short delay to distinguish from a tap
+     * - shows the whistle UI
+     * - animates the progress bar
+     * - triggers the whistle message if the press lasts long enough (2s)
+     */
     LaunchedEffect(isPressed) {
         if (isPressed) {
+            progress.snapTo(0f)
             delay(200L)
             whistleLongPress = true;
-            progress.snapTo(0f)
             progress.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(durationMillis = 1800)
+                animationSpec = tween(durationMillis = 1800, easing = LinearEasing)
             )
             Log.d("WearMessageService", "Long press after 2s")
             sendMessageToPhone(WearableMessageConstants.WHISTLE_MESSAGE_PATH, context)
@@ -95,12 +106,13 @@ fun SendHelpScreen(context: Context) {
     }
 
     HelpButton(
-        isConfirmed = isConfirmed,
+        isConfirmed = isEmergencyRecording,
         whistleLongPress = whistleLongPress,
         isPressed = isPressed,
         progress = progress.value,
         modifier = Modifier.pointerInput(Unit) {
             detectTapGestures(
+                // Called when the user presses and holds the button
                 onPress = {
                     isPressed = true
                     tryAwaitRelease() // Wait until the finger is lifted
@@ -117,7 +129,13 @@ fun SendHelpScreen(context: Context) {
 }
 
 
-// Generic fun to send a message to the phone with a specific path
+/**
+ * Sends a message to all connected nodes (phones)
+ * using the Wearable Message API
+ *
+ * @param path Message path identifying the action to perform
+ * @param context Application context
+ */
 fun sendMessageToPhone(path: String, context: Context) {
     val messageClient = Wearable.getMessageClient(context)
     Log.d("WearMessageService", "Sending message to phone with path: $path")
