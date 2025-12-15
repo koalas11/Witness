@@ -195,7 +195,6 @@ fun WitnessTheme(
 ) {
     val context = LocalContext.current
     MaterialTheme(
-//        colorScheme = dynamicColorScheme(context) ?: if (isSystemInDarkTheme()) darkScheme else lightScheme,
         colorScheme = darkScheme,
         typography = AppTypography,
         content = content
