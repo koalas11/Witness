@@ -1,12 +1,16 @@
 package org.wdsl.witness.wearable.service
 
-import android.os.Build
 import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.material3.Snackbar
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
+import org.wdsl.witness.wearable.util.ConfirmationMessageState
+import org.wdsl.witness.wearable.util.VibrationUtil
+import org.wdsl.witness.shared.WearableMessageConstants
+import org.wdsl.witness.wearable.R
 
 class PhoneMessageService: WearableListenerService() {
     override fun onMessageReceived(messageEvent: MessageEvent) {
@@ -17,18 +21,20 @@ class PhoneMessageService: WearableListenerService() {
             "Message received from phone with path: ${messageEvent.path}"
         )
 
-        if(messageEvent.path == "/WitnessConfirmationMessage") {
-            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vibratorManager = getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                vibratorManager.defaultVibrator
-            } else {
-                @Suppress("DEPRECATION")
-                getSystemService(VIBRATOR_SERVICE) as Vibrator
+        when(messageEvent.path) {
+
+            WearableMessageConstants.HELP_CONFIRMATION_PATH -> {
+                VibrationUtil.vibrate(this, 1000)
+                ConfirmationMessageState.setConfirmed(true)
+                Toast.makeText(this, R.string.help_confirmation_message, Toast.LENGTH_LONG).show()
             }
 
-            if (vibrator.hasVibrator()) {
-                val vibrationEffect = VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)
-                vibrator.vibrate(vibrationEffect)
+            WearableMessageConstants.WHISTLE_CONFIRMATION_PATH -> {
+                val waveTimings = longArrayOf(0, 100, 50, 100, 50, 100, 50, 100, 50, 100)
+                val waveAmplitudes = intArrayOf(0, 255, 0, 255, 0, 255, 0, 255, 0, 255)
+                val waveEffect = VibrationEffect.createWaveform(waveTimings, waveAmplitudes, -1)
+
+                VibrationUtil.vibrate(this, waveEffect)
             }
         }
     }

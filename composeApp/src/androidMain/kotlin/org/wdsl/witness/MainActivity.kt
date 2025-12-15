@@ -67,6 +67,9 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
+
         val appContainer = (application as WitnessApp).appContainer
 
         mLauncher = AuthTabIntent.registerActivityResultLauncher(this, this::handleAuthResult)

@@ -1,22 +1,24 @@
 package org.wdsl.witness.wearable
 
+import android.R.style.Theme_DeviceDefault
 import android.content.Context
 import android.os.Bundle
 import android.os.SystemClock.uptimeMillis
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -26,28 +28,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastCoerceAtMost
-import androidx.compose.ui.util.fastCoerceIn
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.wear.compose.material3.CircularProgressIndicator
-import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.tooling.preview.devices.WearDevices
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import org.wdsl.witness.shared.WearableMessageConstants
+import org.wdsl.witness.wearable.composables.HelpButton
 import org.wdsl.witness.wearable.theme.WitnessTheme
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
+import org.wdsl.witness.wearable.util.ConfirmationMessageState
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
+
+        setTheme(Theme_DeviceDefault)
 
         setContent {
             WearApp()
@@ -57,6 +55,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WearApp() {
+    val context = LocalContext.current
     WitnessTheme {
         Box(
             modifier = Modifier
@@ -65,70 +64,61 @@ fun WearApp() {
             contentAlignment = Alignment.Center
         ) {
             TimeText()
-            SendHelp()
+            SendHelpScreen(context)
         }
     }
 }
 
 @Composable
-fun SendHelp(holdMs: Long = 1.5.seconds.inWholeMilliseconds) {
-    var progress by remember { mutableFloatStateOf(0f) }
-    var confirmed by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
+fun SendHelpScreen(context: Context) {
+    var lastTapTime by remember { mutableLongStateOf(0L) }
+    var isPressed by remember { mutableStateOf(false) }
+    var whistleLongPress by remember { mutableStateOf(false) }
+    val isConfirmed by ConfirmationMessageState.isConfirmed.collectAsState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize(0.7f)
-            .background(color = MaterialTheme.colorScheme.primary, shape = CircleShape)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        confirmed = false
-                        scope.launch {
-                            val job = launch {
-                                val start = uptimeMillis()
-                                while (isActive) {
-                                    val elapsed = uptimeMillis() - start + 50.milliseconds.inWholeMilliseconds
-                                    progress = (elapsed.toFloat() / holdMs.toFloat()).fastCoerceIn(0f, 1.05f)
-                                    if (progress >= 1.05f && !confirmed) {
-                                        delay(50.milliseconds)
-                                        confirmed = true
-                                        sendMessageToPhone("/WitnessHelpMessage", context)
-                                        break
-                                    }
-                                    delay(50.milliseconds)
-                                }
-                            }
-                            tryAwaitRelease()
-                            job.cancel()
-                            progress = 0f
-                        }
-                    }
-                )
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            modifier = Modifier.fillMaxSize(0.8f),
-            imageVector = Icons.Default.PowerSettingsNew,
-            contentDescription = null,
-        )
+    val progress = remember { Animatable(0f) }
 
-        if (progress > 0f && !confirmed) {
-            CircularProgressIndicator(
-                progress = { progress.fastCoerceAtMost(1f) },
-                modifier = Modifier
-                    .matchParentSize()
-                    .padding(8.dp),
-                strokeWidth = 4.dp
+    // When the button is being hold, wait 200ms and then change the icon and start the
+    // animation of the progress bar
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            delay(200L)
+            whistleLongPress = true;
+            progress.snapTo(0f)
+            progress.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 1800)
             )
+            Log.d("WearMessageService", "Long press after 2s")
+            sendMessageToPhone(WearableMessageConstants.WHISTLE_MESSAGE_PATH, context)
         }
     }
+
+    HelpButton(
+        isConfirmed = isConfirmed,
+        whistleLongPress = whistleLongPress,
+        isPressed = isPressed,
+        progress = progress.value,
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onPress = {
+                    isPressed = true
+                    tryAwaitRelease() // Wait until the finger is lifted
+                    whistleLongPress = false;
+                    isPressed = false
+                },
+                onDoubleTap = {
+                    Log.d("WearMessageService", "Double Tap Detected")
+                    sendMessageToPhone(WearableMessageConstants.HELP_MESSAGE_PATH, context)
+                },
+            )
+        },
+    )
 }
 
-// Generic fun to send a message to the phone
-private fun sendMessageToPhone(path: String, context: Context) {
+
+// Generic fun to send a message to the phone with a specific path
+fun sendMessageToPhone(path: String, context: Context) {
     val messageClient = Wearable.getMessageClient(context)
     Log.d("WearMessageService", "Sending message to phone with path: $path")
     Wearable.getNodeClient(context).connectedNodes

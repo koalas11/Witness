@@ -103,6 +103,8 @@ kotlin {
             /* MAPLIBRE */
             implementation(libs.maplibre.compose)
             implementation(libs.maplibre.composeMaterial3)
+
+            implementation(project(":sharedConstants"))
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
