@@ -8,15 +8,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EmergencyRecording
 import androidx.compose.material.icons.filled.Sports
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.CircularProgressIndicator
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.ProgressIndicatorDefaults
 
 /**
  * Handles the only button in the wearable app
@@ -56,8 +57,10 @@ fun HelpButton(
             CircularProgressIndicator(
                 modifier = Modifier.fillMaxSize(0.8f),
                 progress = { progress },
-                color = MaterialTheme.colorScheme.secondary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                colors = ProgressIndicatorDefaults.colors().copy(
+                    indicatorColor = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
                 strokeWidth = 12.dp
             )
         }

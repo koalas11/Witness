@@ -71,7 +71,7 @@
         <service
             android:name=".service.EmergencyRecordingForegroundService"
             android:foregroundServiceType="specialUse"
-            android:exported="false">
+            android:exported="true">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="step_counter"/>
         </service>
@@ -90,7 +90,8 @@
             android:name=".broadcastreceiver.EmergencyBroadcastReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="org.wdsl.witness.action.EMERGENCY_RECORDING" />
+                <action android:name="org.wdsl.witness.action.EMERGENCY" />
+                <data android:scheme="content" android:host="org.wdsl.witness" />
             </intent-filter>
         </receiver>
     </application>

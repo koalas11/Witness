@@ -3,8 +3,6 @@ package org.wdsl.witness.wearable.service
 import android.os.VibrationEffect
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.material3.Snackbar
-import androidx.core.content.ContentProviderCompat.requireContext
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 import org.wdsl.witness.wearable.util.ConfirmationMessageState
