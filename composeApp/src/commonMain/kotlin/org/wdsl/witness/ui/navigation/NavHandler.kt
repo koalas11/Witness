@@ -15,6 +15,7 @@ import org.wdsl.witness.ui.RecordingInfoScreen
 import org.wdsl.witness.ui.RecordingSummaryScreen
 import org.wdsl.witness.ui.RecordingsScreen
 import org.wdsl.witness.ui.SettingsScreen
+import org.wdsl.witness.ui.TutorialScreen
 import org.wdsl.witness.ui.common.WitnessBottomBar
 import org.wdsl.witness.ui.common.WitnessTopBar
 import org.wdsl.witness.ui.setting.GeneralSettingsScreen
@@ -60,6 +61,12 @@ fun NavHandler(
             backStack = backStack,
             onBack = { appViewModel.navigateBack() },
             entryProvider = entryProvider {
+                entry<ScreenRoute.Tutorial> {
+                    TutorialScreen(
+                        modifier = modifier,
+                        appViewModel = appViewModel,
+                    )
+                }
                 entry<ScreenRoute.Home> {
                     HomeScreen(
                         modifier = modifier,

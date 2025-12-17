@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -69,6 +70,33 @@ fun DebugScreen(
                     modifier = modifier
                         .padding(8.dp),
                     text = "Delete all recordings",
+                )
+            }
+
+            Row(
+                modifier = modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(0.9f)
+                    .align(Alignment.Start)
+                    .clip(CircleShape)
+                    .clickable(
+                        enabled = enabled,
+                        onClick = {
+                            debugViewModel.resetTutorialState()
+                        },
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    modifier = modifier
+                        .padding(8.dp),
+                    imageVector = Icons.Default.Restore,
+                    contentDescription = null,
+                )
+                Text(
+                    modifier = modifier
+                        .padding(8.dp),
+                    text = "Reset tutorial completion",
                 )
             }
         }

@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.os.Looper
 import android.util.Log
-import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -42,7 +41,6 @@ class AndroidGeoRecordingModule(
         10.seconds.inWholeMilliseconds
     ).build()
 
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun startGeoRecording(): Result<Unit> {
         recordedLocations.clear()
         locationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -63,7 +61,6 @@ class AndroidGeoRecordingModule(
         locationClient = null
     }
 
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun getCurrentLocation(
         onSuccess: (LocationData) -> Unit,
         onError: () -> Unit

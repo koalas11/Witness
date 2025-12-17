@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.model.NotificationType
+import org.wdsl.witness.util.Permission
 
 /**
  * An interface defining various UI actions that can be performed in the application.
@@ -42,35 +43,15 @@ interface FastUIActions {
     fun checkPermissionsStatus(platformContext: PlatformContext, permission: String): Boolean
 
     /**
-     * Displays a dialog requesting location permission from the user.
+     * Displays a dialog requesting a specific permission from the user.
      *
      * @param modifier The modifier to be applied to the dialog.
-     * @param visible Whether the dialog is visible.
-     * @param onDismiss The callback to be invoked when the dialog is dismissed.
-     * @param onGranted The callback to be invoked when the permission is granted.
+     * @param permission The permission being requested.
      */
     @Composable
-    fun LocationPermissionRequestDialog(
-        modifier: Modifier = Modifier,
-        visible: Boolean,
-        onDismiss: () -> Unit,
-        onGranted: () -> Unit
-    )
-
-    /**
-     * Displays a dialog requesting record audio permission from the user.
-     *
-     * @param modifier The modifier to be applied to the dialog.
-     * @param visible Whether the dialog is visible.
-     * @param onDismiss The callback to be invoked when the dialog is dismissed.
-     * @param onGranted The callback to be invoked when the permission is granted.
-     */
-    @Composable
-    fun RecordAudioPermissionRequestDialog(
-        modifier: Modifier = Modifier,
-        visible: Boolean,
-        onDismiss: () -> Unit,
-        onGranted: () -> Unit
+    fun PermissionRequestDialog(
+        modifier: Modifier,
+        permission: Permission,
     )
 
     /**
@@ -82,6 +63,19 @@ interface FastUIActions {
     @Composable
     fun ShowBiometricPrompt(
         onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    )
+
+    /**
+     * Opens the phone contact selector.
+     *
+     * @param onContactSelected The callback to be invoked when a contact is selected, with
+     * the contact name and phone number.
+     * @param onError The callback to be invoked upon error, with an error message.
+     */
+    @Composable
+    fun SelectPhoneContact(
+        onContactSelected: (String, String) -> Unit,
         onError: (String) -> Unit
     )
 

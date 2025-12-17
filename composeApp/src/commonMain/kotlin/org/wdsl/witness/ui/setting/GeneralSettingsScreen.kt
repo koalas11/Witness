@@ -1,10 +1,13 @@
 package org.wdsl.witness.ui.setting
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +26,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.wdsl.witness.model.settings.DynamicColorMode
 import org.wdsl.witness.model.settings.NotificationsSetting
 import org.wdsl.witness.model.settings.ThemeMode
+import org.wdsl.witness.ui.util.fastUIActions
 import org.wdsl.witness.ui.util.handleOperationState
 import org.wdsl.witness.viewmodel.AppState
 import org.wdsl.witness.viewmodel.AppViewModel
@@ -42,8 +46,11 @@ fun GeneralSettingsScreen(
     appViewModel: AppViewModel,
     settingsViewModel: SettingsViewModel = witnessViewModel(factory = SettingsViewModel.Factory),
 ) {
+    fastUIActions.ForceScreenOrientation(1)
+    val scrollState = rememberScrollState()
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val enabled = handleOperationState(
@@ -168,7 +175,6 @@ fun GeneralSettingsScreen(
                     .fillMaxWidth()
                     .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
             ) {
                 Checkbox(
                     modifier = modifier,
@@ -180,8 +186,49 @@ fun GeneralSettingsScreen(
                 )
                 Text(
                     modifier = modifier,
-                    text = "Enable Vibration",
-                    textAlign = TextAlign.Center,
+                    text = "Enable Vibration On Registration Start",
+                )
+            }
+
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(
+                    modifier = modifier,
+                    checked = settings.enableRoutineContactContacts,
+                    onCheckedChange = { isChecked ->
+                        settingsViewModel.setEnableRoutineContactContacts(isChecked)
+                    },
+                    enabled = enabled,
+                )
+                Text(
+                    modifier = modifier,
+                    text = "Send Message to Contacts every 5 minutes during Emergency",
+                )
+            }
+
+            Spacer(modifier = modifier.padding(4.dp))
+            Text(
+                modifier = modifier
+                    .padding(8.dp),
+                text = "Show Tutorial (Requires App Restart)",
+                textAlign = TextAlign.Center,
+            )
+            Button(
+                modifier = modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterHorizontally),
+                onClick = {
+                    settingsViewModel.setTutorialDone(false)
+                },
+                enabled = enabled,
+            ) {
+                Text(
+                    modifier = modifier,
+                    text = "Show Tutorial",
                 )
             }
         }

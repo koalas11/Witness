@@ -15,10 +15,13 @@ data class Permission(
     val name: String,
     val description: String,
     val icon: ImageVector,
+    val rationate: String,
 )
 
 /**
  * Expected permission values for different platforms.
  */
-expect val FINE_LOCATION_PERMISSION: Permission
+expect val COARSE_LOCATION_PERMISSION: Permission
 expect val AUDIO_RECORDING_PERMISSION: Permission
+expect val SMS_PERMISSION: Permission
+expect val READ_CONTACTS_PERMISSION: Permission

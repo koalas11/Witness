@@ -47,7 +47,7 @@ class GoogleIntegrationUseCase(
     private val googleDriveService: GoogleDriveService,
 ) {
     private var _googleIntegrationMutableState: MutableStateFlow<GoogleIntegrationState> =
-        MutableStateFlow(GoogleIntegrationState.NoProfile)
+        MutableStateFlow(GoogleIntegrationState.Loading)
     val googleIntegrationState: StateFlow<GoogleIntegrationState> = _googleIntegrationMutableState.asStateFlow()
 
     private var _oAuthJob: CoroutineScope? = null
@@ -308,6 +308,7 @@ class GoogleIntegrationUseCase(
  * Represents the state of Google integration within the application.
  */
 sealed interface GoogleIntegrationState {
+    object Loading : GoogleIntegrationState
     object NoProfile : GoogleIntegrationState
     object OAuthInProgress : GoogleIntegrationState
     data class ProfileLoaded(val googleProfile: GoogleProfile) : GoogleIntegrationState

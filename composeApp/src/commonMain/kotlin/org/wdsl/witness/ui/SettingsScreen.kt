@@ -42,7 +42,9 @@ import org.wdsl.witness.state.AppSettingsState
 import org.wdsl.witness.ui.navigation.ScreenRoute
 import org.wdsl.witness.ui.util.fastUIActions
 import org.wdsl.witness.util.AUDIO_RECORDING_PERMISSION
-import org.wdsl.witness.util.FINE_LOCATION_PERMISSION
+import org.wdsl.witness.util.COARSE_LOCATION_PERMISSION
+import org.wdsl.witness.util.READ_CONTACTS_PERMISSION
+import org.wdsl.witness.util.SMS_PERMISSION
 import org.wdsl.witness.viewmodel.AppViewModel
 
 /**
@@ -68,8 +70,10 @@ fun SettingsScreen(
             val platformContext = LocalPlatformContext.current
             val appSettingsChanged by AppSettingsState.settingsChanged.collectAsStateWithLifecycle()
             val permissions = listOf(
-                FINE_LOCATION_PERMISSION,
+                COARSE_LOCATION_PERMISSION,
                 AUDIO_RECORDING_PERMISSION,
+                SMS_PERMISSION,
+                READ_CONTACTS_PERMISSION,
             )
             var permissionsMissing by rememberSaveable(appSettingsChanged) {
                 mutableStateOf(
@@ -126,9 +130,6 @@ fun SettingsScreen(
                 }
                 permissionsMissing.forEach { (permissionId, granted) ->
                     val permission = permissions.first { it.id == permissionId }
-                    var alertDialogOpen by rememberSaveable(permission.id) {
-                        mutableStateOf(false)
-                    }
                     if (!granted) {
                         Row(
                             modifier = modifier
@@ -139,7 +140,7 @@ fun SettingsScreen(
                         ) {
                             Icon(
                                 modifier = modifier
-                                    .padding(top = 8.dp, start = 32.dp),
+                                    .padding(start = 32.dp),
                                 imageVector = permission.icon,
                                 contentDescription = null,
                             )
@@ -148,37 +149,9 @@ fun SettingsScreen(
                                     .padding(start = 4.dp, end = 8.dp),
                                 text = permission.name,
                             )
-                            Button(
-                                modifier = modifier
-                                    .padding(8.dp),
-                                onClick = {
-                                    alertDialogOpen = true
-                                },
-                            ) {
-                                Text("Grant")
-                            }
-                        }
-                        if (permission.id == AUDIO_RECORDING_PERMISSION.id) {
-                            fastUIActions.RecordAudioPermissionRequestDialog(
-                                modifier,
-                                alertDialogOpen,
-                                onDismiss = {
-                                    alertDialogOpen = false
-                                },
-                                onGranted = {
-                                    alertDialogOpen = false
-                                }
-                            )
-                        } else if (permission.id == FINE_LOCATION_PERMISSION.id) {
-                            fastUIActions.LocationPermissionRequestDialog(
-                                modifier,
-                                alertDialogOpen,
-                                onDismiss = {
-                                    alertDialogOpen = false
-                                },
-                                onGranted = {
-                                    alertDialogOpen = false
-                                }
+                            fastUIActions.PermissionRequestDialog(
+                                modifier = modifier,
+                                permission = permission,
                             )
                         }
                     }

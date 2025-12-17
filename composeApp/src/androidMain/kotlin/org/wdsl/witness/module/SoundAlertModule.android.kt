@@ -2,11 +2,14 @@ package org.wdsl.witness.module
 
 import android.content.Context
 import android.media.AudioManager
+import android.media.audiofx.LoudnessEnhancer
+import androidx.annotation.OptIn
 import androidx.core.net.toUri
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import org.wdsl.witness.R
 import org.wdsl.witness.state.EmergencySoundState
@@ -23,7 +26,9 @@ class AndroidSoundAlertModule(
     private val context: Context
 ): SoundAlertModule {
     private var player: ExoPlayer? = null
+    private var loudnessEnhancer: LoudnessEnhancer? = null
 
+    @OptIn(UnstableApi::class)
     override fun playAlertSound(): Result<Unit> {
         return try {
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
@@ -49,6 +54,22 @@ class AndroidSoundAlertModule(
                 volume = 1.0f
 
                 prepare()
+
+                // Apply LoudnessEnhancer to increase perceived loudness beyond player volume.
+                try {
+                    val sessionId = audioSessionId
+                    // targetGain in millibels (1000 mB = ~+10 dB). Increase with caution.
+                    val targetGainMb = 1000
+                    loudnessEnhancer = LoudnessEnhancer(sessionId).apply {
+                        setTargetGain(targetGainMb)
+                        setEnabled(true)
+                    }
+                } catch (le: Throwable) {
+                    // Some devices / sessions may not support the effect; ignore and continue.
+                    Log.w(TAG, "LoudnessEnhancer not available or failed to enable", le)
+                    loudnessEnhancer = null
+                }
+
                 playWhenReady = true
             }
             EmergencySoundState.setEmergencySoundState(EmergencySoundState.State.Playing)
@@ -63,6 +84,14 @@ class AndroidSoundAlertModule(
 
     override fun stopAlertSound(): Result<Unit> {
         return try {
+            loudnessEnhancer?.let {
+                try {
+                    it.setEnabled(false)
+                } catch (_: Exception) { /* ignore */ }
+                it.release()
+            }
+            loudnessEnhancer = null
+
             player?.let {
                 try {
                     it.stop()

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.launch
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.repository.RecordingsRepository
+import org.wdsl.witness.repository.SettingsRepository
 import org.wdsl.witness.util.deleteRecordingFile
 
 /**
@@ -15,6 +16,7 @@ import org.wdsl.witness.util.deleteRecordingFile
  */
 class DebugViewModel(
     private val recordingsRepository: RecordingsRepository,
+    private val settingsRepository: SettingsRepository,
 ): BaseOperationViewModel() {
 
     fun clearAllRecordings(platformContext: PlatformContext) {
@@ -39,12 +41,25 @@ class DebugViewModel(
         }
     }
 
+    fun resetTutorialState() {
+        startOperation()
+        viewModelScope.launch {
+            settingsRepository.updateSettings {
+                it.copy(
+                    tutorialDone = false
+                )
+            }
+        }
+    }
+
     companion object {
         val Factory = viewModelFactory {
             initializer {
                 val recordingsRepository = witnessAppContainer().recordingsRepository
+                val settingsRepository = witnessAppContainer().settingsRepository
                 DebugViewModel(
-                    recordingsRepository = recordingsRepository
+                    recordingsRepository = recordingsRepository,
+                    settingsRepository = settingsRepository,
                 )
             }
         }

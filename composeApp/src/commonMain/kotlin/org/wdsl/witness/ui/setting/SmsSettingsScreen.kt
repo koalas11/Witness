@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -20,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,8 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.wdsl.witness.LocalPlatformContext
+import org.wdsl.witness.model.NotificationType
+import org.wdsl.witness.state.AppSettingsState
 import org.wdsl.witness.ui.util.fastUIActions
 import org.wdsl.witness.ui.util.handleOperationState
+import org.wdsl.witness.util.READ_CONTACTS_PERMISSION
 import org.wdsl.witness.viewmodel.AppState
 import org.wdsl.witness.viewmodel.AppViewModel
 import org.wdsl.witness.viewmodel.SettingsViewModel
@@ -109,7 +113,6 @@ fun SmsSettingsScreen(
                     .fillMaxWidth()
                     .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
             ) {
                 val settingsState by appViewModel.settingsState.collectAsStateWithLifecycle()
                 if (settingsState !is AppState.Success) {
@@ -126,54 +129,79 @@ fun SmsSettingsScreen(
                 )
                 Text(
                     modifier = modifier,
-                    text = "Enable SMS Emergency Contacts",
-                    textAlign = TextAlign.Center,
+                    text = "Enable SMS Message On Emergency",
                 )
             }
-            Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                var number by rememberSaveable { mutableStateOf("") }
-                TextField(
-                    modifier = modifier
-                        .fillMaxWidth(0.8f)
-                        .padding(8.dp),
-                    value = number,
-                    onValueChange = {
-                        number = it
+            val platformContext = LocalPlatformContext.current
+            val appSettingsChanged by AppSettingsState.settingsChanged.collectAsStateWithLifecycle()
+            var hasReadContactsPermission by rememberSaveable { mutableStateOf(false) }
+            LaunchedEffect(appSettingsChanged) {
+                hasReadContactsPermission = fastUIActions.checkPermissionsStatus(
+                    platformContext,
+                    permission = READ_CONTACTS_PERMISSION.id,
+                )
+            }
+            var selectingContact by rememberSaveable { mutableStateOf(false) }
+            if (selectingContact) {
+                fastUIActions.SelectPhoneContact(
+                    onContactSelected = { contactName, contactNumber ->
+                        smsContactsViewModel.addSmsContact(contactNumber)
+                        fastUIActions.DisplayNotification(
+                            platformContext,
+                            message = "Contact '$contactName' added as SMS emergency contact.",
+                            notificationType = NotificationType.INFO,
+                        )
+                        selectingContact = false
                     },
-                    label = { Text("Enter SMS Contact") },
-                    enabled = enabled,
-                    placeholder = {
-                        Text("+39 000 000 0000" )
+                    onError = { errorMsg ->
+                        fastUIActions.DisplayNotification(
+                            platformContext,
+                            message = errorMsg,
+                            notificationType = NotificationType.ERROR,
+                        )
+                        selectingContact = false
                     }
                 )
-                IconButton(
-                    modifier = modifier
-                        .padding(8.dp),
-                    onClick = {
-                        smsContactsViewModel.addSmsContact(number.replace(" ", ""))
-                        number = ""
-                    },
-                    enabled = enabled,
+            }
+            Button(
+                modifier = modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterHorizontally),
+                onClick = {
+                    selectingContact = true
+                },
+                enabled = enabled && hasReadContactsPermission,
+            ) {
+                Row(
+                    modifier = modifier,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        modifier = modifier,
+                        modifier = modifier
+                            .padding(end = 8.dp),
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add SMS Contact",
+                        contentDescription = "Add SMS Contact from Contacts",
+                    )
+                    Text(
+                        modifier = modifier,
+                        text = "Add from Contacts",
                     )
                 }
+            }
+            if (!hasReadContactsPermission) {
+                Text(
+                    modifier = modifier
+                        .padding(8.dp),
+                    text = "Read Contacts permission is required to add SMS emergency contacts.",
+                    textAlign = TextAlign.Center,
+                )
             }
         }
         if (smsContacts.isEmpty()) {
             Text(
                 modifier = modifier
                     .padding(16.dp),
-                text = "No SMS contacts added.",
+                text = "No contacts added.",
                 textAlign = TextAlign.Center,
             )
             return@Column

@@ -74,7 +74,7 @@ class GeminiApiUseCase() {
               "properties": {
                 "summary": {
                   "type": "STRING",
-                  "description": "$PROMPT"
+                  "description": "A concise summary of the audio content."
                 },
                 "segments": {
                   "type": "ARRAY",
@@ -172,7 +172,5 @@ class GeminiApiUseCase() {
 
     companion object {
         private const val TAG = "GeminiApiUseCase"
-
-        private const val PROMPT = "A concise summary of the audio content."
     }
 }

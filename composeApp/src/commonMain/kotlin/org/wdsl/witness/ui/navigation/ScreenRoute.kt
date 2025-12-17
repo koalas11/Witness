@@ -28,6 +28,9 @@ interface RemoveOnLeave
  */
 interface ScreenRoute : NavKey {
     @Serializable
+    object Tutorial: ScreenRoute, RemoveOnLeave
+
+    @Serializable
     object Home: ScreenRoute
 
     @Serializable
@@ -49,7 +52,7 @@ interface ScreenRoute : NavKey {
     object DebugScreen: ScreenRoute, ShowBackButton, RemoveOnLeave
 
     @Serializable
-    data class RecordingInfo(val recordingId: Long): ScreenRoute, ShowBackButton, RemoveOnLeave
+    data class RecordingInfo(val recordingId: Long): ScreenRoute, ShowBackButton
 
     @Serializable
     data class RecordingSummary(val recordingId: Long): ScreenRoute, ShowBackButton, RemoveOnLeave

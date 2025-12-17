@@ -79,7 +79,7 @@ fun WitnessTopBar(
                 }
                 else -> {
                     val backstack by appViewModel.backStack.collectAsStateWithLifecycle()
-                    if (backstack.last() is ScreenRoute.Home) {
+                    if (backstack.last() in listOf(ScreenRoute.Home, ScreenRoute.Tutorial)) {
                         return@CenterAlignedTopAppBar
                     }
                     IconButton(

@@ -9,12 +9,14 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.wdsl.witness.model.settings.DynamicColorMode
 import org.wdsl.witness.model.settings.NotificationsSetting
 import org.wdsl.witness.model.settings.Settings
 import org.wdsl.witness.model.settings.ThemeMode
 import org.wdsl.witness.repository.SettingsRepository
+import org.wdsl.witness.ui.navigation.RemoveOnLeave
 import org.wdsl.witness.ui.navigation.ScreenRoute
 import org.wdsl.witness.ui.navigation.ShowBackButton
 import org.wdsl.witness.usecase.EmergencyRecordingUseCase
@@ -41,8 +43,10 @@ class AppViewModel(
     private var _settingsMutableState: MutableStateFlow<AppState> = MutableStateFlow(AppState.Loading)
     val settingsState: StateFlow<AppState> = _settingsMutableState.asStateFlow()
 
-    private var _backStack: MutableStateFlow<MutableList<ScreenRoute>> = MutableStateFlow(mutableListOf(
-        ScreenRoute.Home))
+    private var _backStack: MutableStateFlow<MutableList<ScreenRoute>> =
+        MutableStateFlow(mutableListOf(
+            ScreenRoute.Home
+        ))
     val backStack: StateFlow<List<ScreenRoute>> = _backStack.asStateFlow()
 
     private var _authenticated: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -61,6 +65,9 @@ class AppViewModel(
         viewModelScope.launch {
             settingsRepository.getSettingsFlow()
             .onSuccess { flow ->
+                if (!flow.first().tutorialDone) {
+                    _backStack.value = mutableListOf(ScreenRoute.Tutorial)
+                }
                 flow.collect { settings ->
                     if (settings.dynamicColorMode != _themeSettingsMutableState.value.first ||
                         settings.themeMode != _themeSettingsMutableState.value.second
@@ -89,6 +96,9 @@ class AppViewModel(
         if (oldIndex != -1) {
             newBackStack.removeAt(oldIndex)
         }
+        if (route is RemoveOnLeave) {
+            newBackStack.removeAll { it::class == route::class }
+        }
         newBackStack.add(route)
         _backStack.value = newBackStack
         _shouldShowBackButton.value = newBackStack.last() is ShowBackButton
@@ -96,7 +106,7 @@ class AppViewModel(
 
     fun navigateBack() {
         val newBackStack = _backStack.value.toMutableList()
-        newBackStack.removeLast()
+        newBackStack.removeAt(newBackStack.size - 1)
         if (newBackStack.isEmpty()) {
             newBackStack.add(ScreenRoute.Home)
         }

@@ -43,6 +43,10 @@ class EmailContactsViewModel(
     fun addEmailContact(contact: String) {
         startOperation()
         viewModelScope.launch {
+            if (!Regex(EMAIL_REGEX).matches(contact)) {
+                operationUiMutableState.value = OperationUiState.Error("Invalid email address format")
+                return@launch
+            }
             emergencyContactsRepository.addEmailEmergencyContact(contact)
                 .onSuccess {
                     operationUiMutableState.value = OperationUiState.Success("Contact added successfully")
@@ -75,6 +79,21 @@ class EmailContactsViewModel(
                 )
             }
         }
+
+        /**
+         * Regular expression for validating email addresses.
+         *
+         * Based on Android's Patterns.EMAIL_ADDRESS
+         * (https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/util/Patterns.java)
+         */
+        const val EMAIL_REGEX =
+            ("[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" +
+                    "\\@" +
+                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+                    "(" +
+                    "\\." +
+                    "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
+                    ")+")
     }
 }
 

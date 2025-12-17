@@ -1,20 +1,26 @@
 package org.wdsl.witness.ui.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.JsonObject
@@ -41,7 +47,6 @@ import org.maplibre.spatialk.geojson.FeatureCollection
 import org.maplibre.spatialk.geojson.LineString
 import org.maplibre.spatialk.geojson.Point
 import org.maplibre.spatialk.geojson.Position
-import org.maplibre.spatialk.geojson.dsl.featureCollectionOf
 import org.maplibre.spatialk.geojson.toJson
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.util.Log
@@ -92,10 +97,7 @@ fun ColumnScope.MapComposable(
             boundingBox = boundingBox,
             options = MapOptions(ornamentOptions = OrnamentOptions.OnlyLogo),
         ) {
-            var data by remember { mutableStateOf(featureCollectionOf().toJson()) }
-            var lineData by remember { mutableStateOf(featureCollectionOf().toJson()) }
-
-            LaunchedEffect(recording.id) {
+            val (firstLastPoints, middlePoints) = remember(recording.id) {
                 val features = recording.gpsPositions.map { gpsPosition ->
                     Feature(
                         geometry = Point(
@@ -107,8 +109,26 @@ fun ColumnScope.MapComposable(
                     )
                 }
                 boundingBox = boundingBoxFromFeatures(features)
-                data = FeatureCollection(features).toJson()
-
+                val list =  emptyList<Feature<Point, JsonObject>>()
+                if (features.size >= 2) {
+                    listOf(features.first().toJson(), features.last().toJson()) to FeatureCollection(
+                        features.subList(1, features.size - 1)
+                    ).toJson()
+                } else if (features.size == 1) {
+                    listOf(features.first().toJson(), features.first().toJson()) to FeatureCollection(
+                        list
+                    ).toJson()
+                } else {
+                    listOf(
+                        "",
+                        ""
+                    ) to FeatureCollection(
+                        list
+                    ).toJson()
+                }
+            }
+            val (firstPoint, lastPoint) = firstLastPoints
+            val lineData = remember(recording.id) {
                 if (recording.gpsPositions.size >= 2) {
                     val linePositions = recording.gpsPositions.map { p ->
                         Position(p.longitude, p.latitude)
@@ -117,13 +137,15 @@ fun ColumnScope.MapComposable(
                         geometry = LineString(linePositions),
                         properties = JsonObject(emptyMap())
                     )
-                    lineData = FeatureCollection(listOf(lineFeature)).toJson()
+                    FeatureCollection(listOf(lineFeature)).toJson()
                 } else {
-                    lineData = FeatureCollection<LineString, JsonObject>(emptyList()).toJson()
+                    FeatureCollection<LineString, JsonObject>(emptyList()).toJson()
                 }
             }
 
-            val gpsSource = rememberGeoJsonSource(GeoJsonData.JsonString(data))
+            val gpsFirstPointSource = rememberGeoJsonSource(GeoJsonData.JsonString(firstPoint))
+            val gpsMiddlePointSource = rememberGeoJsonSource(GeoJsonData.JsonString(middlePoints))
+            val gpsLastPointSource = rememberGeoJsonSource(GeoJsonData.JsonString(lastPoint))
             val lineSource = rememberGeoJsonSource(GeoJsonData.JsonString(lineData))
 
             val marker = rememberVectorPainter(Icons.Default.LocationOn)
@@ -137,13 +159,33 @@ fun ColumnScope.MapComposable(
                     dasharray = const(listOf(4.0, 2.0))
                 )
                 SymbolLayer(
-                    id = "gps_symbols",
-                    source = gpsSource,
+                    id = "gps_symbols_first",
+                    source = gpsFirstPointSource,
                     onClick = { features ->
                         Log.d("MapComposable", "Clicked features: $features")
                         ClickResult.Consume
                     },
                     iconImage = image(marker),
+                    iconColor = const(Color.Green)
+                )
+                SymbolLayer(
+                    id = "gps_symbols_middle",
+                    source = gpsMiddlePointSource,
+                    onClick = { features ->
+                        Log.d("MapComposable", "Clicked features: $features")
+                        ClickResult.Consume
+                    },
+                    iconImage = image(marker),
+                )
+                SymbolLayer(
+                    id = "gps_symbols_last",
+                    source = gpsLastPointSource,
+                    onClick = { features ->
+                        Log.d("MapComposable", "Clicked features: $features")
+                        ClickResult.Consume
+                    },
+                    iconImage = image(marker),
+                    iconColor = const(Color.Red)
                 )
             }
         }
@@ -154,6 +196,45 @@ fun ColumnScope.MapComposable(
                 zoom = cameraState.position.zoom,
                 modifier = modifier.align(Alignment.TopStart),
             )
+            Row(
+                modifier = modifier
+                    .padding(8.dp)
+                    .clip(CircleShape)
+                    .align(Alignment.BottomCenter)
+                    .background(Color.Gray.copy(alpha = 0.8f)),
+            ) {
+                Icon(
+                    modifier = modifier
+                        .padding(start = 8.dp)
+                        .padding(vertical = 8.dp)
+                        .padding(end = 4.dp),
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = Color.Green,
+                )
+                Text(
+                    modifier = modifier
+                        .padding(vertical = 8.dp)
+                        .padding(end = 8.dp),
+                    text = "Start",
+                    color = Color.Green,
+                )
+                Icon(
+                    modifier = modifier
+                        .padding(vertical = 8.dp)
+                        .padding(end = 4.dp),
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = Color.Red,
+                )
+                Text(
+                    modifier = modifier
+                        .padding(vertical = 8.dp)
+                        .padding(end = 8.dp),
+                    text = "End",
+                    color = Color.Red,
+                )
+            }
             DisappearingCompassButton(cameraState, modifier = modifier.align(Alignment.TopEnd))
             ExpandingAttributionButton(
                 cameraState = cameraState,

@@ -71,6 +71,22 @@ class SettingsViewModel(
         }
     }
 
+    fun setEnableRoutineContactContacts(enable: Boolean) {
+        updateSettings { currentSettings ->
+            currentSettings.copy(
+                enableRoutineContactContacts = enable
+            )
+        }
+    }
+
+    fun setTutorialDone(tutorialDone: Boolean) {
+        updateSettings { currentSettings ->
+            currentSettings.copy(
+                tutorialDone = tutorialDone
+            )
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" android:minSdkVersion="33" />
     <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
   
     <attribution android:tag="audioPlayback" android:label="@string/audio_playback_attribution" />
     <attribution android:label="@string/empty" android:tag="@string/empty" />

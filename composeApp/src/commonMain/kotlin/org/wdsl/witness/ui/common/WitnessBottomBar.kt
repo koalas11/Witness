@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
 import org.wdsl.witness.ui.navigation.MainRoute
+import org.wdsl.witness.ui.navigation.ScreenRoute
 import org.wdsl.witness.viewmodel.AppViewModel
 
 /**
@@ -25,7 +26,7 @@ fun WitnessBottomBar(
 ) {
     val backStack by appViewModel.backStack.collectAsStateWithLifecycle()
     val shouldShowBackButton by appViewModel.shouldShowBackButton.collectAsStateWithLifecycle()
-    if (shouldShowBackButton) {
+    if (shouldShowBackButton || backStack.last() is ScreenRoute.Tutorial) {
         return
     }
     NavigationBar(

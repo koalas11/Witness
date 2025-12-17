@@ -82,6 +82,11 @@ fun GoogleProfileScreen(
         val googleIntegrationUiState by googleIntegrationViewModel.googleIntegrationUiState.collectAsStateWithLifecycle()
         when (googleIntegrationUiState) {
             is GoogleIntegrationUiState.NoProfile -> {
+                Text(
+                    modifier = modifier
+                        .padding(16.dp),
+                    text = "No Google Profile Connected.",
+                )
                 Button(
                     modifier = modifier
                         .padding(16.dp),
@@ -93,7 +98,7 @@ fun GoogleProfileScreen(
                 ) {
                     Text(
                         modifier = modifier,
-                        text = "Start Google OAuth Flow",
+                        text = "Start Google Sign-In",
                     )
                 }
                 return
@@ -204,7 +209,6 @@ fun GoogleProfileScreen(
                         modifier = modifier
                             .fillMaxWidth()
                             .padding(8.dp),
-                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Checkbox(
@@ -224,7 +228,6 @@ fun GoogleProfileScreen(
                         modifier = modifier
                             .fillMaxWidth()
                             .padding(8.dp),
-                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Checkbox(
