@@ -7,9 +7,9 @@
 The project provides a personal security system to assist users in emergency or unsafe situations.
 
 ## Team
-- **Desantis Amedeo**
-- **Lesinigo Simone**
-- **Sanvito Marco**
+- [Desantis Amedeo](https://github.com/AmedeoDesantis)
+- [Lesinigo Simone](https://github.com/simone-lesinigo)
+- [Sanvito Marco](https://github.com/koalas11)
 
 ## Key Features
 - Continuous **audio** and **GPS location** recording when activated
@@ -27,12 +27,12 @@ The project provides a personal security system to assist users in emergency or 
 ## Code architecture overview
 
 ### High-level overview
-- Purpose: share domain and data logic across platforms while keeping platform UIs native and thin.
-- Main components: shared KMP modules (domain & data), platform modules/services (adapters), and UI modules (platform-specific).
+- Purpose: share UI, domain and data logic across platforms with platform specific implementations.
+- Main components: shared KMP modules (UI, domain & data), platform modules/services (adapters), and modules (platform-specific).
 
 ### Architecture and layers
 - **UI layer**
-    - Platform-specific UIs (Android Compose, Wear UI, iOS SwiftUI).
+    - Jetpack Compose for shared UIs.
     - Observes ViewModel state and sends user events to ViewModels.
 - **ViewModel layer**
     - Exposes StateFlows to UI, collects Flows from UseCases/Repositories.
@@ -93,7 +93,7 @@ Design notes:
 
 ### Simple diagram
 ```
-[ UI (Compose / SwiftUI) ]
+[ UI (Compose) ]
             ↓
 [ ViewModel (StateFlows) ]
             ↓
