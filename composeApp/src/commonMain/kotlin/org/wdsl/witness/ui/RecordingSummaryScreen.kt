@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.painterResource
 import org.wdsl.witness.LocalPlatformContext
-import org.wdsl.witness.llm.Emotion
+import org.wdsl.witness.model.llm.Emotion
 import org.wdsl.witness.ui.util.handleOperationState
 import org.wdsl.witness.viewmodel.RecordingSummaryUiState
 import org.wdsl.witness.viewmodel.RecordingSummaryViewModel

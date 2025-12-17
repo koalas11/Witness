@@ -1,7 +1,7 @@
 package org.wdsl.witness.repository
 
 import kotlinx.coroutines.flow.Flow
-import org.wdsl.witness.llm.LlmSummary
+import org.wdsl.witness.model.llm.LlmSummary
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.storage.room.RecordingsDao
 import org.wdsl.witness.util.Log

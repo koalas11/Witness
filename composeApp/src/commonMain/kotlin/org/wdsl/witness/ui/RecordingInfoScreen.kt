@@ -119,6 +119,10 @@ fun RecordingInfoScreen(
                 val googleIntegrationUiState by googleIntegrationViewModel.googleIntegrationUiState.collectAsStateWithLifecycle()
                 val enabledRec = handleOperationState(
                     viewModel = recordingInfoViewModel,
+                    onSuccess = {
+                        recordingInfoViewModel.resetOperationState()
+                        appViewModel.navigateBack()
+                    }
                 )
 
                 val enabledGoogle = handleOperationState(

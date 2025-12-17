@@ -1,4 +1,4 @@
-package org.wdsl.witness.llm
+package org.wdsl.witness.model.llm
 
 import kotlinx.serialization.Serializable
 

@@ -166,11 +166,13 @@ buildkonfig {
     packageName = commonPackageName
     objectName = "WitnessBuildConfig"
 
+    val isDebug = gradle.startParameter.taskNames.any { it.contains("Debug", ignoreCase = true) }
+
     defaultConfigs {
         buildConfigField(
             BOOLEAN,
             "DEBUG_MODE",
-            if (project.hasProperty("release")) "false" else "true",
+            isDebug.toString(),
             nullable = false,
             const = true,
         )

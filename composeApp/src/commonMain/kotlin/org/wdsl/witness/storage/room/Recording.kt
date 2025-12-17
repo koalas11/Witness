@@ -2,8 +2,8 @@ package org.wdsl.witness.storage.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import org.wdsl.witness.llm.LlmSummary
 import org.wdsl.witness.model.LocationData
+import org.wdsl.witness.model.llm.LlmSummary
 
 /**
  * Data class representing a recording entity in the Room database.

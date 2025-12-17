@@ -229,7 +229,7 @@ fun ColumnScope.MapComposable(
                         .padding(vertical = 8.dp)
                         .padding(end = 8.dp),
                     text = "Start",
-                    color = Color.Green,
+                    color = Color.White,
                 )
                 Icon(
                     modifier = modifier
@@ -244,7 +244,7 @@ fun ColumnScope.MapComposable(
                         .padding(vertical = 8.dp)
                         .padding(end = 8.dp),
                     text = "End",
-                    color = Color.Red,
+                    color = Color.White,
                 )
             }
             DisappearingCompassButton(cameraState, modifier = modifier.align(Alignment.TopEnd))
@@ -258,6 +258,13 @@ fun ColumnScope.MapComposable(
     }
 }
 
+/**
+ * Computes a bounding box that encompasses all the given features, with optional padding.
+ *
+ * @param features The list of features to compute the bounding box from.
+ * @param paddingDegrees The padding to apply to the bounding box in degrees (default is 0.001).
+ * @return A [BoundingBox] that contains all the features with the specified padding.
+ */
 private fun boundingBoxFromFeatures(
     features: List<Feature<Point, JsonObject>>,
     paddingDegrees: Double = 0.001

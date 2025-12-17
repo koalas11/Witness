@@ -58,7 +58,7 @@ class AndroidSoundAlertModule(
                 // Apply LoudnessEnhancer to increase perceived loudness beyond player volume.
                 try {
                     val sessionId = audioSessionId
-                    // targetGain in millibels (1000 mB = ~+10 dB). Increase with caution.
+                    // targetGain in millibels (1000 mB = ~+10 dB).
                     val targetGainMb = 1000
                     loudnessEnhancer = LoudnessEnhancer(sessionId).apply {
                         setTargetGain(targetGainMb)

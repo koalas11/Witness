@@ -74,7 +74,7 @@ fun GeneralSettingsScreen(
 
             Text(
                 modifier = modifier
-                    .padding(8.dp)
+                    .padding(4.dp)
                     .align(Alignment.CenterHorizontally),
                 text = "Dynamic Color Mode:",
             )
@@ -107,7 +107,7 @@ fun GeneralSettingsScreen(
 
             Text(
                 modifier = modifier
-                    .padding(8.dp)
+                    .padding(4.dp)
                     .align(Alignment.CenterHorizontally),
                 text = "Theme Mode:",
             )
@@ -140,13 +140,14 @@ fun GeneralSettingsScreen(
 
             Text(
                 modifier = modifier
-                    .padding(8.dp)
+                    .padding(4.dp)
                     .align(Alignment.CenterHorizontally),
                 text = "Notifications Setting:",
             )
             SingleChoiceSegmentedButtonRow(
                 modifier = modifier
-                    .padding(8.dp)
+                    .padding(vertical = 8.dp)
+                    .padding(horizontal = 12.dp)
                     .align(Alignment.CenterHorizontally),
             ) {
                 NotificationsSetting.entries.forEachIndexed { index, entry ->
@@ -213,6 +214,7 @@ fun GeneralSettingsScreen(
             Spacer(modifier = modifier.padding(4.dp))
             Text(
                 modifier = modifier
+                    .fillMaxWidth()
                     .padding(8.dp),
                 text = "Show Tutorial (Requires App Restart)",
                 textAlign = TextAlign.Center,

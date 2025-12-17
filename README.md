@@ -1,4 +1,4 @@
-# Witness
+[# Witness
 
 > Final project for the *Android Programming Project (APP)* – Università della Svizzera italiana, Fall 2025
 ---
@@ -19,7 +19,7 @@ The project provides a personal security system to assist users in emergency or 
 - JDK 17 or later
 - An Android device or emulator with Google Play Services (for GPS)
 - A Wear OS device or emulator (for wearable companion app)
-- Google account for OAuth, Gmail and Drive integration (optional)
+- Google account for Gmail and Drive integration (optional)
 - Gemini API Key for LLM features (optional)
 
 ### Building and running the app

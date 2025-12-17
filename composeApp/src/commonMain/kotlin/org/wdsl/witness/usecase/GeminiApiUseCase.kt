@@ -14,7 +14,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import org.wdsl.witness.PlatformContext
 import org.wdsl.witness.WitnessBuildConfig
-import org.wdsl.witness.llm.LlmSummary
+import org.wdsl.witness.model.llm.LlmSummary
 import org.wdsl.witness.storage.room.Recording
 import org.wdsl.witness.util.Log
 import org.wdsl.witness.util.Result
@@ -62,7 +62,7 @@ class GeminiApiUseCase() {
                   }
                 },
                 {
-                  "text": "Process the audio file and generate a detailed transcription.\n\nRequirements:\n1. Identify distinct speakers (e.g., Speaker 1, Speaker 2, or names if context allows).\n2. Provide accurate timestamps for each segment (Format: MM:SS).\n3. Detect the primary language of each segment.\n4. If the segment is in a language different than English, also provide the English translation.\n5. Identify the primary emotion of the speaker in this segment. You MUST choose exactly one of the following: Happy, Sad, Angry, Neutral.\n6. Provide a brief summary of the entire audio at the beginning."
+                  "text": $PROMPT
                 }
               ]
             }
@@ -74,11 +74,11 @@ class GeminiApiUseCase() {
               "properties": {
                 "summary": {
                   "type": "STRING",
-                  "description": "A concise summary of the audio content."
+                  "description": $SUMMARY_DESC
                 },
                 "segments": {
                   "type": "ARRAY",
-                  "description": "List of transcribed segments with speaker and timestamp.",
+                  "description": $SEGMENTS_DESC,
                   "items": {
                     "type": "OBJECT",
                     "properties": {
@@ -172,5 +172,20 @@ class GeminiApiUseCase() {
 
     companion object {
         private const val TAG = "GeminiApiUseCase"
+
+        /**
+         * The prompt to be sent to the Gemini API for audio transcription.
+         */
+        private const val PROMPT = "Process the audio file and generate a detailed transcription.\n\nRequirements:\n1. Identify distinct speakers (e.g., Speaker 1, Speaker 2, or names if context allows).\n2. Provide accurate timestamps for each segment (Format: MM:SS).\n3. Detect the primary language of each segment.\n4. If the segment is in a language different than English, also provide the English translation.\n5. Identify the primary emotion of the speaker in this segment. You MUST choose exactly one of the following: Happy, Sad, Angry, Neutral.\n6. Provide a brief summary of the entire audio at the beginning."
+
+        /**
+         * Description for the summary field in the Gemini API response schema.
+         */
+        private const val SUMMARY_DESC = "A concise summary of the audio content."
+
+        /**
+         * Description for the segments field in the Gemini API response schema.
+         */
+        private const val SEGMENTS_DESC = "List of transcribed segments with speaker and timestamp."
     }
 }
