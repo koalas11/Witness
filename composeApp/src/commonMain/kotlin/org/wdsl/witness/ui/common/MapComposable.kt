@@ -155,14 +155,14 @@ fun ColumnScope.MapComposable(
                 }
             }
 
-            val gpsFirstPointSource = rememberGeoJsonSource(GeoJsonData.JsonString(firstPoint))
-            val gpsMiddlePointSource = rememberGeoJsonSource(GeoJsonData.JsonString(middlePoints))
-            val gpsLastPointSource = rememberGeoJsonSource(GeoJsonData.JsonString(lastPoint))
-            val lineSource = rememberGeoJsonSource(GeoJsonData.JsonString(lineData))
-
-            val marker = rememberVectorPainter(Icons.Default.LocationOn)
-
             if (recording.gpsPositions.isNotEmpty()) {
+                val gpsFirstPointSource = rememberGeoJsonSource(GeoJsonData.JsonString(firstPoint))
+                val gpsMiddlePointSource = rememberGeoJsonSource(GeoJsonData.JsonString(middlePoints))
+                val gpsLastPointSource = rememberGeoJsonSource(GeoJsonData.JsonString(lastPoint))
+                val lineSource = rememberGeoJsonSource(GeoJsonData.JsonString(lineData))
+
+                val marker = rememberVectorPainter(Icons.Default.LocationOn)
+
                 LineLayer(
                     id = "gps_line",
                     source = lineSource,
@@ -177,7 +177,7 @@ fun ColumnScope.MapComposable(
                         Log.d("MapComposable", "Clicked features: $features")
                         ClickResult.Consume
                     },
-                    iconImage = image(marker),
+                    iconImage = image(marker, drawAsSdf = true),
                     iconColor = const(Color.Green)
                 )
                 SymbolLayer(
@@ -196,7 +196,7 @@ fun ColumnScope.MapComposable(
                         Log.d("MapComposable", "Clicked features: $features")
                         ClickResult.Consume
                     },
-                    iconImage = image(marker),
+                    iconImage = image(marker, drawAsSdf = true),
                     iconColor = const(Color.Red)
                 )
             }

@@ -75,10 +75,10 @@ class GoogleIntegrationViewModel(
             googleIntegrationUseCase.uploadRecordingToGoogleDrive(
                 recording = recording,
             ).onSuccess {
-                Log.d("GoogleIntegrationViewModel", "Successfully uploaded recording to Google Drive")
+                Log.d(TAG, "Successfully uploaded recording to Google Drive")
                 operationUiMutableState.value = OperationUiState.Success("Recording uploaded to Google Drive successfully.")
             }.onError { error ->
-                Log.e("GoogleIntegrationViewModel", "Failed to upload recording to Google Drive: ${error.message}")
+                Log.e(TAG, "Failed to upload recording to Google Drive: ${error.message}")
                 operationUiMutableState.value =
                     OperationUiState.Error("Failed to upload recording to Google Drive: ${error.message}")
             }
@@ -90,11 +90,19 @@ class GoogleIntegrationViewModel(
         viewModelScope.launch {
             googleIntegrationUseCase.signOutAndDeleteAccount()
                 .onSuccess {
-                    Log.d("GoogleIntegrationViewModel", "Successfully signed out and deleted Google account integration")
+                    settingsRepository.updateSettings {
+                        it.copy(
+                            uploadRecordingToDriveOnEnd = false,
+                        )
+                    }
+                        .onError {
+                            Log.e(TAG, "Failed to update settings after sign out: ${it.message}")
+                        }
+                    Log.d(TAG, "Successfully signed out and deleted Google account integration")
                     operationUiMutableState.value = OperationUiState.Success("Signed out from Google successfully.")
                 }
                 .onError { error ->
-                    Log.e("GoogleIntegrationViewModel", "Failed to sign out from Google: ${error.message}")
+                    Log.e(TAG, "Failed to sign out from Google: ${error.message}")
                     operationUiMutableState.value =
                         OperationUiState.Error("Failed to sign out from Google: ${error.message}")
                 }
@@ -132,6 +140,8 @@ class GoogleIntegrationViewModel(
                 )
             }
         }
+
+        const val TAG = "GoogleIntegrationViewModel"
     }
 }
 

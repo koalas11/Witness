@@ -2,6 +2,7 @@ package org.wdsl.witness.module
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Looper
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -32,18 +33,23 @@ class AndroidGeoRecordingModule(
         override fun onLocationResult(result: LocationResult) {
             val lastLocation = result.lastLocation ?: return
             recordedLocations.add(lastLocation.toLocationData())
-            Log.d("LocationService", "Registered Position: ${lastLocation.latitude}")
+            Log.d("LocationService", "Registered Position: ${lastLocation.latitude} - ${lastLocation.longitude}")
         }
     }
-
-    private val locationRequest = LocationRequest.Builder(
-        Priority.PRIORITY_HIGH_ACCURACY,
-        10.seconds.inWholeMilliseconds
-    ).build()
 
     override fun startGeoRecording(): Result<Unit> {
         recordedLocations.clear()
         locationClient = LocationServices.getFusedLocationProviderClient(context)
+        val hasFine = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val locationRequest = LocationRequest.Builder(
+            if (hasFine) Priority.PRIORITY_HIGH_ACCURACY else Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+            10.seconds.inWholeMilliseconds
+        ).build()
+
         locationClient!!.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
         getCurrentLocation(
             onSuccess = {
@@ -72,12 +78,12 @@ class AndroidGeoRecordingModule(
         val hasFineLocationPermission = ContextCompat.checkSelfPermission(
             context,
             fineLocationPermission
-        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) == PackageManager.PERMISSION_GRANTED
 
         val hasCoarseLocationPermission = ContextCompat.checkSelfPermission(
             context,
             coarseLocationPermission
-        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) == PackageManager.PERMISSION_GRANTED
 
         if (!hasFineLocationPermission && !hasCoarseLocationPermission) {
             Log.e(TAG, "getCurrentLocation: Location permissions are not granted")
@@ -86,7 +92,8 @@ class AndroidGeoRecordingModule(
         }
 
         LocationServices.getFusedLocationProviderClient(context).getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
+            if (hasFineLocationPermission) Priority.PRIORITY_HIGH_ACCURACY
+            else Priority.PRIORITY_BALANCED_POWER_ACCURACY,
             null
         ).addOnCompleteListener {
             Log.d(TAG, "getCurrentLocation: Current location fetched successfully")

@@ -68,7 +68,8 @@ fun RecordingInfoScreen(
         googleIntegrationViewModel.initialize()
     }
     val recordingInfoUiState by recordingInfoViewModel.recordingInfoUiState.collectAsStateWithLifecycle()
-    if (recordingInfoUiState is RecordingInfoUiState.Loading) {
+    val googleIntegrationUiState by googleIntegrationViewModel.googleIntegrationUiState.collectAsStateWithLifecycle()
+    if (recordingInfoUiState is RecordingInfoUiState.Loading || googleIntegrationUiState is GoogleIntegrationUiState.Loading) {
         Box(
             modifier = modifier
                 .fillMaxSize(),
@@ -116,7 +117,6 @@ fun RecordingInfoScreen(
                     modifier = modifier,
                     recording = selectedRecording,
                 )
-                val googleIntegrationUiState by googleIntegrationViewModel.googleIntegrationUiState.collectAsStateWithLifecycle()
                 val enabledRec = handleOperationState(
                     viewModel = recordingInfoViewModel,
                     onSuccess = {
