@@ -62,7 +62,7 @@ class GeminiApiUseCase() {
                   }
                 },
                 {
-                  "text": $PROMPT
+                  "text": ${Json.encodeToString(PROMPT)}
                 }
               ]
             }
@@ -74,11 +74,11 @@ class GeminiApiUseCase() {
               "properties": {
                 "summary": {
                   "type": "STRING",
-                  "description": $SUMMARY_DESC
+                  "description": ${Json.encodeToString(SUMMARY_DESC)}
                 },
                 "segments": {
                   "type": "ARRAY",
-                  "description": $SEGMENTS_DESC,
+                  "description": ${Json.encodeToString(SEGMENTS_DESC)},
                   "items": {
                     "type": "OBJECT",
                     "properties": {
