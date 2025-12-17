@@ -90,6 +90,11 @@ class AndroidGeoRecordingModule(
             null
         ).addOnCompleteListener {
             Log.d(TAG, "getCurrentLocation: Current location fetched successfully")
+            if (it.result == null) {
+                Log.e(TAG, "getCurrentLocation: Location result is null")
+                onError()
+                return@addOnCompleteListener
+            }
             onSuccess(it.result.toLocationData())
         }.addOnFailureListener {
             Log.e(TAG, "getCurrentLocation: Failed to get current location", it)
