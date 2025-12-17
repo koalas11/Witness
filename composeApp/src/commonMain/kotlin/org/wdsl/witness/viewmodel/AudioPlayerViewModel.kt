@@ -39,26 +39,31 @@ class AudioPlayerViewModel(
         _audioPlayerState.value = AudioPlayerState.RecordingLoading
         viewModelScope.launch {
             audioPlayer.loadAudio(recording.recordingFileName)
-            _audioPlayerState.value = AudioPlayerState.RecordingReady
-            observeAudioCurrentPosition()
+                .onSuccess {
+                    _audioDurationMsState.value = it ?: 0L
+                    _audioPlayerState.value = AudioPlayerState.RecordingReady
+                    observeAudioCurrentPosition()
+                }
+                .onError {
+                    _audioPlayerState.value = AudioPlayerState.Idle
+                }
         }
     }
 
     fun CoroutineScope.observeAudioCurrentPosition() {
         _jobAudioCurrentPosition = launch {
             while (isActive) {
-                delay(150.milliseconds)
+                delay(50.milliseconds)
                 _audioCurrentPosition.value = audioPlayer.getCurrentPosition()
             }
         }
         _jobAudioState = launch {
             while (isActive) {
-                delay(200.milliseconds)
-                val duration = audioPlayer.getDuration()
+                delay(100.milliseconds)
                 val pos = audioPlayer.getCurrentPosition()
                 val isPlaying = audioPlayer.isPlaying()
 
-                if (duration in 1..pos) {
+                if (_audioDurationMsState.value in 1..pos) {
                         audioPlayer.pauseAudio()
                         audioPlayer.seekTo(0)
                     _audioPlayerState.value = AudioPlayerState.Paused
@@ -81,7 +86,6 @@ class AudioPlayerViewModel(
         viewModelScope.launch {
             _audioPlayerState.value = AudioPlayerState.Playing
             audioPlayer.resumeAudio()
-            _audioDurationMsState.value = audioPlayer.getDuration()
         }
     }
 
@@ -95,6 +99,7 @@ class AudioPlayerViewModel(
     fun seekTo(milliseconds: Long) {
         viewModelScope.launch {
             audioPlayer.seekTo(milliseconds)
+            _audioCurrentPosition.value = milliseconds
         }
     }
 

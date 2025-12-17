@@ -62,6 +62,18 @@ fun ColumnScope.MapComposable(
     modifier: Modifier = Modifier,
     recording: Recording,
 ) {
+    if (recording.gpsPositions.isEmpty()) {
+        Box(
+            modifier = modifier
+                .padding(8.dp)
+                .weight(0.7f)
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text = "No GPS data available for this recording.")
+        }
+        return
+    }
     val cameraState = rememberCameraState(
         CameraPosition(
             target = Position(

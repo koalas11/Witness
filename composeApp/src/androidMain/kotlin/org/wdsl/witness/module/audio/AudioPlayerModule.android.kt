@@ -1,7 +1,7 @@
 package org.wdsl.witness.module.audio
 
 import android.content.Context
-import androidx.compose.ui.util.fastCoerceAtLeast
+import android.media.MediaMetadataRetriever
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
@@ -21,15 +21,27 @@ class AndroidAudioPlayerModule(
 
     private var _player: ExoPlayer? = null
 
-    override fun loadAudio(recordingName: String): Result<Unit> {
+    override fun loadAudio(recordingName: String): Result<Long?> {
         return try {
             val contextAttribute = ContextCompat.createAttributionContext(context, "audioPlayback")
             _player = ExoPlayer.Builder(contextAttribute).build()
             val path = context.filesDir.resolve(AUDIO_RECORDER_FOLDER).resolve(recordingName)
             val mediaItem = MediaItem.fromUri(path.toUri())
+
+            val retriever = MediaMetadataRetriever()
+            val parsed = try {
+                retriever.setDataSource(path.absolutePath)
+                val durMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                durMs?.toLongOrNull()
+            } catch (_: Throwable) {
+                null
+            } finally {
+                try { retriever.release() } catch (_: Throwable) { /* ignore */ }
+            }
+
             _player!!.setMediaItem(mediaItem)
             _player!!.prepare()
-            Result.Success(Unit)
+            Result.Success(parsed)
         } catch (e: Exception) {
             Log.d(TAG, "playAudio: Failed to play audio", e)
             Result.Error(ResultError.UnknownError("Failed to play audio: ${e.message}"))
@@ -67,10 +79,6 @@ class AndroidAudioPlayerModule(
 
     override fun getCurrentPosition(): Long {
         return _player?.currentPosition ?: 0L
-    }
-
-    override fun getDuration(): Long {
-        return _player?.duration?.fastCoerceAtLeast(0L) ?: 0L
     }
 
     companion object {
