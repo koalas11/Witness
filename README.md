@@ -11,6 +11,38 @@ The project provides a personal security system to assist users in emergency or 
 - [Lesinigo Simone](https://github.com/simone-lesinigo)
 - [Sanvito Marco](https://github.com/koalas11)
 
+## How to build & run
+
+### Prerequisites
+
+- Android Studio Otter (version 2025.2.2) or later
+- JDK 17 or later
+- An Android device or emulator with Google Play Services (for GPS)
+- A Wear OS device or emulator (for wearable companion app)
+- Google account for OAuth, Gmail and Drive integration (optional)
+- Gemini API Key for LLM features (optional)
+
+### Building and running the app
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/koalas11/Witness.git
+   ```
+
+2. Open the project in Android Studio.
+3. Sync the Gradle files to download dependencies.
+4. Configure the Gemini API key (if using LLM features):
+    - Create a `local.properties` file in the root directory.
+    - Add the following line:
+      ```geminiApiKey=YOUR_GEMINI_API_KEY```
+    - Replace `YOUR_GEMINI_API_KEY` with your actual API key.
+5. Connect your Android device or start an emulator.
+6. Select the desired run configuration (mobile app or wearable app).
+7. Click the "Run" button to build and deploy the app.
+8. Follow the on-screen instructions to set up the app and grant necessary permissions (microphone, location, SMS, etc.).
+
+If also running the Wear OS companion app, ensure that your wearable device is paired with your phone and follow similar steps to build and run the wearable app.
+
 ## Key Features
 - Continuous **audio** and **GPS location** recording when activated
 - Automatic **SMS and email alerts** sent to trusted contacts every 5 minutes with updated location

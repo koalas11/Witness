@@ -90,17 +90,21 @@ class EmergencyRecordingUseCaseImpl(
                     if (smsOn) {
                         Log.d(TAG, "Contacting emergency contacts via SMS")
                         platformContext.witnessApp.appScope.launch {
-                            emergencyContactsRepository.getSMSEmergencyContacts().onSuccess {
-                                emergencyContactModule.contactEmergencyContacts(locationData, emptyList())
-                                    .onError { error ->
-                                        platformContext.sendNotification(
-                                            ERROR_NOTIFICATION_CHANNEL_ID,
-                                            "Error",
-                                            "Failed to contact emergency contacts: ${error.message}",
-                                            2,
-                                        )
-                                    }
-                            }
+                            emergencyContactsRepository.getSMSEmergencyContacts()
+                                .onSuccess { numbers ->
+                                    emergencyContactModule.contactEmergencyContacts(locationData, numbers)
+                                        .onError { error ->
+                                            platformContext.sendNotification(
+                                                ERROR_NOTIFICATION_CHANNEL_ID,
+                                                "Error",
+                                                "Failed to contact emergency contacts: ${error.message}",
+                                                2,
+                                            )
+                                        }
+                                }
+                                .onError {
+                                    Log.e(TAG, "Failed to get SMS emergency contacts: ${it.message}")
+                                }
                         }
                     }
                     if (emailOn) {
@@ -114,6 +118,7 @@ class EmergencyRecordingUseCaseImpl(
                     }
                 },
                 onError = {
+                    Log.d(TAG, "No current location available, contacting emergency contacts without location")
                     platformContext.sendNotification(
                         ERROR_NOTIFICATION_CHANNEL_ID,
                         "Emergency Contact",
@@ -122,17 +127,21 @@ class EmergencyRecordingUseCaseImpl(
                     )
                     if (smsOn) {
                         platformContext.witnessApp.appScope.launch {
-                            emergencyContactsRepository.getSMSEmergencyContacts().onSuccess {
-                                emergencyContactModule.contactEmergencyContacts(null, emptyList())
-                                    .onError { error ->
-                                        platformContext.sendNotification(
-                                            ERROR_NOTIFICATION_CHANNEL_ID,
-                                            "Emergency Contact",
-                                            "Failed to contact emergency contacts: ${error.message}",
-                                            2,
-                                        )
-                                    }
-                            }
+                            emergencyContactsRepository.getSMSEmergencyContacts()
+                                .onSuccess { numbers ->
+                                    emergencyContactModule.contactEmergencyContacts(null, numbers)
+                                        .onError { error ->
+                                            platformContext.sendNotification(
+                                                ERROR_NOTIFICATION_CHANNEL_ID,
+                                                "Emergency Contact",
+                                                "Failed to contact emergency contacts: ${error.message}",
+                                                2,
+                                            )
+                                        }
+                                }
+                                .onError {
+                                    Log.e(TAG, "Failed to get SMS emergency contacts: ${it.message}")
+                                }
                         }
                     }
                     if (emailOn) {

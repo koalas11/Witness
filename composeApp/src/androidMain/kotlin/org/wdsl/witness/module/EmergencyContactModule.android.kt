@@ -24,6 +24,7 @@ class AndroidEmergencyContactModule(
         numbers: List<String>,
     ): Result<Unit> {
         return try {
+            Log.d(TAG, "contactEmergencyContacts: Sending SMS to emergency contacts")
             if (!hasSendSmsPermission()) {
                 return Result.Error(ResultError.UnknownError("SEND_SMS permission denied"))
             }
@@ -38,6 +39,7 @@ class AndroidEmergencyContactModule(
                     Log.e(TAG, "Failed to send SMS to $number", e)
                 }
             }
+            Log.d(TAG, "contactEmergencyContacts: SMS sent to emergency contacts")
             Result.Success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "contactEmergencyContacts: Unknown error", e)
@@ -55,7 +57,7 @@ class AndroidEmergencyContactModule(
             base.append(" Longitude: ${it.longitude},")
             base.append(" Altitude: ${it.altitude}m.")
         } ?: run {
-            base.append(" Position not available.")
+            base.append("Position not available.")
         }
         return base.toString()
     }
