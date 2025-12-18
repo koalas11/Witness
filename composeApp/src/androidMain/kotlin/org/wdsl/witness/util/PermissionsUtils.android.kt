@@ -7,12 +7,23 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Sms
 
 /**
- * Fine Location permission definition for Android platform.
+ * Coarse Location permission definition for Android platform.
  */
 actual val COARSE_LOCATION_PERMISSION: Permission = Permission(
     id = Manifest.permission.ACCESS_COARSE_LOCATION,
     name = "Location",
     description = "Allows the app to access precise/coarse location data.",
+    icon = Icons.Default.LocationOn,
+    rationate = "Location access is required to record your geographical position during audio recordings.",
+)
+
+/**
+ * Fine Location permission definition for Android platform.
+ */
+actual val FINE_LOCATION_PERMISSION: Permission = Permission(
+    id = Manifest.permission.ACCESS_FINE_LOCATION,
+    name = "Location",
+    description = "Allows the app to access precise location data.",
     icon = Icons.Default.LocationOn,
     rationate = "Location access is required to record your geographical position during audio recordings.",
 )

@@ -171,6 +171,15 @@ fun ColumnScope.MapComposable(
                     dasharray = const(listOf(4.0, 2.0))
                 )
                 SymbolLayer(
+                    id = "gps_symbols_middle",
+                    source = gpsMiddlePointSource,
+                    onClick = { features ->
+                        Log.d("MapComposable", "Clicked features: $features")
+                        ClickResult.Consume
+                    },
+                    iconImage = image(marker),
+                )
+                SymbolLayer(
                     id = "gps_symbols_first",
                     source = gpsFirstPointSource,
                     onClick = { features ->
@@ -179,15 +188,6 @@ fun ColumnScope.MapComposable(
                     },
                     iconImage = image(marker, drawAsSdf = true),
                     iconColor = const(Color.Green)
-                )
-                SymbolLayer(
-                    id = "gps_symbols_middle",
-                    source = gpsMiddlePointSource,
-                    onClick = { features ->
-                        Log.d("MapComposable", "Clicked features: $features")
-                        ClickResult.Consume
-                    },
-                    iconImage = image(marker),
                 )
                 SymbolLayer(
                     id = "gps_symbols_last",

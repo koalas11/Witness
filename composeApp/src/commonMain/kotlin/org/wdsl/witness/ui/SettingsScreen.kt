@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.NotificationImportant
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material.icons.filled.SupervisedUserCircle
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
@@ -43,6 +44,7 @@ import org.wdsl.witness.ui.navigation.ScreenRoute
 import org.wdsl.witness.ui.util.fastUIActions
 import org.wdsl.witness.util.AUDIO_RECORDING_PERMISSION
 import org.wdsl.witness.util.COARSE_LOCATION_PERMISSION
+import org.wdsl.witness.util.FINE_LOCATION_PERMISSION
 import org.wdsl.witness.util.READ_CONTACTS_PERMISSION
 import org.wdsl.witness.util.SMS_PERMISSION
 import org.wdsl.witness.viewmodel.AppViewModel
@@ -71,6 +73,7 @@ fun SettingsScreen(
             val appSettingsChanged by AppSettingsState.settingsChanged.collectAsStateWithLifecycle()
             val permissions = listOf(
                 COARSE_LOCATION_PERMISSION,
+                FINE_LOCATION_PERMISSION,
                 AUDIO_RECORDING_PERMISSION,
                 SMS_PERMISSION,
                 READ_CONTACTS_PERMISSION,
@@ -86,6 +89,8 @@ fun SettingsScreen(
                 )
             }
             val allGranted = permissionsMissing.all { it.second }
+            val hasCoarsePermission = permissionsMissing.first { it.first == COARSE_LOCATION_PERMISSION.id }.second
+            val hasFinePermission = permissionsMissing.first { it.first == FINE_LOCATION_PERMISSION.id }.second
             if (allGranted) {
                 Row(
                     modifier = modifier
@@ -128,7 +133,41 @@ fun SettingsScreen(
                         text = "Some required permissions are missing:",
                     )
                 }
+
+                if (hasCoarsePermission && !hasFinePermission) {
+                    Row(
+                        modifier = modifier
+                            .padding(8.dp)
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(
+                            modifier = modifier
+                                .padding(end = 8.dp)
+                                .padding(vertical = 8.dp),
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                        )
+                        Text(
+                            modifier = modifier
+                                .padding(vertical = 8.dp),
+                            text = "Fine Location permission is recommended for better accuracy.",
+                        )
+                    }
+                }
+
                 permissionsMissing.forEach { (permissionId, granted) ->
+                    if (!hasCoarsePermission && permissionId == COARSE_LOCATION_PERMISSION.id) {
+                        // Show only fine location if neither is granted
+                        return@forEach
+                    }
+                    if (permissionId == FINE_LOCATION_PERMISSION.id && hasCoarsePermission) {
+                        // Skip fine location if coarse is already granted
+                        return@forEach
+                    }
                     val permission = permissions.first { it.id == permissionId }
                     if (!granted) {
                         Row(
@@ -158,7 +197,7 @@ fun SettingsScreen(
                 }
             }
 
-            if (!allGranted) {
+            if (!allGranted || !hasFinePermission) {
                 Button(
                     modifier = modifier
                         .align(Alignment.CenterHorizontally)
