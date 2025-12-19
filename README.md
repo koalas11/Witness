@@ -22,6 +22,8 @@ The project provides a personal security system to assist users in emergency or 
 - Google account for Gmail and Drive integration (optional)
 - Gemini API Key for LLM features (optional)
 
+Note: To use the Google Integration features (Gmail, Drive), you need to contact one of the team members to obtain access.
+
 ### Building and running the app
 
 1. Clone the repository:
